@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { CalendarIcon, Plus } from "lucide-react";
 import { format } from "date-fns";
@@ -37,6 +36,10 @@ interface Client {
   name: string;
 }
 
+interface AddProjectModalProps {
+  onProjectAdded?: () => void;
+}
+
 // Liste des catégories de projet
 const projectCategories = [
   { id: 1, name: "Rénovation" },
@@ -46,7 +49,7 @@ const projectCategories = [
   { id: 5, name: "Extension" },
 ];
 
-const AddProjectModal = () => {
+const AddProjectModal = ({ onProjectAdded }: AddProjectModalProps) => {
   const [open, setOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [clients, setClients] = useState<Client[]>([]);
@@ -116,6 +119,11 @@ const AddProjectModal = () => {
         // Fermer le modal et réinitialiser le formulaire
         setOpen(false);
         resetForm();
+        
+        // Call the onProjectAdded callback if provided
+        if (onProjectAdded) {
+          onProjectAdded();
+        }
       } else {
         toast({
           title: "Erreur",

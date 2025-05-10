@@ -1,10 +1,11 @@
-
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Plus, User, Mail, Phone, Save } from "lucide-react";
+import { supabase } from "@/lib/supabase";
+import { useToast } from "@/hooks/use-toast";
 
 interface ContactForm {
   name: string;
@@ -23,8 +24,13 @@ interface ClientForm {
   contact2: ContactForm;
 }
 
-const AddClientModal = () => {
+interface AddClientModalProps {
+  onClientAdded?: () => void;
+}
+
+const AddClientModal = ({ onClientAdded }: AddClientModalProps) => {
   const [open, setOpen] = useState(false);
+  const { toast } = useToast();
   const [formData, setFormData] = useState<ClientForm>({
     companyName: "",
     vatCode: "",
@@ -65,12 +71,47 @@ const AddClientModal = () => {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Client data submitted:", formData);
-    // Here you would typically call an API to save the client
-    setOpen(false);
-    // Reset form
+    try {
+      // Insert client into database
+      const { data, error } = await supabase
+        .from('clients')
+        .insert({
+          name: formData.companyName,
+          email: formData.email,
+          phone: formData.phone,
+          address: formData.address
+        })
+        .select()
+        .single();
+        
+      if (error) throw error;
+      
+      toast({
+        title: "Client ajouté",
+        description: "Le client a été ajouté avec succès."
+      });
+      
+      // Close modal and reset form
+      setOpen(false);
+      resetForm();
+      
+      // Call the onClientAdded callback if provided
+      if (onClientAdded) {
+        onClientAdded();
+      }
+    } catch (error) {
+      console.error('Erreur lors de l\'ajout du client:', error);
+      toast({
+        variant: "destructive",
+        title: "Erreur",
+        description: "Impossible d'ajouter le client. Veuillez réessayer."
+      });
+    }
+  };
+
+  const resetForm = () => {
     setFormData({
       companyName: "",
       vatCode: "",
@@ -85,15 +126,7 @@ const AddClientModal = () => {
   const handleCancel = () => {
     // Close modal and reset form
     setOpen(false);
-    setFormData({
-      companyName: "",
-      vatCode: "",
-      email: "",
-      phone: "",
-      address: "",
-      contact1: { name: "", position: "", email: "", phone: "" },
-      contact2: { name: "", position: "", email: "", phone: "" }
-    });
+    resetForm();
   };
 
   return (

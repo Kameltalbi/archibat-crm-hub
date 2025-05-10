@@ -16,7 +16,7 @@ interface Client {
   name: string;
 }
 
-interface Project {
+export interface Project {
   id: number;
   name: string;
   client?: string;
@@ -24,7 +24,7 @@ interface Project {
   endDate: string;
   status: string;
   clients: Client[];
-  category?: string; // Ajout pour stocker la catégorie du projet
+  category?: string;
 }
 
 interface Sale {
@@ -34,11 +34,11 @@ interface Sale {
   amount: number;
   category: string;
   client: string;
-  product?: string; // Ajout du nom du produit
+  product?: string;
 }
 
 interface ProjectDetailsProps {
-  project: Project | null;
+  project: Project;
   open: boolean;
   onClose: () => void;
 }

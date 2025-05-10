@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -9,10 +8,13 @@ import AddProjectModal from "@/components/projects/AddProjectModal";
 import ProjectDetails from "@/components/projects/ProjectDetails";
 import { supabase } from "@/lib/supabase";
 import { useToast } from "@/hooks/use-toast";
-import { Project } from "@/lib/supabase";
+import { Project, ProjectStatus } from "@/lib/supabase";
 
-interface ProjectWithClient extends Project {
+// Update the interface to match the expected types
+interface ProjectWithClient extends Omit<Project, 'status'> {
   client_name: string;
+  status: ProjectStatus | null;
+  clients?: { name: string; id: string; }; // Add clients field to match what we get from Supabase
 }
 
 const Projects = () => {
@@ -34,7 +36,7 @@ const Projects = () => {
         .from('projects')
         .select(`
           *,
-          clients(name)
+          clients(id, name)
         `);
         
       if (projectsError) {
@@ -45,7 +47,9 @@ const Projects = () => {
       const formattedProjects: ProjectWithClient[] = projectsData.map(project => {
         return {
           ...project,
-          client_name: project.clients ? project.clients.name : 'Pas de client'
+          client_name: project.clients ? project.clients.name : 'Pas de client',
+          // Ensure status is correctly typed as ProjectStatus
+          status: project.status as ProjectStatus | null 
         };
       });
       
@@ -120,6 +124,7 @@ const Projects = () => {
     (project.category && project.category.toLowerCase().includes(searchTerm.toLowerCase()))
   );
   
+  // Update the AddProjectModal component usage to include onProjectAdded prop
   return (
     <div className="space-y-8">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
@@ -227,10 +232,18 @@ const Projects = () => {
         </CardContent>
       </Card>
       
-      {/* Project Details Modal */}
       {selectedProject && (
         <ProjectDetails 
-          project={selectedProject} 
+          project={{
+            id: Number(selectedProject.id),
+            name: selectedProject.name,
+            client: selectedProject.client_name,
+            startDate: selectedProject.start_date || '',
+            endDate: selectedProject.end_date || '',
+            status: selectedProject.status || '',
+            clients: [{ id: Number(selectedProject.client_id || 0), name: selectedProject.client_name }],
+            category: selectedProject.category || undefined
+          }}
           open={isDetailsOpen} 
           onClose={closeDetails} 
         />
