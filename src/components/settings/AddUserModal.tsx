@@ -60,7 +60,14 @@ const AddUserModal = ({ isOpen, onClose, onAddUser }: AddUserModalProps) => {
   });
 
   const onSubmit = (data: FormValues) => {
-    onAddUser(data);
+    // Ensure all required properties are passed to onAddUser
+    const userData: Omit<User, "id" | "status"> = {
+      name: data.name,
+      email: data.email,
+      role: data.role,
+    };
+    
+    onAddUser(userData);
     form.reset();
   };
 
