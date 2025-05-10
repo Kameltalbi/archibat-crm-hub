@@ -29,10 +29,20 @@ import {
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 
+// Liste des catégories de projet (données mockées)
+const projectCategories = [
+  { id: 1, name: "Rénovation" },
+  { id: 2, name: "Construction" },
+  { id: 3, name: "Aménagement" },
+  { id: 4, name: "Réhabilitation" },
+  { id: 5, name: "Extension" },
+];
+
 const AddProjectModal = () => {
   const [open, setOpen] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
+    categoryId: "",
     startDate: undefined as Date | undefined,
     endDate: undefined as Date | undefined,
     status: "",
@@ -58,6 +68,7 @@ const AddProjectModal = () => {
     // Reset the form
     setFormData({
       name: "",
+      categoryId: "",
       startDate: undefined,
       endDate: undefined,
       status: "",
@@ -69,6 +80,7 @@ const AddProjectModal = () => {
     setOpen(false);
     setFormData({
       name: "",
+      categoryId: "",
       startDate: undefined,
       endDate: undefined,
       status: "",
@@ -103,6 +115,28 @@ const AddProjectModal = () => {
               placeholder="Entrez le nom du projet"
               className="border-input"
             />
+          </div>
+          
+          {/* Category Selection */}
+          <div className="grid gap-2">
+            <label htmlFor="category" className="text-sm font-medium">
+              Catégorie *
+            </label>
+            <Select
+              value={formData.categoryId}
+              onValueChange={(value) => handleChange("categoryId", value)}
+            >
+              <SelectTrigger id="category" className="w-full">
+                <SelectValue placeholder="Sélectionner une catégorie" />
+              </SelectTrigger>
+              <SelectContent>
+                {projectCategories.map((category) => (
+                  <SelectItem key={category.id} value={category.id.toString()}>
+                    {category.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           {/* Start Date */}
