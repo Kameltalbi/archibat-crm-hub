@@ -14,7 +14,7 @@ interface Client {
   name: string;
 }
 
-// Project interface with clients array
+// Project interface with clients array and category
 interface Project {
   id: number;
   name: string;
@@ -23,6 +23,7 @@ interface Project {
   endDate: string;
   status: string;
   clients: Client[];
+  category: string; // Ajout de la catégorie de projet
 }
 
 // Mock project data
@@ -36,7 +37,8 @@ const projects: Project[] = [
     status: "En cours",
     clients: [
       { id: 3, name: "Cabinet Martin & Associés" }
-    ]
+    ],
+    category: "Rénovation"
   },
   {
     id: 2,
@@ -47,7 +49,8 @@ const projects: Project[] = [
     status: "En cours",
     clients: [
       { id: 2, name: "SCI Bartoli" }
-    ]
+    ],
+    category: "Construction"
   },
   {
     id: 3,
@@ -58,7 +61,8 @@ const projects: Project[] = [
     status: "Terminé",
     clients: [
       { id: 1, name: "Groupe Durand" }
-    ]
+    ],
+    category: "Aménagement"
   },
   {
     id: 4,
@@ -69,7 +73,8 @@ const projects: Project[] = [
     status: "Suspendu",
     clients: [
       { id: 5, name: "Fondation Meyers" }
-    ]
+    ],
+    category: "Réhabilitation"
   },
 ];
 
@@ -80,7 +85,8 @@ const Projects = () => {
   
   const filteredProjects = projects.filter(project =>
     project.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    project.client.toLowerCase().includes(searchTerm.toLowerCase())
+    project.client.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    project.category.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const handleRowClick = (project: Project) => {
@@ -130,6 +136,7 @@ const Projects = () => {
                 <TableRow>
                   <TableHead>Nom</TableHead>
                   <TableHead>Client</TableHead>
+                  <TableHead>Catégorie</TableHead>
                   <TableHead className="hidden md:table-cell">Date début</TableHead>
                   <TableHead className="hidden md:table-cell">Date fin</TableHead>
                   <TableHead>Statut</TableHead>
@@ -145,6 +152,7 @@ const Projects = () => {
                   >
                     <TableCell className="font-medium">{project.name}</TableCell>
                     <TableCell>{project.client}</TableCell>
+                    <TableCell>{project.category}</TableCell>
                     <TableCell className="hidden md:table-cell">{project.startDate}</TableCell>
                     <TableCell className="hidden md:table-cell">{project.endDate}</TableCell>
                     <TableCell>
@@ -175,7 +183,7 @@ const Projects = () => {
                 
                 {filteredProjects.length === 0 && (
                   <TableRow>
-                    <TableCell colSpan={6} className="text-center py-6 text-muted-foreground">
+                    <TableCell colSpan={7} className="text-center py-6 text-muted-foreground">
                       Aucun projet trouvé
                     </TableCell>
                   </TableRow>

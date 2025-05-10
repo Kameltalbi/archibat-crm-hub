@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { CalendarIcon, Plus } from "lucide-react";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
@@ -36,37 +36,125 @@ interface Client {
   name: string;
 }
 
+// Define the product type
+interface Product {
+  id: number;
+  name: string;
+  category: string;
+  description: string;
+  price: number;
+}
+
+// Mock products - similar to those in Products.tsx
+const mockProducts = [
+  {
+    id: 1,
+    name: "Étude de faisabilité",
+    category: "Études",
+    description: "Analyse préliminaire du projet et évaluation technique",
+    price: 2500,
+  },
+  {
+    id: 2,
+    name: "Plan d'aménagement",
+    category: "Études",
+    description: "Réalisation des plans pour l'aménagement intérieur",
+    price: 1800,
+  },
+  {
+    id: 3,
+    name: "Rénovation complète",
+    category: "Travaux",
+    description: "Rénovation complète incluant matériaux et main d'œuvre",
+    price: 15000,
+  },
+  {
+    id: 4,
+    name: "Installation électrique",
+    category: "Travaux",
+    description: "Remise aux normes et installation électrique complète",
+    price: 4200,
+  },
+  {
+    id: 5,
+    name: "Accompagnement projet",
+    category: "Services",
+    description: "Accompagnement et suivi de projet (mensuel)",
+    price: 1200,
+  },
+  {
+    id: 6,
+    name: "Conseil en décoration",
+    category: "Services",
+    description: "Conseils sur l'aménagement et le design intérieur",
+    price: 950,
+  },
+];
+
 // Define the props for the component
 interface AddSaleModalProps {
   projectClients: Client[];
   projectName?: string;
+  projectCategory?: string; // Ajout de la catégorie du projet
 }
 
-const AddSaleModal = ({ projectClients, projectName }: AddSaleModalProps) => {
+const AddSaleModal = ({ projectClients, projectName, projectCategory }: AddSaleModalProps) => {
   const [open, setOpen] = useState(false);
   const [formData, setFormData] = useState({
     label: "",
     saleDate: undefined as Date | undefined,
     amount: "",
-    category: "",
+    productId: "",
     clientId: "",
   });
+  const [availableProducts, setAvailableProducts] = useState<Product[]>([]);
+
+  // Filtrer les produits en fonction de la catégorie du projet
+  useEffect(() => {
+    if (projectCategory) {
+      const filteredProducts = mockProducts.filter(
+        product => product.category === projectCategory
+      );
+      setAvailableProducts(filteredProducts);
+    } else {
+      setAvailableProducts(mockProducts);
+    }
+  }, [projectCategory]);
 
   const handleChange = (field: string, value: any) => {
-    setFormData({ ...formData, [field]: value });
+    // Si on change de produit, mettons à jour le montant avec le prix du produit sélectionné
+    if (field === "productId") {
+      const selectedProduct = availableProducts.find(p => p.id.toString() === value);
+      if (selectedProduct) {
+        setFormData({ 
+          ...formData, 
+          [field]: value,
+          amount: selectedProduct.price.toString()
+        });
+      } else {
+        setFormData({ ...formData, [field]: value });
+      }
+    } else {
+      setFormData({ ...formData, [field]: value });
+    }
   };
 
   const handleSave = () => {
     // Validate form data
-    if (!formData.label || !formData.saleDate || !formData.amount || !formData.category || !formData.clientId) {
+    if (!formData.label || !formData.saleDate || !formData.amount || !formData.productId || !formData.clientId) {
       console.error("Veuillez remplir tous les champs obligatoires");
       return;
     }
 
-    // Convert amount to number
+    // Get the selected product
+    const selectedProduct = availableProducts.find(p => p.id.toString() === formData.productId);
+
+    // Convert amount to number and prepare data
     const saleData = {
       ...formData,
       amount: parseFloat(formData.amount),
+      product: selectedProduct ? selectedProduct.name : "Produit inconnu",
+      category: selectedProduct ? selectedProduct.category : "Catégorie inconnue"
     };
 
     console.log("Saving sale:", saleData);
@@ -79,7 +167,7 @@ const AddSaleModal = ({ projectClients, projectName }: AddSaleModalProps) => {
       label: "",
       saleDate: undefined,
       amount: "",
-      category: "",
+      productId: "",
       clientId: "",
     });
 
@@ -93,7 +181,7 @@ const AddSaleModal = ({ projectClients, projectName }: AddSaleModalProps) => {
       label: "",
       saleDate: undefined,
       amount: "",
-      category: "",
+      productId: "",
       clientId: "",
     });
   };
@@ -111,6 +199,9 @@ const AddSaleModal = ({ projectClients, projectName }: AddSaleModalProps) => {
             Ajouter une nouvelle vente
             {projectName && <span className="text-sm text-muted-foreground block mt-1">
               Projet: {projectName}
+            </span>}
+            {projectCategory && <span className="text-sm text-muted-foreground block mt-1">
+              Catégorie: {projectCategory}
             </span>}
           </DialogTitle>
           <DialogDescription className="text-muted-foreground">
@@ -163,6 +254,32 @@ const AddSaleModal = ({ projectClients, projectName }: AddSaleModalProps) => {
             </Popover>
           </div>
 
+          {/* Product Selection (replacing Category) */}
+          <div className="grid gap-2">
+            <Label htmlFor="product">Produit *</Label>
+            <Select
+              value={formData.productId}
+              onValueChange={(value) => handleChange("productId", value)}
+            >
+              <SelectTrigger id="product" className="w-full">
+                <SelectValue placeholder="Sélectionner un produit" />
+              </SelectTrigger>
+              <SelectContent>
+                {availableProducts.length > 0 ? (
+                  availableProducts.map((product) => (
+                    <SelectItem key={product.id} value={product.id.toString()}>
+                      {product.name} - {product.price} DT
+                    </SelectItem>
+                  ))
+                ) : (
+                  <SelectItem value="no-products" disabled>
+                    Aucun produit disponible pour cette catégorie
+                  </SelectItem>
+                )}
+              </SelectContent>
+            </Select>
+          </div>
+
           {/* Amount */}
           <div className="grid gap-2">
             <Label htmlFor="amount">Montant (DT) *</Label>
@@ -174,26 +291,6 @@ const AddSaleModal = ({ projectClients, projectName }: AddSaleModalProps) => {
               placeholder="Entrez le montant"
               className="border-input"
             />
-          </div>
-
-          {/* Category */}
-          <div className="grid gap-2">
-            <Label htmlFor="category">Catégorie *</Label>
-            <Select
-              value={formData.category}
-              onValueChange={(value) => handleChange("category", value)}
-            >
-              <SelectTrigger id="category" className="w-full">
-                <SelectValue placeholder="Sélectionner une catégorie" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="Étude">Étude</SelectItem>
-                <SelectItem value="Travaux">Travaux</SelectItem>
-                <SelectItem value="Fourniture">Fourniture</SelectItem>
-                <SelectItem value="Service">Service</SelectItem>
-                <SelectItem value="Autre">Autre</SelectItem>
-              </SelectContent>
-            </Select>
           </div>
 
           {/* Client */}

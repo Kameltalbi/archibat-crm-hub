@@ -24,6 +24,7 @@ interface Project {
   endDate: string;
   status: string;
   clients: Client[];
+  category?: string; // Ajout pour stocker la catégorie du projet
 }
 
 interface Sale {
@@ -33,6 +34,7 @@ interface Sale {
   amount: number;
   category: string;
   client: string;
+  product?: string; // Ajout du nom du produit
 }
 
 interface ProjectDetailsProps {
@@ -41,15 +43,27 @@ interface ProjectDetailsProps {
   onClose: () => void;
 }
 
+// Mapper entre ID de catégorie du projet et nom de catégorie de produit
+const categoryMapping: Record<string, string> = {
+  "Rénovation": "Travaux",
+  "Construction": "Travaux",
+  "Aménagement": "Services",
+  "Réhabilitation": "Études",
+  "Extension": "Travaux"
+};
+
 const CHART_COLORS = ['#a05a2c', '#cfb095', '#d4cdc3', '#8e9196', '#403e43', '#6d4824'];
 
 const ProjectDetails = ({ project, open, onClose }: ProjectDetailsProps) => {
+  // Détermine la catégorie de produit associée à la catégorie du projet
+  const productCategory = project?.category ? categoryMapping[project.category] || "Services" : undefined;
+  
   // Mock sales data for the project
   const [sales, setSales] = useState<Sale[]>([
-    { id: 1, label: "Phase de conception", date: "12/04/2023", amount: 15000, category: "Étude", client: "Cabinet Martin & Associés" },
-    { id: 2, label: "Matériaux de construction", date: "25/05/2023", amount: 45000, category: "Fourniture", client: "Cabinet Martin & Associés" },
-    { id: 3, label: "Phase de construction", date: "15/06/2023", amount: 60000, category: "Travaux", client: "Cabinet Martin & Associés" },
-    { id: 4, label: "Finitions", date: "10/08/2023", amount: 25000, category: "Service", client: "Cabinet Martin & Associés" }
+    { id: 1, label: "Phase de conception", date: "12/04/2023", amount: 15000, category: "Étude", client: "Cabinet Martin & Associés", product: "Étude de faisabilité" },
+    { id: 2, label: "Matériaux de construction", date: "25/05/2023", amount: 45000, category: "Fourniture", client: "Cabinet Martin & Associés", product: "Rénovation complète" },
+    { id: 3, label: "Phase de construction", date: "15/06/2023", amount: 60000, category: "Travaux", client: "Cabinet Martin & Associés", product: "Installation électrique" },
+    { id: 4, label: "Finitions", date: "10/08/2023", amount: 25000, category: "Service", client: "Cabinet Martin & Associés", product: "Conseil en décoration" }
   ]);
 
   // Calculate total revenue and chart data
@@ -81,6 +95,7 @@ const ProjectDetails = ({ project, open, onClose }: ProjectDetailsProps) => {
               <div className="text-sm font-normal text-muted-foreground mt-1">
                 Démarré le {project.startDate} 
                 {project.endDate && ` • Fin prévue le ${project.endDate}`}
+                {project.category && ` • Catégorie: ${project.category}`}
               </div>
             </div>
             <span 
@@ -187,7 +202,11 @@ const ProjectDetails = ({ project, open, onClose }: ProjectDetailsProps) => {
           <div>
             <div className="flex items-center justify-between mb-2">
               <h3 className="text-lg font-medium text-charcoal dark:text-light-gray">Ventes</h3>
-              <AddSaleModal projectClients={project.clients} projectName={project.name} />
+              <AddSaleModal 
+                projectClients={project.clients} 
+                projectName={project.name} 
+                projectCategory={productCategory} 
+              />
             </div>
             
             <Card>
@@ -198,8 +217,8 @@ const ProjectDetails = ({ project, open, onClose }: ProjectDetailsProps) => {
                       <TableRow>
                         <TableHead>Libellé</TableHead>
                         <TableHead>Date</TableHead>
+                        <TableHead>Produit</TableHead>
                         <TableHead>Montant (DT)</TableHead>
-                        <TableHead>Catégorie</TableHead>
                         <TableHead>Client</TableHead>
                       </TableRow>
                     </TableHeader>
@@ -208,8 +227,8 @@ const ProjectDetails = ({ project, open, onClose }: ProjectDetailsProps) => {
                         <TableRow key={sale.id}>
                           <TableCell className="font-medium">{sale.label}</TableCell>
                           <TableCell>{sale.date}</TableCell>
+                          <TableCell>{sale.product || sale.category}</TableCell>
                           <TableCell>{sale.amount.toLocaleString()} DT</TableCell>
-                          <TableCell>{sale.category}</TableCell>
                           <TableCell>{sale.client}</TableCell>
                         </TableRow>
                       ))}
