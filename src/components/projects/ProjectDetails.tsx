@@ -58,6 +58,20 @@ const categoryMapping: Record<string, string> = {
 
 const CHART_COLORS = ['#a05a2c', '#cfb095', '#d4cdc3', '#8e9196', '#403e43', '#6d4824'];
 
+// Define the project sales table type to match what we just created in the database
+interface ProjectSale {
+  id: string;
+  project_id: string;
+  label: string;
+  date: string;
+  amount: number;
+  category: string;
+  client_name: string | null;
+  product_name: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
 const ProjectDetails = ({ project, open, onClose }: ProjectDetailsProps) => {
   // Détermine la catégorie de produit associée à la catégorie du projet
   const productCategory = project?.category ? categoryMapping[project.category] || "Services" : undefined;
@@ -77,25 +91,26 @@ const ProjectDetails = ({ project, open, onClose }: ProjectDetailsProps) => {
   const fetchSalesData = async () => {
     setIsLoading(true);
     try {
-      // Replace this with your actual Supabase query to fetch sales data for the project
+      // Use the correct project_id format
       const { data, error } = await supabase
         .from('project_sales')
         .select('*')
-        .eq('project_id', project.id);
+        .eq('project_id', String(project.id));
         
       if (error) {
         throw error;
       }
       
       if (data) {
-        const formattedSales: Sale[] = data.map(sale => ({
+        // Properly cast the data to our ProjectSale interface
+        const formattedSales: Sale[] = (data as ProjectSale[]).map(sale => ({
           id: sale.id,
           label: sale.label,
           date: new Date(sale.date).toLocaleDateString('fr-FR'),
           amount: sale.amount,
           category: sale.category,
           client: sale.client_name || project.client || '',
-          product: sale.product_name
+          product: sale.product_name || undefined
         }));
         
         setSales(formattedSales);
