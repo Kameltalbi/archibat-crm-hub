@@ -2,6 +2,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
+// Data for the revenue chart for 2025 (current year)
 const data = [
   { name: 'Jan', value: 12000 },
   { name: 'Fév', value: 19000 },
@@ -18,11 +19,14 @@ const data = [
 ];
 
 const RevenueChart = () => {
+  // Get current year
+  const currentYear = 2025;
+
   return (
     <Card className="animate-fade-in delay-100">
       <CardHeader>
-        <CardTitle>Chiffre d'affaires</CardTitle>
-        <CardDescription>Évolution mensuelle du CA</CardDescription>
+        <CardTitle>Chiffre d'affaires {currentYear}</CardTitle>
+        <CardDescription>Évolution mensuelle du CA pour l'année {currentYear}</CardDescription>
       </CardHeader>
       <CardContent>
         <div className="h-80 w-full">
@@ -50,7 +54,7 @@ const RevenueChart = () => {
               />
               <Tooltip
                 formatter={(value) => [`${value} TND`, 'Chiffre d\'affaires']}
-                labelFormatter={(label) => `Mois: ${label}`}
+                labelFormatter={(label) => `Mois: ${label} ${currentYear}`}
                 contentStyle={{
                   backgroundColor: '#F5F0E6',
                   border: '1px solid #E0E0E0',

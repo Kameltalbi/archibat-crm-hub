@@ -6,11 +6,14 @@ import RecentProjects from "@/components/dashboard/RecentProjects";
 import CategoryDistribution from "@/components/dashboard/CategoryDistribution";
 
 const Dashboard = () => {
+  // Get current year
+  const currentYear = 2025;
+
   return (
     <div className="space-y-8">
       <div>
         <h1 className="text-3xl font-semibold mb-2">Tableau de bord</h1>
-        <p className="text-muted-foreground">Vue d'ensemble de votre activité</p>
+        <p className="text-muted-foreground">Vue d'ensemble de votre activité pour {currentYear}</p>
       </div>
       
       <DashboardSummary />
