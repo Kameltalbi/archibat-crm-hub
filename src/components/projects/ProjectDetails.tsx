@@ -25,6 +25,7 @@ export interface Project {
   status: string;
   clients: Client[];
   category?: string;
+  targetRevenue?: number; // Add this field to fix the issue
 }
 
 interface Sale {
@@ -85,6 +86,16 @@ const ProjectDetails = ({ project, open, onClose }: ProjectDetailsProps) => {
 
   if (!project) return null;
 
+  // Format the target revenue for display
+  const formatTargetRevenue = (amount: number | undefined) => {
+    if (amount === undefined) return "Non défini";
+    return new Intl.NumberFormat('fr-FR', {
+      style: 'currency',
+      currency: 'TND',
+      minimumFractionDigits: 0
+    }).format(amount);
+  };
+
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
@@ -131,44 +142,60 @@ const ProjectDetails = ({ project, open, onClose }: ProjectDetailsProps) => {
             
             <Card>
               <CardHeader className="pb-2">
-                <CardTitle className="text-lg font-medium">CA par Catégorie</CardTitle>
+                <CardTitle className="text-lg font-medium">Objectif CA</CardTitle>
               </CardHeader>
-              <CardContent className="h-[200px]">
-                {chartData.length > 0 ? (
-                  <ResponsiveContainer width="100%" height="100%">
-                    <PieChart>
-                      <Pie
-                        data={chartData}
-                        cx="50%"
-                        cy="50%"
-                        innerRadius={40}
-                        outerRadius={80}
-                        paddingAngle={2}
-                        dataKey="value"
-                        labelLine={false}
-                        label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                      >
-                        {chartData.map((entry, index) => (
-                          <Cell 
-                            key={`cell-${index}`} 
-                            fill={CHART_COLORS[index % CHART_COLORS.length]} 
-                          />
-                        ))}
-                      </Pie>
-                      <Tooltip 
-                        formatter={(value: number) => `${value.toLocaleString()} DT`} 
-                      />
-                      <Legend />
-                    </PieChart>
-                  </ResponsiveContainer>
-                ) : (
-                  <div className="flex items-center justify-center h-full text-muted-foreground">
-                    Aucune donnée disponible
-                  </div>
+              <CardContent className="flex flex-col justify-center h-[200px]">
+                <div className="text-3xl font-bold text-terracotta">
+                  {formatTargetRevenue(project.targetRevenue)}
+                </div>
+                {project.targetRevenue && totalRevenue > 0 && (
+                  <p className="text-sm text-muted-foreground mt-2">
+                    {Math.round((totalRevenue / project.targetRevenue) * 100)}% de l'objectif atteint
+                  </p>
                 )}
               </CardContent>
             </Card>
           </div>
+
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-lg font-medium">CA par Catégorie</CardTitle>
+            </CardHeader>
+            <CardContent className="h-[200px]">
+              {chartData.length > 0 ? (
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={chartData}
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={40}
+                      outerRadius={80}
+                      paddingAngle={2}
+                      dataKey="value"
+                      labelLine={false}
+                      label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                    >
+                      {chartData.map((entry, index) => (
+                        <Cell 
+                          key={`cell-${index}`} 
+                          fill={CHART_COLORS[index % CHART_COLORS.length]} 
+                        />
+                      ))}
+                    </Pie>
+                    <Tooltip 
+                      formatter={(value: number) => `${value.toLocaleString()} DT`} 
+                    />
+                    <Legend />
+                  </PieChart>
+                </ResponsiveContainer>
+              ) : (
+                <div className="flex items-center justify-center h-full text-muted-foreground">
+                  Aucune donnée disponible
+                </div>
+              )}
+            </CardContent>
+          </Card>
 
           {/* Project Information */}
           <div>
