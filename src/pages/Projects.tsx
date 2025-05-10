@@ -6,9 +6,27 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Search, Edit, Trash } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import AddProjectModal from "@/components/projects/AddProjectModal";
+import ProjectDetails from "@/components/projects/ProjectDetails";
+
+// Client interface
+interface Client {
+  id: number;
+  name: string;
+}
+
+// Project interface with clients array
+interface Project {
+  id: number;
+  name: string;
+  client: string;
+  startDate: string;
+  endDate: string;
+  status: string;
+  clients: Client[];
+}
 
 // Mock project data
-const projects = [
+const projects: Project[] = [
   {
     id: 1,
     name: "Rénovation Immeuble Castellane",
@@ -16,6 +34,9 @@ const projects = [
     startDate: "15/03/2023",
     endDate: "30/09/2023",
     status: "En cours",
+    clients: [
+      { id: 3, name: "Cabinet Martin & Associés" }
+    ]
   },
   {
     id: 2,
@@ -24,6 +45,9 @@ const projects = [
     startDate: "10/01/2023",
     endDate: "20/12/2023",
     status: "En cours",
+    clients: [
+      { id: 2, name: "SCI Bartoli" }
+    ]
   },
   {
     id: 3,
@@ -32,6 +56,9 @@ const projects = [
     startDate: "05/11/2022",
     endDate: "28/02/2023",
     status: "Terminé",
+    clients: [
+      { id: 1, name: "Groupe Durand" }
+    ]
   },
   {
     id: 4,
@@ -40,16 +67,30 @@ const projects = [
     startDate: "01/06/2023",
     endDate: "15/03/2024",
     status: "Suspendu",
+    clients: [
+      { id: 5, name: "Fondation Meyers" }
+    ]
   },
 ];
 
 const Projects = () => {
   const [searchTerm, setSearchTerm] = useState("");
+  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
+  const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   
   const filteredProjects = projects.filter(project =>
     project.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     project.client.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  const handleRowClick = (project: Project) => {
+    setSelectedProject(project);
+    setIsDetailsOpen(true);
+  };
+  
+  const closeDetails = () => {
+    setIsDetailsOpen(false);
+  };
   
   return (
     <div className="space-y-8">
@@ -97,7 +138,11 @@ const Projects = () => {
               </TableHeader>
               <TableBody>
                 {filteredProjects.map((project) => (
-                  <TableRow key={project.id}>
+                  <TableRow 
+                    key={project.id}
+                    className="cursor-pointer hover:bg-muted/60"
+                    onClick={() => handleRowClick(project)}
+                  >
                     <TableCell className="font-medium">{project.name}</TableCell>
                     <TableCell>{project.client}</TableCell>
                     <TableCell className="hidden md:table-cell">{project.startDate}</TableCell>
@@ -115,7 +160,7 @@ const Projects = () => {
                         {project.status}
                       </span>
                     </TableCell>
-                    <TableCell>
+                    <TableCell onClick={(e) => e.stopPropagation()}>
                       <div className="flex items-center gap-2">
                         <Button variant="ghost" size="icon">
                           <Edit className="h-4 w-4" />
@@ -140,6 +185,13 @@ const Projects = () => {
           </div>
         </CardContent>
       </Card>
+      
+      {/* Project Details Modal */}
+      <ProjectDetails 
+        project={selectedProject} 
+        open={isDetailsOpen} 
+        onClose={closeDetails} 
+      />
     </div>
   );
 };
