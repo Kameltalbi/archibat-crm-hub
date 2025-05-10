@@ -29,8 +29,6 @@ import {
 } from "@/components/ui/popover";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
-import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/lib/supabase";
 
 // Define the client type
 interface Client {
@@ -110,8 +108,6 @@ const AddSaleModal = ({ projectClients, projectName, projectCategory }: AddSaleM
     clientId: "",
   });
   const [availableProducts, setAvailableProducts] = useState<Product[]>([]);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const { toast } = useToast();
 
   // Filtrer les produits en fonction de la catégorie du projet
   useEffect(() => {
@@ -143,87 +139,39 @@ const AddSaleModal = ({ projectClients, projectName, projectCategory }: AddSaleM
     }
   };
 
-  const handleSave = async () => {
+  const handleSave = () => {
     // Validate form data
     if (!formData.label || !formData.saleDate || !formData.amount || !formData.productId || !formData.clientId) {
-      toast({
-        variant: "destructive",
-        title: "Erreur de formulaire",
-        description: "Veuillez remplir tous les champs obligatoires"
-      });
+      console.error("Veuillez remplir tous les champs obligatoires");
       return;
     }
 
     // Get the selected product
     const selectedProduct = availableProducts.find(p => p.id.toString() === formData.productId);
-    if (!selectedProduct) {
-      toast({
-        variant: "destructive",
-        title: "Erreur de produit",
-        description: "Le produit sélectionné est invalide"
-      });
-      return;
-    }
 
-    // Get the selected client
-    const selectedClient = projectClients.find(c => c.id.toString() === formData.clientId);
-    if (!selectedClient) {
-      toast({
-        variant: "destructive",
-        title: "Erreur de client",
-        description: "Le client sélectionné est invalide"
-      });
-      return;
-    }
+    // Convert amount to number and prepare data
+    const saleData = {
+      ...formData,
+      amount: parseFloat(formData.amount),
+      product: selectedProduct ? selectedProduct.name : "Produit inconnu",
+      category: selectedProduct ? selectedProduct.category : "Catégorie inconnue"
+    };
 
-    setIsSubmitting(true);
+    console.log("Saving sale:", saleData);
+    
+    // Close the modal
+    setOpen(false);
+    
+    // Reset the form
+    setFormData({
+      label: "",
+      saleDate: undefined,
+      amount: "",
+      productId: "",
+      clientId: "",
+    });
 
-    // Extract the project ID from the URL
-    const urlParams = new URLSearchParams(window.location.search);
-    const projectId = urlParams.get('id') || '';
-
-    try {
-      // Insert the sale into the project_sales table
-      const { error } = await supabase
-        .from('project_sales')
-        .insert({
-          project_id: projectId, // Use the ID from the URL or pass project ID as prop
-          label: formData.label,
-          date: formData.saleDate?.toISOString().split('T')[0], // Format as YYYY-MM-DD
-          amount: parseFloat(formData.amount),
-          category: selectedProduct.category,
-          client_name: selectedClient.name,
-          product_name: selectedProduct.name
-        });
-
-      if (error) {
-        throw error;
-      }
-
-      toast({
-        title: "Vente enregistrée",
-        description: "La vente a été ajoutée avec succès"
-      });
-
-      // Close the modal and reset the form
-      setOpen(false);
-      setFormData({
-        label: "",
-        saleDate: undefined,
-        amount: "",
-        productId: "",
-        clientId: "",
-      });
-    } catch (error: any) {
-      console.error("Erreur lors de l'enregistrement de la vente:", error);
-      toast({
-        variant: "destructive", 
-        title: "Erreur",
-        description: error.message || "Impossible d'enregistrer la vente"
-      });
-    } finally {
-      setIsSubmitting(false);
-    }
+    return saleData;
   };
 
   const handleCancel = () => {
@@ -377,7 +325,6 @@ const AddSaleModal = ({ projectClients, projectName, projectCategory }: AddSaleM
             type="button"
             variant="outline"
             onClick={handleCancel}
-            disabled={isSubmitting}
           >
             Annuler
           </Button>
@@ -385,9 +332,8 @@ const AddSaleModal = ({ projectClients, projectName, projectCategory }: AddSaleM
             type="submit"
             onClick={handleSave}
             className="bg-[#a05a2c] hover:bg-[#8a4a22]"
-            disabled={isSubmitting}
           >
-            {isSubmitting ? "Enregistrement..." : "Enregistrer la vente"}
+            Enregistrer la vente
           </Button>
         </DialogFooter>
       </DialogContent>

@@ -44,8 +44,6 @@ const Projects = () => {
         throw projectsError;
       }
       
-      console.log("Raw projects data:", projectsData);
-      
       // Transformer les données pour inclure le nom du client
       const formattedProjects: ProjectWithClient[] = projectsData.map(project => {
         return {
@@ -56,7 +54,6 @@ const Projects = () => {
         };
       });
       
-      console.log("Formatted projects data:", formattedProjects);
       setProjects(formattedProjects);
     } catch (error) {
       console.error('Erreur lors du chargement des projets:', error);
@@ -128,12 +125,12 @@ const Projects = () => {
     (project.category && project.category.toLowerCase().includes(searchTerm.toLowerCase()))
   );
   
-  // Format currency for target_revenue display with TND instead of EUR
+  // Format currency for target_revenue display
   const formatCurrency = (amount: number | null) => {
     if (amount === null) return "-";
     return new Intl.NumberFormat('fr-FR', { 
       style: 'currency', 
-      currency: 'TND',
+      currency: 'EUR',
       minimumFractionDigits: 0
     }).format(amount);
   };
@@ -256,8 +253,7 @@ const Projects = () => {
             endDate: selectedProject.end_date || '',
             status: selectedProject.status || '',
             clients: [{ id: Number(selectedProject.client_id || 0), name: selectedProject.client_name }],
-            category: selectedProject.category || undefined,
-            targetRevenue: selectedProject.target_revenue || undefined // Pass the target revenue to project details
+            category: selectedProject.category || undefined
           }}
           open={isDetailsOpen} 
           onClose={closeDetails} 
