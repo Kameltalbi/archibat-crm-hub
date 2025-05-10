@@ -7,7 +7,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
-import { Client } from "./ProjectEditForm";
+import { Client } from "@/lib/supabase";
 
 interface ClientSelectProps {
   value: string;
