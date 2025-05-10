@@ -13,6 +13,8 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { useToast } from "@/hooks/use-toast";
+import { categoryService } from "@/services/categoryService";
 
 interface CategoryFormData {
   name: string;
@@ -21,10 +23,12 @@ interface CategoryFormData {
 
 const AddCategoryModal = () => {
   const [open, setOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState<CategoryFormData>({
     name: "",
     description: "",
   });
+  const { toast } = useToast();
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -36,17 +40,54 @@ const AddCategoryModal = () => {
     }));
   };
 
-  const handleSave = () => {
-    // This would typically send data to an API or state management
-    console.log("Saving category:", formData);
+  const handleSave = async () => {
+    if (!formData.name.trim()) {
+      toast({
+        title: "Erreur",
+        description: "Le nom de la catégorie est requis",
+        variant: "destructive",
+      });
+      return;
+    }
     
-    // Close modal and reset form
-    setOpen(false);
-    setFormData({ name: "", description: "" });
+    setIsLoading(true);
+    
+    try {
+      const newCategory = await categoryService.createCategory({
+        name: formData.name.trim(),
+        description: formData.description.trim() || null,
+      });
+      
+      if (newCategory) {
+        toast({
+          title: "Succès",
+          description: "Catégorie ajoutée avec succès",
+        });
+        
+        // Fermer le modal et réinitialiser le formulaire
+        setOpen(false);
+        setFormData({ name: "", description: "" });
+      } else {
+        toast({
+          title: "Erreur",
+          description: "Impossible d'ajouter la catégorie",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error("Erreur lors de l'ajout de la catégorie:", error);
+      toast({
+        title: "Erreur",
+        description: "Une erreur s'est produite lors de l'ajout de la catégorie",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleCancel = () => {
-    // Close modal and reset form
+    // Fermer le modal et réinitialiser le formulaire
     setOpen(false);
     setFormData({ name: "", description: "" });
   };
@@ -113,9 +154,9 @@ const AddCategoryModal = () => {
             type="submit"
             onClick={handleSave}
             className="bg-terracotta hover:bg-ocre text-white"
-            disabled={!formData.name.trim()}
+            disabled={!formData.name.trim() || isLoading}
           >
-            Enregistrer la catégorie
+            {isLoading ? "Enregistrement..." : "Enregistrer la catégorie"}
           </Button>
         </DialogFooter>
       </DialogContent>
