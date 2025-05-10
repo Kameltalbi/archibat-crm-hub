@@ -61,7 +61,13 @@ const DatePickerField = ({
             )}
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-auto min-w-[260px] p-0 z-[9999]" align="start">
+        <PopoverContent 
+          className="w-auto min-w-[260px] p-0 z-[9999]" 
+          align="start"
+          side="bottom"
+          sideOffset={4}
+          avoidCollisions={false}
+        >
           <Calendar
             mode="single"
             selected={value}
