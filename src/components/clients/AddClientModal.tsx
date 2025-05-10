@@ -82,6 +82,20 @@ const AddClientModal = () => {
     });
   };
 
+  const handleCancel = () => {
+    // Close modal and reset form
+    setOpen(false);
+    setFormData({
+      companyName: "",
+      vatCode: "",
+      email: "",
+      phone: "",
+      address: "",
+      contact1: { name: "", position: "", email: "", phone: "" },
+      contact2: { name: "", position: "", email: "", phone: "" }
+    });
+  };
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
@@ -304,6 +318,13 @@ const AddClientModal = () => {
           </div>
 
           <DialogFooter>
+            <Button 
+              type="button"
+              variant="outline"
+              onClick={handleCancel}
+            >
+              Annuler
+            </Button>
             <Button type="submit" className="bg-terracotta hover:bg-ocre">
               <Save className="mr-2 h-4 w-4" /> Enregistrer le client
             </Button>
