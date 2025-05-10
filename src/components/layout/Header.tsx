@@ -1,12 +1,31 @@
 
+import { useState } from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Search, Bell, User } from "lucide-react";
+import EventNotifications from "@/components/calendar/EventNotifications";
+import { mockEvents, eventTypes } from "@/pages/Calendar";
+import EventDetailsModal from "@/components/calendar/EventDetailsModal";
+
+// Mock projects for selection
+const mockProjects = [
+  { id: 1, name: "Rénovation Appartement Dupont" },
+  { id: 2, name: "Construction Villa Martin" },
+  { id: 3, name: "Design Intérieur Bureau Société XYZ" },
+  { id: 4, name: "Extension Maison Lefevre" }
+];
 
 const Header = () => {
   const isMobile = useIsMobile();
+  const [selectedEvent, setSelectedEvent] = useState(null);
+  const [showEventDetails, setShowEventDetails] = useState(false);
+  
+  const handleEventClick = (event) => {
+    setSelectedEvent(event);
+    setShowEventDetails(true);
+  };
   
   return (
     <header className="h-16 border-b border-border bg-background flex items-center justify-between px-4 md:px-6">
@@ -21,13 +40,26 @@ const Header = () => {
         </div>
       </div>
       <div className="flex items-center gap-2">
-        <Button variant="outline" size="icon" className="text-muted-foreground">
-          <Bell className="h-5 w-5" />
-        </Button>
+        <EventNotifications 
+          events={mockEvents}
+          eventTypes={eventTypes}
+          onEventClick={handleEventClick}
+          projects={mockProjects}
+        />
         <Button variant="outline" size="icon" className="text-muted-foreground">
           <User className="h-5 w-5" />
         </Button>
       </div>
+      
+      {selectedEvent && (
+        <EventDetailsModal
+          isOpen={showEventDetails}
+          onClose={() => setShowEventDetails(false)}
+          event={selectedEvent}
+          eventTypes={eventTypes}
+          projects={mockProjects}
+        />
+      )}
     </header>
   );
 };
