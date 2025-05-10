@@ -2,21 +2,45 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
 
-const data = [
-  { name: 'Études', value: 35000 },
-  { name: 'Travaux', value: 85000 },
-  { name: 'Services', value: 28000 },
-  { name: 'Conseils', value: 12000 },
+// Interface de projet simplifiée pour la démonstration
+interface Project {
+  id: number;
+  name: string;
+  category: string;
+  value: number; // Représente le CA du projet
+}
+
+// Données mockées des projets avec leurs catégories et montants
+const projectsData: Project[] = [
+  { id: 1, name: "Rénovation Immeuble Castellane", category: "Rénovation", value: 45000 },
+  { id: 2, name: "Construction Villa Prado", category: "Construction", value: 65000 },
+  { id: 3, name: "Aménagement Bureaux Vieux-Port", category: "Aménagement", value: 28000 },
+  { id: 4, name: "Réhabilitation Centre Culturel", category: "Réhabilitation", value: 22000 },
+  { id: 5, name: "Extension Maison Individuelle", category: "Construction", value: 20000 },
 ];
 
-const COLORS = ['#E26D5A', '#A65F3D', '#3C3C3C', '#2D2D2D'];
+// Préparation des données pour le graphique, agrégation par catégorie
+const prepareCategoryData = () => {
+  const categoryMap = new Map<string, number>();
+  
+  projectsData.forEach((project) => {
+    const currentValue = categoryMap.get(project.category) || 0;
+    categoryMap.set(project.category, currentValue + project.value);
+  });
+  
+  return Array.from(categoryMap).map(([name, value]) => ({ name, value }));
+};
+
+const COLORS = ['#E26D5A', '#A65F3D', '#3C3C3C', '#2D2D2D', '#584D39'];
 
 const CategoryDistribution = () => {
+  const data = prepareCategoryData();
+  
   return (
     <Card className="animate-fade-in delay-400">
       <CardHeader>
         <CardTitle>Répartition par catégorie</CardTitle>
-        <CardDescription>CA par type de prestation</CardDescription>
+        <CardDescription>CA par catégorie de projets</CardDescription>
       </CardHeader>
       <CardContent>
         <div className="h-80 w-full">
