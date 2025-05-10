@@ -1,68 +1,47 @@
 
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
-import { Plus, Search, Edit, Eye } from "lucide-react";
+import { Search, Edit, Trash } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import AddProjectModal from "@/components/projects/AddProjectModal";
 
+// Mock project data
 const projects = [
   {
     id: 1,
-    name: "Rénovation Villa Martigues",
-    client: "SCI Bartoli",
+    name: "Rénovation Immeuble Castellane",
+    client: "Cabinet Martin & Associés",
+    startDate: "15/03/2023",
+    endDate: "30/09/2023",
     status: "En cours",
-    date: "2023-09-15",
-    revenue: 42600,
   },
   {
     id: 2,
-    name: "Bureaux Aix Centre",
-    client: "Groupe Durand",
-    status: "Planifié",
-    date: "2023-11-01",
-    revenue: 38200,
+    name: "Construction Villa Prado",
+    client: "SCI Bartoli",
+    startDate: "10/01/2023",
+    endDate: "20/12/2023",
+    status: "En cours",
   },
   {
     id: 3,
-    name: "Résidence Les Oliviers",
-    client: "Cabinet Martin & Associés",
-    status: "En cours",
-    date: "2023-08-20",
-    revenue: 36100,
+    name: "Aménagement Bureaux Vieux-Port",
+    client: "Groupe Durand",
+    startDate: "05/11/2022",
+    endDate: "28/02/2023",
+    status: "Terminé",
   },
   {
     id: 4,
-    name: "Extension Belle-Vue",
-    client: "Immobilier Côté Sud",
-    status: "Terminé",
-    date: "2023-07-12",
-    revenue: 29400,
-  },
-  {
-    id: 5,
-    name: "Centre médical Provence",
+    name: "Réhabilitation Centre Culturel",
     client: "Fondation Meyers",
-    status: "Terminé",
-    date: "2023-06-30",
-    revenue: 22500,
-  },
-  {
-    id: 6,
-    name: "Restaurant Le Mistral",
-    client: "Groupe Durand",
-    status: "Planifié",
-    date: "2023-12-01",
-    revenue: 18900,
+    startDate: "01/06/2023",
+    endDate: "15/03/2024",
+    status: "Suspendu",
   },
 ];
-
-const statusColors = {
-  "En cours": "bg-terracotta text-white",
-  "Planifié": "bg-ocre text-white",
-  "Terminé": "bg-light-gray text-dark-gray",
-};
 
 const Projects = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -78,12 +57,10 @@ const Projects = () => {
         <div>
           <h1 className="text-3xl font-semibold mb-2">Projets</h1>
           <p className="text-muted-foreground">
-            Gérez vos projets et suivez leur avancement
+            Gérez vos projets et leur avancement
           </p>
         </div>
-        <Button className="bg-terracotta hover:bg-ocre">
-          <Plus className="mr-2 h-4 w-4" /> Nouveau projet
-        </Button>
+        <AddProjectModal />
       </div>
       
       <Card className="animate-fade-in">
@@ -111,10 +88,10 @@ const Projects = () => {
               <TableHeader>
                 <TableRow>
                   <TableHead>Nom</TableHead>
-                  <TableHead>Client principal</TableHead>
+                  <TableHead>Client</TableHead>
+                  <TableHead className="hidden md:table-cell">Date début</TableHead>
+                  <TableHead className="hidden md:table-cell">Date fin</TableHead>
                   <TableHead>Statut</TableHead>
-                  <TableHead className="hidden md:table-cell">Date</TableHead>
-                  <TableHead className="text-right">CA</TableHead>
                   <TableHead>Actions</TableHead>
                 </TableRow>
               </TableHeader>
@@ -123,24 +100,28 @@ const Projects = () => {
                   <TableRow key={project.id}>
                     <TableCell className="font-medium">{project.name}</TableCell>
                     <TableCell>{project.client}</TableCell>
+                    <TableCell className="hidden md:table-cell">{project.startDate}</TableCell>
+                    <TableCell className="hidden md:table-cell">{project.endDate}</TableCell>
                     <TableCell>
-                      <Badge className={statusColors[project.status as keyof typeof statusColors]}>
+                      <span 
+                        className={`inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ${
+                          project.status === "En cours" 
+                            ? "bg-amber-50 text-amber-700 border border-amber-200" 
+                            : project.status === "Terminé"
+                            ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                            : "bg-gray-100 text-gray-700 border border-gray-200"
+                        }`}
+                      >
                         {project.status}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="hidden md:table-cell">
-                      {new Date(project.date).toLocaleDateString('fr-FR')}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      {project.revenue.toLocaleString()} €
+                      </span>
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-2">
                         <Button variant="ghost" size="icon">
-                          <Eye className="h-4 w-4" />
-                        </Button>
-                        <Button variant="ghost" size="icon">
                           <Edit className="h-4 w-4" />
+                        </Button>
+                        <Button variant="ghost" size="icon" className="text-destructive">
+                          <Trash className="h-4 w-4" />
                         </Button>
                       </div>
                     </TableCell>
