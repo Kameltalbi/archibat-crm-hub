@@ -66,8 +66,8 @@ const AppSidebar = () => {
               <SidebarMenuButton
                 asChild
                 className={cn(
-                  "transition-colors hover:bg-sidebar-accent",
-                  location.pathname === item.path && "bg-sidebar-accent text-terracotta"
+                  "transition-colors hover:bg-menu-highlight/30",
+                  location.pathname === item.path && "bg-menu-highlight text-white font-medium"
                 )}
               >
                 <Link 
@@ -85,7 +85,7 @@ const AppSidebar = () => {
       <SidebarFooter className="p-4 text-center text-xs text-sidebar-foreground/70">
         <button 
           onClick={handleLogout}
-          className="flex items-center justify-center w-full gap-2 py-2 px-3 mb-4 rounded-md text-sidebar-foreground hover:bg-sidebar-accent transition-colors"
+          className="flex items-center justify-center w-full gap-2 py-2 px-3 mb-4 rounded-md text-sidebar-foreground hover:bg-menu-highlight/40 transition-colors"
         >
           <LogOut size={16} />
           <span>Se déconnecter</span>

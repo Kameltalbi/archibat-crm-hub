@@ -1,4 +1,3 @@
-
 import type { Config } from "tailwindcss";
 
 export default {
@@ -70,7 +69,8 @@ export default {
 				ocre: '#A65F3D',
 				'light-gray': '#E0E0E0',
 				'matte-black': '#1C1C1C',
-				'menu-bg': '#5C6B74' // Add the new menu background color
+				'menu-bg': '#5C6B74', // Menu background color
+				'menu-highlight': '#E1B097' // New highlight color for menu items
 			},
 			borderRadius: {
 				lg: 'var(--radius)',
