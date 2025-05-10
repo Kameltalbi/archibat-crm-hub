@@ -20,9 +20,8 @@ interface EditProjectModalProps {
 
 const EditProjectModal = ({ project, onUpdate }: EditProjectModalProps) => {
   const [open, setOpen] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
 
-  const handleSave = () => {
+  const handleSuccess = () => {
     setOpen(false);
     onUpdate();
   };
@@ -38,7 +37,7 @@ const EditProjectModal = ({ project, onUpdate }: EditProjectModalProps) => {
           <Edit className="h-4 w-4" />
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[550px] max-h-[90vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
           <DialogTitle className="text-xl text-charcoal dark:text-light-gray">
             Modifier le projet
@@ -50,10 +49,9 @@ const EditProjectModal = ({ project, onUpdate }: EditProjectModalProps) => {
         
         <ProjectEditForm 
           project={project}
-          onSave={handleSave}
+          onSuccess={handleSuccess}
           onCancel={handleCancel}
-          isLoading={isLoading}
-          setIsLoading={setIsLoading}
+          isOpen={open}
         />
       </DialogContent>
     </Dialog>
