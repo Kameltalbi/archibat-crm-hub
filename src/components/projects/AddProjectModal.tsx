@@ -1,4 +1,5 @@
-import { useState, useEffect } from "react";
+
+import { useState } from "react";
 import { CalendarIcon, Plus } from "lucide-react";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
@@ -29,12 +30,6 @@ import {
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import { projectService } from "@/services/projectService";
-import { clientService } from "@/services/clientService";
-
-interface Client {
-  id: string;
-  name: string;
-}
 
 interface AddProjectModalProps {
   onProjectAdded?: () => void;
@@ -52,35 +47,15 @@ const projectCategories = [
 const AddProjectModal = ({ onProjectAdded }: AddProjectModalProps) => {
   const [open, setOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [clients, setClients] = useState<Client[]>([]);
-  const [loadingClients, setLoadingClients] = useState(false);
   const { toast } = useToast();
   
   const [formData, setFormData] = useState({
     name: "",
-    clientId: "",
     startDate: undefined as Date | undefined,
     endDate: undefined as Date | undefined,
     status: "",
     category: "",
   });
-
-  // Charger la liste des clients
-  useEffect(() => {
-    const fetchClients = async () => {
-      setLoadingClients(true);
-      try {
-        const data = await clientService.getAllClients();
-        setClients(data);
-      } catch (error) {
-        console.error("Erreur lors du chargement des clients:", error);
-      } finally {
-        setLoadingClients(false);
-      }
-    };
-    
-    fetchClients();
-  }, []);
 
   const handleChange = (field: string, value: any) => {
     setFormData({ ...formData, [field]: value });
@@ -102,7 +77,7 @@ const AddProjectModal = ({ onProjectAdded }: AddProjectModalProps) => {
     try {
       const newProject = await projectService.createProject({
         name: formData.name,
-        client_id: formData.clientId || null,
+        client_id: null,
         description: null,
         start_date: formData.startDate.toISOString(),
         end_date: formData.endDate ? formData.endDate.toISOString() : null,
@@ -146,7 +121,6 @@ const AddProjectModal = ({ onProjectAdded }: AddProjectModalProps) => {
   const resetForm = () => {
     setFormData({
       name: "",
-      clientId: "",
       startDate: undefined,
       endDate: undefined,
       status: "",
@@ -188,34 +162,6 @@ const AddProjectModal = ({ onProjectAdded }: AddProjectModalProps) => {
               placeholder="Entrez le nom du projet"
               className="border-input"
             />
-          </div>
-          
-          {/* Client Selection */}
-          <div className="grid gap-2">
-            <label htmlFor="client" className="text-sm font-medium">
-              Client
-            </label>
-            <Select
-              value={formData.clientId}
-              onValueChange={(value) => handleChange("clientId", value)}
-            >
-              <SelectTrigger id="client" className="w-full">
-                <SelectValue placeholder="Sélectionner un client" />
-              </SelectTrigger>
-              <SelectContent>
-                {loadingClients ? (
-                  <SelectItem value="loading" disabled>Chargement...</SelectItem>
-                ) : clients.length > 0 ? (
-                  clients.map((client) => (
-                    <SelectItem key={client.id} value={client.id}>
-                      {client.name}
-                    </SelectItem>
-                  ))
-                ) : (
-                  <SelectItem value="none" disabled>Aucun client disponible</SelectItem>
-                )}
-              </SelectContent>
-            </Select>
           </div>
           
           {/* Category Selection */}
