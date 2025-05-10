@@ -31,7 +31,7 @@ interface ProductFormData {
   name: string;
   description: string;
   price: string;
-  category_id: string | number | null;
+  category_id: string | null;
 }
 
 interface EditProductModalProps {
@@ -232,7 +232,7 @@ const EditProductModal = ({ product, categories, onUpdate }: EditProductModalPro
               Catégorie *
             </Label>
             <Select
-              value={formData.category_id?.toString() || ""}
+              value={formData.category_id ? formData.category_id.toString() : ""}
               onValueChange={handleSelectChange}
             >
               <SelectTrigger 
