@@ -27,15 +27,23 @@ const DatePickerField = ({
   onChange, 
   required 
 }: DatePickerFieldProps) => {
+  // État pour contrôler l'ouverture du Popover
+  const [open, setOpen] = useState(false);
   // Initialiser le mois du calendrier avec la date actuelle si aucune valeur n'est fournie
   const [calendarMonth, setCalendarMonth] = useState<Date>(value || new Date());
+
+  // Fonction pour gérer la sélection de date et fermer le calendrier
+  const handleSelect = (date: Date | undefined) => {
+    onChange(date);
+    setOpen(false);
+  };
 
   return (
     <div className="grid gap-2">
       <label htmlFor={id} className="text-sm font-medium">
         {label} {required && "*"}
       </label>
-      <Popover>
+      <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <Button
             id={id}
@@ -53,11 +61,11 @@ const DatePickerField = ({
             )}
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-auto p-0 z-50" align="start">
+        <PopoverContent className="w-auto min-w-[260px] p-0 z-[9999]" align="start">
           <Calendar
             mode="single"
             selected={value}
-            onSelect={onChange}
+            onSelect={handleSelect}
             initialFocus
             month={calendarMonth}
             onMonthChange={setCalendarMonth}
