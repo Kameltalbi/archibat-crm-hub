@@ -158,7 +158,7 @@ const Products = () => {
       });
     }
   };
-  
+
   // Couleurs pour les catégories
   const getCategoryColor = (categoryName: string) => {
     const colors = {
@@ -245,7 +245,7 @@ const Products = () => {
                       </TableCell>
                       <TableCell className="hidden md:table-cell">{product.description || '-'}</TableCell>
                       <TableCell className="text-right">
-                        {product.price.toLocaleString()} €
+                        {product.price.toLocaleString()} TND
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center gap-2">
