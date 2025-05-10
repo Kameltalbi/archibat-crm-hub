@@ -1,4 +1,3 @@
-
 import { createClient } from '@supabase/supabase-js';
 import type { Database } from '@/integrations/supabase/types';
 
@@ -27,6 +26,16 @@ export interface Client {
   address: string | null;
   created_at: string;
   updated_at: string;
+  // Added fields for client contacts
+  vat_code?: string | null;
+  contact1_name?: string | null;
+  contact1_position?: string | null;
+  contact1_email?: string | null;
+  contact1_phone?: string | null;
+  contact2_name?: string | null;
+  contact2_position?: string | null;
+  contact2_email?: string | null;
+  contact2_phone?: string | null;
 }
 
 export interface Product {
