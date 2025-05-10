@@ -125,6 +125,16 @@ const Projects = () => {
     (project.category && project.category.toLowerCase().includes(searchTerm.toLowerCase()))
   );
   
+  // Format currency for target_revenue display
+  const formatCurrency = (amount: number | null) => {
+    if (amount === null) return "-";
+    return new Intl.NumberFormat('fr-FR', { 
+      style: 'currency', 
+      currency: 'EUR',
+      minimumFractionDigits: 0
+    }).format(amount);
+  };
+  
   return (
     <div className="space-y-8">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
@@ -162,7 +172,7 @@ const Projects = () => {
               <TableHeader>
                 <TableRow>
                   <TableHead>Nom</TableHead>
-                  <TableHead>Client</TableHead>
+                  <TableHead>Objectif CA</TableHead>
                   <TableHead>Catégorie</TableHead>
                   <TableHead className="hidden md:table-cell">Date début</TableHead>
                   <TableHead className="hidden md:table-cell">Date fin</TableHead>
@@ -191,7 +201,7 @@ const Projects = () => {
                       onClick={() => handleRowClick(project)}
                     >
                       <TableCell className="font-medium">{project.name}</TableCell>
-                      <TableCell>{project.client_name}</TableCell>
+                      <TableCell>{formatCurrency(project.target_revenue)}</TableCell>
                       <TableCell>{project.category || '-'}</TableCell>
                       <TableCell className="hidden md:table-cell">
                         {project.start_date ? new Date(project.start_date).toLocaleDateString() : '-'}
