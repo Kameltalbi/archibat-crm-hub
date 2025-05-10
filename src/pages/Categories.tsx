@@ -28,7 +28,9 @@ const Categories = () => {
   const [categories, setCategories] = useState<CategoryWithProductCount[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [newCategory, setNewCategory] = useState({ name: "", description: "" });
+  const [editingCategory, setEditingCategory] = useState<CategoryWithProductCount | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
 
@@ -120,6 +122,50 @@ const Categories = () => {
     }
   };
 
+  const handleUpdateCategory = async () => {
+    if (!editingCategory || editingCategory.name.trim() === "") return;
+
+    try {
+      const { data, error } = await supabase
+        .from('categories')
+        .update({ 
+          name: editingCategory.name, 
+          description: editingCategory.description || null 
+        })
+        .eq('id', editingCategory.id)
+        .select();
+        
+      if (error) {
+        throw error;
+      }
+      
+      if (data && data.length > 0) {
+        // Mise à jour de la catégorie dans le tableau local
+        const updatedCategories = categories.map(category => 
+          category.id === editingCategory.id 
+            ? { ...data[0], productsCount: editingCategory.productsCount } 
+            : category
+        );
+        
+        setCategories(updatedCategories);
+        setIsEditDialogOpen(false);
+        setEditingCategory(null);
+        
+        toast({
+          title: "Catégorie modifiée",
+          description: "La catégorie a été modifiée avec succès."
+        });
+      }
+    } catch (error) {
+      console.error('Erreur lors de la modification de la catégorie:', error);
+      toast({
+        variant: "destructive",
+        title: "Erreur",
+        description: "Impossible de modifier la catégorie. Veuillez réessayer."
+      });
+    }
+  };
+
   const handleDeleteCategory = async (id: string) => {
     try {
       const { error } = await supabase
@@ -144,6 +190,11 @@ const Categories = () => {
         description: "Impossible de supprimer la catégorie. Veuillez réessayer."
       });
     }
+  };
+
+  const handleEditClick = (category: CategoryWithProductCount) => {
+    setEditingCategory(category);
+    setIsEditDialogOpen(true);
   };
 
   const filteredCategories = categories.filter(category =>
@@ -225,6 +276,75 @@ const Categories = () => {
             </DialogFooter>
           </DialogContent>
         </Dialog>
+
+        {/* Dialogue de modification */}
+        <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+          <DialogContent className="sm:max-w-[425px]">
+            <DialogHeader>
+              <DialogTitle className="text-xl text-charcoal dark:text-light-gray">
+                Modifier la catégorie
+              </DialogTitle>
+              <DialogDescription className="text-muted-foreground">
+                Modifiez les informations de la catégorie
+              </DialogDescription>
+            </DialogHeader>
+            
+            <div className="grid gap-4 py-4">
+              <div className="grid gap-2">
+                <label htmlFor="edit-name" className="text-sm font-medium">
+                  Nom de la catégorie *
+                </label>
+                <Input
+                  id="edit-name"
+                  value={editingCategory?.name || ""}
+                  onChange={(e) => 
+                    setEditingCategory(prev => 
+                      prev ? {...prev, name: e.target.value} : null
+                    )
+                  }
+                  placeholder="Saisissez le nom de la catégorie"
+                  className="border-input"
+                  required
+                />
+              </div>
+
+              <div className="grid gap-2">
+                <label htmlFor="edit-description" className="text-sm font-medium">
+                  Description
+                </label>
+                <Textarea
+                  id="edit-description"
+                  value={editingCategory?.description || ""}
+                  onChange={(e) => 
+                    setEditingCategory(prev => 
+                      prev ? {...prev, description: e.target.value} : null
+                    )
+                  }
+                  placeholder="Description (optionnelle)"
+                  className="border-input min-h-[100px]"
+                />
+              </div>
+            </div>
+            
+            <DialogFooter>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setIsEditDialogOpen(false)}
+              >
+                Annuler
+              </Button>
+              <Button
+                type="submit"
+                onClick={handleUpdateCategory}
+                className="bg-terracotta hover:bg-ocre text-white"
+                disabled={!editingCategory?.name?.trim()}
+              >
+                Mettre à jour
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
       
       <Card className="animate-fade-in">
@@ -282,7 +402,11 @@ const Categories = () => {
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center gap-2">
-                          <Button variant="ghost" size="icon">
+                          <Button 
+                            variant="ghost" 
+                            size="icon"
+                            onClick={() => handleEditClick(category)}
+                          >
                             <Edit className="h-4 w-4" />
                           </Button>
                           <Button 
