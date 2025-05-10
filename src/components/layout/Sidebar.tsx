@@ -35,6 +35,11 @@ const menuItems = [
     path: "/products",
   },
   {
+    title: "Calendrier",
+    icon: Calendar,
+    path: "/calendar",
+  },
+  {
     title: "Paramètres",
     icon: Settings,
     path: "/settings",
