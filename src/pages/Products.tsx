@@ -1,11 +1,13 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Search, Edit, Trash } from "lucide-react";
+import { Search, Edit, Trash } from "lucide-react";
 import AddCategoryModal from "@/components/products/AddCategoryModal";
+import AddProductModal, { Category } from "@/components/products/AddProductModal";
 
 const products = [
   {
@@ -52,6 +54,13 @@ const products = [
   },
 ];
 
+// Define the categories array
+const categories: Category[] = [
+  { id: 1, name: "Études" },
+  { id: 2, name: "Travaux" },
+  { id: 3, name: "Services" },
+];
+
 const categoryColors = {
   "Études": "bg-terracotta text-white",
   "Travaux": "bg-ocre text-white",
@@ -66,6 +75,13 @@ const Products = () => {
     product.category.toLowerCase().includes(searchTerm.toLowerCase())
   );
   
+  const handleSaveProduct = (productData: any) => {
+    // In a real application, this would update the state or call an API
+    console.log("New product to add:", productData);
+    // Here we would typically add the product to the products array
+    // and refresh the product list
+  };
+  
   return (
     <div className="space-y-8">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
@@ -77,9 +93,7 @@ const Products = () => {
         </div>
         <div className="flex gap-3">
           <AddCategoryModal />
-          <Button className="bg-terracotta hover:bg-ocre">
-            <Plus className="mr-2 h-4 w-4" /> Produit
-          </Button>
+          <AddProductModal categories={categories} onSave={handleSaveProduct} />
         </div>
       </div>
       
