@@ -228,7 +228,7 @@ const ClientDetails = () => {
               <div className="text-center py-4">
                 <p className="text-4xl font-bold">
                   {yearRevenue !== null 
-                    ? new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(yearRevenue)
+                    ? new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'TND' }).format(yearRevenue)
                     : "Calcul..."}
                 </p>
               </div>
