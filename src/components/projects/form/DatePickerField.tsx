@@ -10,6 +10,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
+import { useState } from "react";
 
 interface DatePickerFieldProps {
   id: string;
@@ -26,6 +27,9 @@ const DatePickerField = ({
   onChange, 
   required 
 }: DatePickerFieldProps) => {
+  // Add state to control the current month in the calendar
+  const [calendarMonth, setCalendarMonth] = useState<Date>(value || new Date());
+
   return (
     <div className="grid gap-2">
       <label htmlFor={id} className="text-sm font-medium">
@@ -55,7 +59,11 @@ const DatePickerField = ({
             selected={value}
             onSelect={onChange}
             initialFocus
+            month={calendarMonth}
+            onMonthChange={setCalendarMonth}
             className="pointer-events-auto"
+            locale={fr}
+            fromDate={new Date(2000, 0, 1)} // Allow dates from January 1, 2000
           />
         </PopoverContent>
       </Popover>
