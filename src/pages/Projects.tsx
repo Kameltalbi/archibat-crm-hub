@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -125,12 +126,12 @@ const Projects = () => {
     (project.category && project.category.toLowerCase().includes(searchTerm.toLowerCase()))
   );
   
-  // Format currency for target_revenue display
+  // Format currency for target_revenue display with TND instead of EUR
   const formatCurrency = (amount: number | null) => {
     if (amount === null) return "-";
     return new Intl.NumberFormat('fr-FR', { 
       style: 'currency', 
-      currency: 'EUR',
+      currency: 'TND',
       minimumFractionDigits: 0
     }).format(amount);
   };
