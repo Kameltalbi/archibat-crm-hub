@@ -1,12 +1,12 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Search, Edit, Trash } from "lucide-react";
+import { Search, Trash } from "lucide-react";
 import AddProductModal, { Category } from "@/components/products/AddProductModal";
+import EditProductModal from "@/components/products/EditProductModal";
 import { supabase } from "@/lib/supabase";
 import { useToast } from "@/hooks/use-toast";
 import { Product } from "@/lib/supabase";
@@ -249,9 +249,11 @@ const Products = () => {
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center gap-2">
-                          <Button variant="ghost" size="icon">
-                            <Edit className="h-4 w-4" />
-                          </Button>
+                          <EditProductModal 
+                            product={product} 
+                            categories={categories} 
+                            onUpdate={fetchProducts} 
+                          />
                           <Button 
                             variant="ghost" 
                             size="icon" 

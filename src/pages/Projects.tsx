@@ -2,9 +2,10 @@ import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Search, Edit, Trash } from "lucide-react";
+import { Search, Trash } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import AddProjectModal from "@/components/projects/AddProjectModal";
+import EditProjectModal from "@/components/projects/EditProjectModal";
 import ProjectDetails from "@/components/projects/ProjectDetails";
 import { supabase } from "@/lib/supabase";
 import { useToast } from "@/hooks/use-toast";
@@ -124,7 +125,6 @@ const Projects = () => {
     (project.category && project.category.toLowerCase().includes(searchTerm.toLowerCase()))
   );
   
-  // Update the AddProjectModal component usage to include onProjectAdded prop
   return (
     <div className="space-y-8">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
@@ -210,9 +210,10 @@ const Projects = () => {
                       </TableCell>
                       <TableCell onClick={(e) => e.stopPropagation()}>
                         <div className="flex items-center gap-2">
-                          <Button variant="ghost" size="icon">
-                            <Edit className="h-4 w-4" />
-                          </Button>
+                          <EditProjectModal 
+                            project={project} 
+                            onUpdate={fetchProjects}
+                          />
                           <Button 
                             variant="ghost" 
                             size="icon" 
