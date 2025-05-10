@@ -1,4 +1,3 @@
-
 import { useState, useMemo } from "react";
 import { 
   Dialog,
@@ -9,6 +8,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { TableRow, TableCell, TableHeader, TableHead, Table, TableBody } from "@/components/ui/table";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
+import { Progress } from "@/components/ui/progress";
 import AddSaleModal from "@/components/projects/AddSaleModal";
 
 interface Client {
@@ -71,6 +71,13 @@ const ProjectDetails = ({ project, open, onClose }: ProjectDetailsProps) => {
   const totalRevenue = useMemo(() => {
     return sales.reduce((sum, sale) => sum + sale.amount, 0);
   }, [sales]);
+
+  // Calculate percentage of target reached
+  const percentageReached = useMemo(() => {
+    if (!project.targetRevenue || project.targetRevenue === 0) return 0;
+    const percentage = (totalRevenue / project.targetRevenue) * 100;
+    return Math.min(percentage, 100); // Cap at 100%
+  }, [totalRevenue, project.targetRevenue]);
 
   // Prepare pie chart data by category
   const chartData = useMemo(() => {
@@ -135,9 +142,19 @@ const ProjectDetails = ({ project, open, onClose }: ProjectDetailsProps) => {
                   {formatTargetRevenue(project.targetRevenue)}
                 </div>
                 {project.targetRevenue && totalRevenue > 0 && (
-                  <p className="text-sm text-muted-foreground mt-2">
-                    {Math.round((totalRevenue / project.targetRevenue) * 100)}% de l'objectif atteint
-                  </p>
+                  <>
+                    <div className="mt-4 space-y-2">
+                      <div className="flex items-center justify-between">
+                        <p className="text-sm text-muted-foreground">
+                          {Math.round(percentageReached)}% de l'objectif atteint
+                        </p>
+                        <p className="text-sm font-medium">
+                          {new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'TND', minimumFractionDigits: 0 }).format(totalRevenue)}
+                        </p>
+                      </div>
+                      <Progress value={percentageReached} className="h-2" />
+                    </div>
+                  </>
                 )}
               </CardContent>
             </Card>
