@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -6,11 +5,11 @@ import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Plus, Search, Trash, FileSpreadsheet } from "lucide-react";
 import AddClientModal from "@/components/clients/AddClientModal";
-import { supabase } from "@/lib/supabase";
 import { useToast } from "@/hooks/use-toast";
 import { Client } from "@/lib/supabase";
 import ImportClientsModal from "@/components/clients/ImportClientsModal";
 import EditClientModal from "@/components/clients/EditClientModal";
+import { clientService } from "@/services/clientService";
 
 const Clients = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -26,16 +25,8 @@ const Clients = () => {
   const fetchClients = async () => {
     setIsLoading(true);
     try {
-      const { data, error } = await supabase
-        .from('clients')
-        .select('*')
-        .order('name', { ascending: true });
-        
-      if (error) {
-        throw error;
-      }
-      
-      setClients(data || []);
+      const clientsData = await clientService.getAllClients();
+      setClients(clientsData);
     } catch (error) {
       console.error('Erreur lors du chargement des clients:', error);
       toast({
@@ -50,13 +41,10 @@ const Clients = () => {
   
   const handleDeleteClient = async (id: string) => {
     try {
-      const { error } = await supabase
-        .from('clients')
-        .delete()
-        .eq('id', id);
-        
-      if (error) {
-        throw error;
+      const success = await clientService.deleteClient(id);
+      
+      if (!success) {
+        throw new Error("Échec de la suppression");
       }
       
       setClients(clients.filter(client => client.id !== id));
