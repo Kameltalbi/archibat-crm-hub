@@ -60,7 +60,7 @@ const AppSidebar = () => {
         <span className="text-xl font-semibold text-terracotta">Archibat Pro</span>
       </SidebarHeader>
       <SidebarContent>
-        <SidebarMenu>
+        <SidebarMenu className="py-4 space-y-4">
           {menuItems.map((item, index) => (
             <SidebarMenuItem key={item.path}>
               <SidebarMenuButton
@@ -72,10 +72,10 @@ const AppSidebar = () => {
               >
                 <Link 
                   to={item.path} 
-                  className="flex items-center gap-3 py-2 px-3"
+                  className="flex items-center gap-4 py-3 px-4"
                 >
-                  <item.icon size={20} />
-                  <span>{item.title}</span>
+                  <item.icon size={24} />
+                  <span className="text-base font-semibold">{item.title}</span>
                 </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>
@@ -85,10 +85,10 @@ const AppSidebar = () => {
       <SidebarFooter className="p-4 text-center text-xs text-sidebar-foreground/70">
         <button 
           onClick={handleLogout}
-          className="flex items-center justify-center w-full gap-2 py-2 px-3 mb-4 rounded-md text-sidebar-foreground hover:bg-menu-highlight/40 transition-colors"
+          className="flex items-center justify-center w-full gap-2 py-3 px-3 mb-4 rounded-md text-sidebar-foreground hover:bg-menu-highlight/40 transition-colors"
         >
-          <LogOut size={16} />
-          <span>Se déconnecter</span>
+          <LogOut size={20} />
+          <span className="text-base font-semibold">Se déconnecter</span>
         </button>
         <div className="border-t border-sidebar-border pt-4">
           <p>Archibat Pro CRM</p>
