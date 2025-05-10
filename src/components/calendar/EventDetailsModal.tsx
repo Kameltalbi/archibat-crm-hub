@@ -4,6 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Event, EventType, Project } from "@/pages/Calendar";
 import { CalendarIcon } from "lucide-react";
+import { format } from "date-fns";
+import { fr } from "date-fns/locale";
 
 interface EventDetailsModalProps {
   isOpen: boolean;
@@ -28,11 +30,7 @@ const EventDetailsModal = ({ isOpen, onClose, event, eventTypes, projects }: Eve
   
   // Format date
   const formatDate = (date: Date): string => {
-    return date.toLocaleDateString('fr-FR', {
-      day: 'numeric',
-      month: 'long',
-      year: 'numeric'
-    });
+    return format(date, "d MMMM yyyy", { locale: fr });
   };
 
   return (

@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -8,6 +7,8 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import AddEventModal from "@/components/calendar/AddEventModal";
 import EventDetailsModal from "@/components/calendar/EventDetailsModal";
 import { Badge } from "@/components/ui/badge";
+import { format } from "date-fns";
+import { fr } from "date-fns/locale";
 
 // Mock event types with colors
 export const eventTypes = [
@@ -74,6 +75,7 @@ export type Project = {
 };
 
 const CalendarPage = () => {
+  // ... keep existing code (state variables and handlers)
   const [events, setEvents] = useState<Event[]>(mockEvents);
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
   const [selectedView, setSelectedView] = useState<"month" | "week">("month");
@@ -118,11 +120,7 @@ const CalendarPage = () => {
 
   // Helper function to format date
   const formatDate = (date: Date): string => {
-    return date.toLocaleDateString('fr-FR', {
-      day: 'numeric',
-      month: 'short',
-      year: 'numeric'
-    });
+    return format(date, "d MMMM yyyy", { locale: fr });
   };
 
   return (

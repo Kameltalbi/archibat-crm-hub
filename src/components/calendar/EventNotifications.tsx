@@ -12,6 +12,8 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Event, EventType } from "@/pages/Calendar";
 import { useToast } from "@/hooks/use-toast";
+import { format } from "date-fns";
+import { fr } from "date-fns/locale";
 
 interface EventNotificationsProps {
   events: Event[];
@@ -70,12 +72,7 @@ const EventNotifications = ({ events, eventTypes, onEventClick, projects = [] }:
   
   // Format date for display
   const formatDate = (date: Date): string => {
-    return date.toLocaleDateString('fr-FR', {
-      day: 'numeric',
-      month: 'short',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
+    return format(date, "d MMM HH:mm", { locale: fr });
   };
   
   return (

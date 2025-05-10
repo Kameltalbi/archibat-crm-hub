@@ -11,6 +11,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { CalendarIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
+import { fr } from "date-fns/locale";
 import { EventType, Project } from "@/pages/Calendar";
 
 interface AddEventModalProps {
@@ -109,7 +110,7 @@ const AddEventModal = ({ isOpen, onClose, onSave, eventTypes, projects }: AddEve
                   )}
                 >
                   <CalendarIcon className="mr-2 h-4 w-4" />
-                  {date ? format(date, "dd MMMM yyyy") : <span>Sélectionner une date</span>}
+                  {date ? format(date, "dd MMMM yyyy", { locale: fr }) : <span>Sélectionner une date</span>}
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-auto p-0">
