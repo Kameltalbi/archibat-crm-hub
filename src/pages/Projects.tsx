@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -6,7 +7,6 @@ import { Search, Trash } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import AddProjectModal from "@/components/projects/AddProjectModal";
 import EditProjectModal from "@/components/projects/EditProjectModal";
-import ProjectDetails from "@/components/projects/ProjectDetails";
 import { supabase } from "@/lib/supabase";
 import { useToast } from "@/hooks/use-toast";
 import { Project, ProjectStatus } from "@/lib/supabase";
@@ -19,10 +19,9 @@ interface ProjectWithClient extends Omit<Project, 'status'> {
 }
 
 const Projects = () => {
+  const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
   const [projects, setProjects] = useState<ProjectWithClient[]>([]);
-  const [selectedProject, setSelectedProject] = useState<ProjectWithClient | null>(null);
-  const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
   
@@ -94,12 +93,7 @@ const Projects = () => {
   };
 
   const handleRowClick = (project: ProjectWithClient) => {
-    setSelectedProject(project);
-    setIsDetailsOpen(true);
-  };
-  
-  const closeDetails = () => {
-    setIsDetailsOpen(false);
+    navigate(`/projects/${project.id}`);
   };
   
   const getStatusClass = (status: string | null) => {
@@ -228,7 +222,10 @@ const Projects = () => {
                             variant="ghost" 
                             size="icon" 
                             className="text-destructive"
-                            onClick={() => handleDeleteProject(project.id)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDeleteProject(project.id);
+                            }}
                           >
                             <Trash className="h-4 w-4" />
                           </Button>
@@ -242,23 +239,6 @@ const Projects = () => {
           </div>
         </CardContent>
       </Card>
-      
-      {selectedProject && (
-        <ProjectDetails 
-          project={{
-            id: Number(selectedProject.id),
-            name: selectedProject.name,
-            client: selectedProject.client_name,
-            startDate: selectedProject.start_date || '',
-            endDate: selectedProject.end_date || '',
-            status: selectedProject.status || '',
-            clients: [{ id: Number(selectedProject.client_id || 0), name: selectedProject.client_name }],
-            category: selectedProject.category || undefined
-          }}
-          open={isDetailsOpen} 
-          onClose={closeDetails} 
-        />
-      )}
     </div>
   );
 };

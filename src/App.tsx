@@ -5,6 +5,7 @@ import Dashboard from "./pages/Index";
 import Clients from "./pages/Clients";
 import ClientDetails from "./pages/ClientDetails";
 import Projects from "./pages/Projects";
+import ProjectDetails from "./pages/ProjectDetails";
 import Products from "./pages/Products";
 import Categories from "./pages/Categories";
 import NotFound from "./pages/NotFound";
@@ -23,6 +24,7 @@ const App = () => {
             <Route path="clients" element={<Clients />} />
             <Route path="clients/:id" element={<ClientDetails />} />
             <Route path="projects" element={<Projects />} />
+            <Route path="projects/:id" element={<ProjectDetails />} />
             <Route path="products" element={<Products />} />
             <Route path="categories" element={<Categories />} />
             <Route path="calendar" element={<Calendar />} />
