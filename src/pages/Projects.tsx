@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -7,89 +7,88 @@ import { Search, Edit, Trash } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import AddProjectModal from "@/components/projects/AddProjectModal";
 import ProjectDetails from "@/components/projects/ProjectDetails";
+import { supabase } from "@/lib/supabase";
+import { useToast } from "@/hooks/use-toast";
+import { Project } from "@/lib/supabase";
 
-// Client interface
-interface Client {
-  id: number;
-  name: string;
+interface ProjectWithClient extends Project {
+  client_name: string;
 }
-
-// Project interface with clients array and category
-interface Project {
-  id: number;
-  name: string;
-  client: string;
-  startDate: string;
-  endDate: string;
-  status: string;
-  clients: Client[];
-  category: string; // Ajout de la catégorie de projet
-}
-
-// Mock project data
-const projects: Project[] = [
-  {
-    id: 1,
-    name: "Rénovation Immeuble Castellane",
-    client: "Cabinet Martin & Associés",
-    startDate: "15/03/2023",
-    endDate: "30/09/2023",
-    status: "En cours",
-    clients: [
-      { id: 3, name: "Cabinet Martin & Associés" }
-    ],
-    category: "Rénovation"
-  },
-  {
-    id: 2,
-    name: "Construction Villa Prado",
-    client: "SCI Bartoli",
-    startDate: "10/01/2023",
-    endDate: "20/12/2023",
-    status: "En cours",
-    clients: [
-      { id: 2, name: "SCI Bartoli" }
-    ],
-    category: "Construction"
-  },
-  {
-    id: 3,
-    name: "Aménagement Bureaux Vieux-Port",
-    client: "Groupe Durand",
-    startDate: "05/11/2022",
-    endDate: "28/02/2023",
-    status: "Terminé",
-    clients: [
-      { id: 1, name: "Groupe Durand" }
-    ],
-    category: "Aménagement"
-  },
-  {
-    id: 4,
-    name: "Réhabilitation Centre Culturel",
-    client: "Fondation Meyers",
-    startDate: "01/06/2023",
-    endDate: "15/03/2024",
-    status: "Suspendu",
-    clients: [
-      { id: 5, name: "Fondation Meyers" }
-    ],
-    category: "Réhabilitation"
-  },
-];
 
 const Projects = () => {
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
+  const [projects, setProjects] = useState<ProjectWithClient[]>([]);
+  const [selectedProject, setSelectedProject] = useState<ProjectWithClient | null>(null);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const { toast } = useToast();
   
-  const filteredProjects = projects.filter(project =>
-    project.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    project.client.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    project.category.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  useEffect(() => {
+    fetchProjects();
+  }, []);
 
-  const handleRowClick = (project: Project) => {
+  const fetchProjects = async () => {
+    setIsLoading(true);
+    try {
+      const { data: projectsData, error: projectsError } = await supabase
+        .from('projects')
+        .select(`
+          *,
+          clients(name)
+        `);
+        
+      if (projectsError) {
+        throw projectsError;
+      }
+      
+      // Transformer les données pour inclure le nom du client
+      const formattedProjects: ProjectWithClient[] = projectsData.map(project => {
+        return {
+          ...project,
+          client_name: project.clients ? project.clients.name : 'Pas de client'
+        };
+      });
+      
+      setProjects(formattedProjects);
+    } catch (error) {
+      console.error('Erreur lors du chargement des projets:', error);
+      toast({
+        variant: "destructive",
+        title: "Erreur",
+        description: "Impossible de charger les projets. Veuillez réessayer."
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleDeleteProject = async (id: string) => {
+    try {
+      const { error } = await supabase
+        .from('projects')
+        .delete()
+        .eq('id', id);
+        
+      if (error) {
+        throw error;
+      }
+      
+      setProjects(projects.filter(project => project.id !== id));
+      toast({
+        title: "Projet supprimé",
+        description: "Le projet a été supprimé avec succès."
+      });
+    } catch (error) {
+      console.error('Erreur lors de la suppression du projet:', error);
+      toast({
+        variant: "destructive",
+        title: "Erreur",
+        description: "Impossible de supprimer le projet. Veuillez réessayer."
+      });
+    }
+  };
+
+  const handleRowClick = (project: ProjectWithClient) => {
     setSelectedProject(project);
     setIsDetailsOpen(true);
   };
@@ -97,6 +96,29 @@ const Projects = () => {
   const closeDetails = () => {
     setIsDetailsOpen(false);
   };
+  
+  const getStatusClass = (status: string | null) => {
+    if (!status) return "bg-gray-100 text-gray-700 border border-gray-200";
+    
+    switch (status) {
+      case "En cours":
+        return "bg-amber-50 text-amber-700 border border-amber-200";
+      case "Terminé":
+        return "bg-emerald-50 text-emerald-700 border border-emerald-200";
+      case "Planifié":
+        return "bg-blue-50 text-blue-700 border border-blue-200";
+      case "Suspendu":
+        return "bg-red-50 text-red-700 border border-red-200";
+      default:
+        return "bg-gray-100 text-gray-700 border border-gray-200";
+    }
+  };
+  
+  const filteredProjects = projects.filter(project =>
+    project.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    project.client_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (project.category && project.category.toLowerCase().includes(searchTerm.toLowerCase()))
+  );
   
   return (
     <div className="space-y-8">
@@ -107,7 +129,7 @@ const Projects = () => {
             Gérez vos projets et leur avancement
           </p>
         </div>
-        <AddProjectModal />
+        <AddProjectModal onProjectAdded={fetchProjects} />
       </div>
       
       <Card className="animate-fade-in">
@@ -144,49 +166,60 @@ const Projects = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredProjects.map((project) => (
-                  <TableRow 
-                    key={project.id}
-                    className="cursor-pointer hover:bg-muted/60"
-                    onClick={() => handleRowClick(project)}
-                  >
-                    <TableCell className="font-medium">{project.name}</TableCell>
-                    <TableCell>{project.client}</TableCell>
-                    <TableCell>{project.category}</TableCell>
-                    <TableCell className="hidden md:table-cell">{project.startDate}</TableCell>
-                    <TableCell className="hidden md:table-cell">{project.endDate}</TableCell>
-                    <TableCell>
-                      <span 
-                        className={`inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ${
-                          project.status === "En cours" 
-                            ? "bg-amber-50 text-amber-700 border border-amber-200" 
-                            : project.status === "Terminé"
-                            ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
-                            : "bg-gray-100 text-gray-700 border border-gray-200"
-                        }`}
-                      >
-                        {project.status}
-                      </span>
-                    </TableCell>
-                    <TableCell onClick={(e) => e.stopPropagation()}>
-                      <div className="flex items-center gap-2">
-                        <Button variant="ghost" size="icon">
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                        <Button variant="ghost" size="icon" className="text-destructive">
-                          <Trash className="h-4 w-4" />
-                        </Button>
-                      </div>
+                {isLoading ? (
+                  <TableRow>
+                    <TableCell colSpan={7} className="text-center py-6 text-muted-foreground">
+                      Chargement des données...
                     </TableCell>
                   </TableRow>
-                ))}
-                
-                {filteredProjects.length === 0 && (
+                ) : filteredProjects.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={7} className="text-center py-6 text-muted-foreground">
                       Aucun projet trouvé
                     </TableCell>
                   </TableRow>
+                ) : (
+                  filteredProjects.map((project) => (
+                    <TableRow 
+                      key={project.id}
+                      className="cursor-pointer hover:bg-muted/60"
+                      onClick={() => handleRowClick(project)}
+                    >
+                      <TableCell className="font-medium">{project.name}</TableCell>
+                      <TableCell>{project.client_name}</TableCell>
+                      <TableCell>{project.category || '-'}</TableCell>
+                      <TableCell className="hidden md:table-cell">
+                        {project.start_date ? new Date(project.start_date).toLocaleDateString() : '-'}
+                      </TableCell>
+                      <TableCell className="hidden md:table-cell">
+                        {project.end_date ? new Date(project.end_date).toLocaleDateString() : '-'}
+                      </TableCell>
+                      <TableCell>
+                        <span 
+                          className={`inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ${
+                            getStatusClass(project.status)
+                          }`}
+                        >
+                          {project.status || 'Non défini'}
+                        </span>
+                      </TableCell>
+                      <TableCell onClick={(e) => e.stopPropagation()}>
+                        <div className="flex items-center gap-2">
+                          <Button variant="ghost" size="icon">
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          <Button 
+                            variant="ghost" 
+                            size="icon" 
+                            className="text-destructive"
+                            onClick={() => handleDeleteProject(project.id)}
+                          >
+                            <Trash className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))
                 )}
               </TableBody>
             </Table>
@@ -195,11 +228,13 @@ const Projects = () => {
       </Card>
       
       {/* Project Details Modal */}
-      <ProjectDetails 
-        project={selectedProject} 
-        open={isDetailsOpen} 
-        onClose={closeDetails} 
-      />
+      {selectedProject && (
+        <ProjectDetails 
+          project={selectedProject} 
+          open={isDetailsOpen} 
+          onClose={closeDetails} 
+        />
+      )}
     </div>
   );
 };

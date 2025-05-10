@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -16,65 +16,140 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
+import { supabase } from "@/lib/supabase";
+import { useToast } from "@/hooks/use-toast";
+import { Category } from "@/lib/supabase";
 
-interface Category {
-  id: number;
-  name: string;
-  description: string;
+interface CategoryWithProductCount extends Category {
   productsCount: number;
 }
 
-const mockCategories: Category[] = [
-  {
-    id: 1,
-    name: "Études",
-    description: "Services d'étude et de conception",
-    productsCount: 2,
-  },
-  {
-    id: 2,
-    name: "Travaux",
-    description: "Prestations de travaux et rénovations",
-    productsCount: 2,
-  },
-  {
-    id: 3,
-    name: "Services",
-    description: "Services de conseil et accompagnement",
-    productsCount: 2,
-  },
-];
-
 const Categories = () => {
-  const [categories, setCategories] = useState<Category[]>(mockCategories);
+  const [categories, setCategories] = useState<CategoryWithProductCount[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [newCategory, setNewCategory] = useState({ name: "", description: "" });
+  const [isLoading, setIsLoading] = useState(true);
+  const { toast } = useToast();
+
+  useEffect(() => {
+    fetchCategories();
+  }, []);
+
+  const fetchCategories = async () => {
+    setIsLoading(true);
+    try {
+      // Récupération des catégories
+      const { data: categoriesData, error: categoriesError } = await supabase
+        .from('categories')
+        .select('*');
+        
+      if (categoriesError) {
+        throw categoriesError;
+      }
+      
+      // Récupération du nombre de produits par catégorie
+      const { data: productsData, error: productsError } = await supabase
+        .from('products')
+        .select('category_id');
+        
+      if (productsError) {
+        throw productsError;
+      }
+      
+      // Calcul du nombre de produits par catégorie
+      const categoriesWithCount = categoriesData?.map(category => {
+        const productsCount = productsData?.filter(product => product.category_id === category.id).length || 0;
+        return {
+          ...category,
+          productsCount
+        };
+      }) || [];
+      
+      setCategories(categoriesWithCount);
+    } catch (error) {
+      console.error('Erreur lors du chargement des catégories:', error);
+      toast({
+        variant: "destructive",
+        title: "Erreur",
+        description: "Impossible de charger les catégories. Veuillez réessayer."
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleSaveCategory = async () => {
+    if (newCategory.name.trim() === "") return;
+
+    try {
+      const { data, error } = await supabase
+        .from('categories')
+        .insert([{ 
+          name: newCategory.name, 
+          description: newCategory.description || null 
+        }])
+        .select();
+        
+      if (error) {
+        throw error;
+      }
+      
+      if (data && data.length > 0) {
+        const newCategoryWithCount = {
+          ...data[0],
+          productsCount: 0
+        };
+        
+        setCategories([...categories, newCategoryWithCount]);
+        setNewCategory({ name: "", description: "" });
+        setIsAddDialogOpen(false);
+        
+        toast({
+          title: "Catégorie ajoutée",
+          description: "La catégorie a été ajoutée avec succès."
+        });
+      }
+    } catch (error) {
+      console.error('Erreur lors de l\'ajout de la catégorie:', error);
+      toast({
+        variant: "destructive",
+        title: "Erreur",
+        description: "Impossible d'ajouter la catégorie. Veuillez réessayer."
+      });
+    }
+  };
+
+  const handleDeleteCategory = async (id: string) => {
+    try {
+      const { error } = await supabase
+        .from('categories')
+        .delete()
+        .eq('id', id);
+        
+      if (error) {
+        throw error;
+      }
+      
+      setCategories(categories.filter(category => category.id !== id));
+      toast({
+        title: "Catégorie supprimée",
+        description: "La catégorie a été supprimée avec succès."
+      });
+    } catch (error) {
+      console.error('Erreur lors de la suppression de la catégorie:', error);
+      toast({
+        variant: "destructive",
+        title: "Erreur",
+        description: "Impossible de supprimer la catégorie. Veuillez réessayer."
+      });
+    }
+  };
 
   const filteredCategories = categories.filter(category =>
     category.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    category.description.toLowerCase().includes(searchTerm.toLowerCase())
+    (category.description && category.description.toLowerCase().includes(searchTerm.toLowerCase()))
   );
-
-  const handleSaveCategory = () => {
-    if (newCategory.name.trim() === "") return;
-
-    const newId = Math.max(...categories.map(c => c.id)) + 1;
-    const categoryToAdd = {
-      id: newId,
-      name: newCategory.name,
-      description: newCategory.description,
-      productsCount: 0,
-    };
-
-    setCategories([...categories, categoryToAdd]);
-    setNewCategory({ name: "", description: "" });
-    setIsAddDialogOpen(false);
-  };
-
-  const handleDeleteCategory = (id: number) => {
-    setCategories(categories.filter(category => category.id !== id));
-  };
 
   return (
     <div className="space-y-8">
@@ -183,39 +258,45 @@ const Categories = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredCategories.map((category) => (
-                  <TableRow key={category.id}>
-                    <TableCell className="font-medium">{category.name}</TableCell>
-                    <TableCell className="hidden md:table-cell">{category.description}</TableCell>
-                    <TableCell>
-                      <Badge variant="outline" className="bg-background">
-                        {category.productsCount}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-2">
-                        <Button variant="ghost" size="icon">
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                        <Button 
-                          variant="ghost" 
-                          size="icon" 
-                          className="text-destructive"
-                          onClick={() => handleDeleteCategory(category.id)}
-                        >
-                          <Trash className="h-4 w-4" />
-                        </Button>
-                      </div>
+                {isLoading ? (
+                  <TableRow>
+                    <TableCell colSpan={4} className="text-center py-6 text-muted-foreground">
+                      Chargement des données...
                     </TableCell>
                   </TableRow>
-                ))}
-                
-                {filteredCategories.length === 0 && (
+                ) : filteredCategories.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={4} className="text-center py-6 text-muted-foreground">
                       Aucune catégorie trouvée
                     </TableCell>
                   </TableRow>
+                ) : (
+                  filteredCategories.map((category) => (
+                    <TableRow key={category.id}>
+                      <TableCell className="font-medium">{category.name}</TableCell>
+                      <TableCell className="hidden md:table-cell">{category.description || '-'}</TableCell>
+                      <TableCell>
+                        <Badge variant="outline" className="bg-background">
+                          {category.productsCount}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-2">
+                          <Button variant="ghost" size="icon">
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          <Button 
+                            variant="ghost" 
+                            size="icon" 
+                            className="text-destructive"
+                            onClick={() => handleDeleteCategory(category.id)}
+                          >
+                            <Trash className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))
                 )}
               </TableBody>
             </Table>
