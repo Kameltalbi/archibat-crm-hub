@@ -14,6 +14,7 @@ interface ProjectFormData {
   endDate?: Date;
   status: string;
   category: string;
+  targetRevenue?: number; // Ajout du champ objectif CA
 }
 
 interface ProjectFormProps {
@@ -32,6 +33,7 @@ const ProjectForm = ({ onSuccess, onCancel, isOpen }: ProjectFormProps) => {
     endDate: undefined,
     status: "",
     category: "",
+    targetRevenue: undefined, // Initialisation du champ objectif CA
   });
 
   const handleChange = (field: string, value: any) => {
@@ -60,6 +62,7 @@ const ProjectForm = ({ onSuccess, onCancel, isOpen }: ProjectFormProps) => {
         end_date: formData.endDate ? formData.endDate.toISOString() : null,
         status: formData.status as any,
         category: formData.category || null,
+        target_revenue: formData.targetRevenue || null, // Ajout de l'objectif CA
       });
       
       if (newProject) {
@@ -99,6 +102,7 @@ const ProjectForm = ({ onSuccess, onCancel, isOpen }: ProjectFormProps) => {
       endDate: undefined,
       status: "",
       category: "",
+      targetRevenue: undefined, // Réinitialisation du champ objectif CA
     });
   };
 
@@ -125,6 +129,23 @@ const ProjectForm = ({ onSuccess, onCancel, isOpen }: ProjectFormProps) => {
         disabled={isLoading}
         isOpen={isOpen}
       />
+
+      {/* Target Revenue - Nouveau champ */}
+      <div className="grid gap-2">
+        <label htmlFor="targetRevenue" className="text-sm font-medium">
+          Objectif CA (DT HT)
+        </label>
+        <Input
+          id="targetRevenue"
+          type="number"
+          min="0"
+          step="0.01"
+          value={formData.targetRevenue || ""}
+          onChange={(e) => handleChange("targetRevenue", e.target.value ? parseFloat(e.target.value) : undefined)}
+          placeholder="Entrez l'objectif de chiffre d'affaires"
+          className="border-input"
+        />
+      </div>
 
       {/* Start Date */}
       <DatePickerField

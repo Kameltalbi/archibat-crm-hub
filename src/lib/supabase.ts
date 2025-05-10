@@ -1,3 +1,4 @@
+
 import { createClient } from '@supabase/supabase-js';
 import type { Database } from '@/integrations/supabase/types';
 
@@ -61,6 +62,7 @@ export interface Project {
   category: string | null;
   created_at: string;
   updated_at: string;
+  target_revenue: number | null; // Ajout du champ objectif CA
 }
 
 export interface ProjectProduct {
