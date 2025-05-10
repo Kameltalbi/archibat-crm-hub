@@ -7,6 +7,7 @@ import Projects from "./pages/Projects";
 import Products from "./pages/Products";
 import NotFound from "./pages/NotFound";
 import Calendar from "./pages/Calendar";
+import Settings from "./pages/Settings";
 import { Toaster } from "./components/ui/toaster";
 import { SidebarProvider } from "./components/ui/sidebar";
 
@@ -21,6 +22,7 @@ const App = () => {
             <Route path="projects" element={<Projects />} />
             <Route path="products" element={<Products />} />
             <Route path="calendar" element={<Calendar />} />
+            <Route path="settings" element={<Settings />} />
             <Route path="*" element={<NotFound />} />
           </Route>
         </Routes>
