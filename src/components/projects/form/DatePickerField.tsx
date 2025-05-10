@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface DatePickerFieldProps {
   id: string;
@@ -62,25 +63,25 @@ const DatePickerField = ({
           </Button>
         </PopoverTrigger>
         <PopoverContent 
-          className="w-auto min-w-[260px] p-0 z-[9999]" 
+          className="w-auto min-w-[260px] max-h-[300px] p-0 z-[9999]" 
           align="start"
-          side="bottom"
           sideOffset={4}
-          avoidCollisions={false}
         >
-          <Calendar
-            mode="single"
-            selected={value}
-            onSelect={handleSelect}
-            initialFocus
-            month={calendarMonth}
-            onMonthChange={setCalendarMonth}
-            className="pointer-events-auto"
-            locale={fr}
-            fromDate={new Date(2000, 0, 1)}
-            captionLayout="dropdown-buttons"
-            showOutsideDays={true}
-          />
+          <ScrollArea className="h-full max-h-[300px]">
+            <Calendar
+              mode="single"
+              selected={value}
+              onSelect={handleSelect}
+              initialFocus
+              month={calendarMonth}
+              onMonthChange={setCalendarMonth}
+              className="pointer-events-auto"
+              locale={fr}
+              fromDate={new Date(2000, 0, 1)}
+              captionLayout="dropdown-buttons"
+              showOutsideDays={true}
+            />
+          </ScrollArea>
         </PopoverContent>
       </Popover>
     </div>
