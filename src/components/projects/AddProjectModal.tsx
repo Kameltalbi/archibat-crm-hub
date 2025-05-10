@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { CalendarIcon, Plus } from "lucide-react";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
@@ -30,23 +30,18 @@ import {
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import { projectService } from "@/services/projectService";
+import { categoryService } from "@/services/categoryService";
+import { Category } from "@/lib/supabase";
 
 interface AddProjectModalProps {
   onProjectAdded?: () => void;
 }
 
-// Liste des catégories de projet
-const projectCategories = [
-  { id: 1, name: "Rénovation" },
-  { id: 2, name: "Construction" },
-  { id: 3, name: "Aménagement" },
-  { id: 4, name: "Réhabilitation" },
-  { id: 5, name: "Extension" },
-];
-
 const AddProjectModal = ({ onProjectAdded }: AddProjectModalProps) => {
   const [open, setOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [loadingCategories, setLoadingCategories] = useState(false);
   const { toast } = useToast();
   
   const [formData, setFormData] = useState({
@@ -56,6 +51,30 @@ const AddProjectModal = ({ onProjectAdded }: AddProjectModalProps) => {
     status: "",
     category: "",
   });
+
+  // Charger la liste des catégories depuis Supabase
+  useEffect(() => {
+    const fetchCategories = async () => {
+      setLoadingCategories(true);
+      try {
+        const data = await categoryService.getAllCategories();
+        setCategories(data);
+      } catch (error) {
+        console.error("Erreur lors du chargement des catégories:", error);
+        toast({
+          title: "Erreur",
+          description: "Impossible de charger les catégories. Veuillez réessayer.",
+          variant: "destructive",
+        });
+      } finally {
+        setLoadingCategories(false);
+      }
+    };
+    
+    if (open) {
+      fetchCategories();
+    }
+  }, [open, toast]);
 
   const handleChange = (field: string, value: any) => {
     setFormData({ ...formData, [field]: value });
@@ -177,11 +196,17 @@ const AddProjectModal = ({ onProjectAdded }: AddProjectModalProps) => {
                 <SelectValue placeholder="Sélectionner une catégorie" />
               </SelectTrigger>
               <SelectContent>
-                {projectCategories.map((category) => (
-                  <SelectItem key={category.id} value={category.name}>
-                    {category.name}
-                  </SelectItem>
-                ))}
+                {loadingCategories ? (
+                  <SelectItem value="loading" disabled>Chargement...</SelectItem>
+                ) : categories.length > 0 ? (
+                  categories.map((category) => (
+                    <SelectItem key={category.id} value={category.name}>
+                      {category.name}
+                    </SelectItem>
+                  ))
+                ) : (
+                  <SelectItem value="none" disabled>Aucune catégorie disponible</SelectItem>
+                )}
               </SelectContent>
             </Select>
           </div>
