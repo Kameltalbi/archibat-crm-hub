@@ -160,7 +160,7 @@ const ProjectDetails = () => {
 
   return (
     <div className="space-y-8">
-      {/* Back Button - Added prominently at the top */}
+      {/* Bouton de retour - Placé visiblement en haut */}
       <Button
         variant="outline"
         size="sm"
