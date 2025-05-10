@@ -1,4 +1,3 @@
-
 import {
   Sidebar,
   SidebarContent,
@@ -6,7 +5,6 @@ import {
   SidebarHeader,
   SidebarMenu,
   SidebarMenuItem,
-  SidebarMenuButton,
   SidebarMenuButton,
   SidebarTrigger,
   useSidebar,
