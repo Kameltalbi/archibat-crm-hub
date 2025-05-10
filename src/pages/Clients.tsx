@@ -1,12 +1,13 @@
 
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Plus, Search, Trash, FileSpreadsheet } from "lucide-react";
 import AddClientModal from "@/components/clients/AddClientModal";
-import { supabase } from "@/lib/supabase";
+import { clientService } from "@/services/clientService";
 import { useToast } from "@/hooks/use-toast";
 import { Client } from "@/lib/supabase";
 import ImportClientsModal from "@/components/clients/ImportClientsModal";
@@ -18,6 +19,7 @@ const Clients = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [importModalOpen, setImportModalOpen] = useState(false);
   const { toast } = useToast();
+  const navigate = useNavigate();
   
   useEffect(() => {
     fetchClients();
@@ -26,15 +28,8 @@ const Clients = () => {
   const fetchClients = async () => {
     setIsLoading(true);
     try {
-      const { data, error } = await supabase
-        .from('clients')
-        .select('*');
-        
-      if (error) {
-        throw error;
-      }
-      
-      setClients(data || []);
+      const data = await clientService.getAllClients();
+      setClients(data);
     } catch (error) {
       console.error('Erreur lors du chargement des clients:', error);
       toast({
@@ -47,22 +42,22 @@ const Clients = () => {
     }
   };
   
-  const handleDeleteClient = async (id: string) => {
+  const handleDeleteClient = async (id: string, event: React.MouseEvent) => {
+    // Empêcher la propagation de l'événement pour éviter la navigation
+    event.stopPropagation();
+    
     try {
-      const { error } = await supabase
-        .from('clients')
-        .delete()
-        .eq('id', id);
+      const success = await clientService.deleteClient(id);
         
-      if (error) {
-        throw error;
+      if (success) {
+        setClients(clients.filter(client => client.id !== id));
+        toast({
+          title: "Client supprimé",
+          description: "Le client a été supprimé avec succès."
+        });
+      } else {
+        throw new Error("Échec de la suppression");
       }
-      
-      setClients(clients.filter(client => client.id !== id));
-      toast({
-        title: "Client supprimé",
-        description: "Le client a été supprimé avec succès."
-      });
     } catch (error) {
       console.error('Erreur lors de la suppression du client:', error);
       toast({
@@ -71,6 +66,15 @@ const Clients = () => {
         description: "Impossible de supprimer le client. Veuillez réessayer."
       });
     }
+  };
+  
+  const handleEditClient = (client: Client, event: React.MouseEvent) => {
+    // Empêcher la propagation de l'événement pour éviter la navigation
+    event.stopPropagation();
+  };
+  
+  const handleRowClick = (id: string) => {
+    navigate(`/clients/${id}`);
   };
   
   const filteredClients = clients.filter(client =>
@@ -146,19 +150,32 @@ const Clients = () => {
                   </TableRow>
                 ) : (
                   filteredClients.map((client) => (
-                    <TableRow key={client.id}>
+                    <TableRow 
+                      key={client.id} 
+                      className="cursor-pointer hover:bg-muted/60"
+                      onClick={() => handleRowClick(client.id)}
+                    >
                       <TableCell className="font-medium">{client.name}</TableCell>
                       <TableCell>{client.email || '-'}</TableCell>
                       <TableCell className="hidden md:table-cell">{client.phone || '-'}</TableCell>
                       <TableCell className="hidden md:table-cell">{client.address || '-'}</TableCell>
                       <TableCell>
                         <div className="flex items-center gap-2">
-                          <EditClientModal client={client} onClientUpdated={fetchClients} />
+                          <EditClientModal 
+                            client={client} 
+                            onClientUpdated={fetchClients} 
+                            onOpenChange={(open) => {
+                              if (open) {
+                                // Pour empêcher l'événement de clic de se propager à la ligne
+                                return;
+                              }
+                            }}
+                          />
                           <Button 
                             variant="ghost" 
                             size="icon" 
                             className="text-destructive"
-                            onClick={() => handleDeleteClient(client.id)}
+                            onClick={(e) => handleDeleteClient(client.id, e)}
                           >
                             <Trash className="h-4 w-4" />
                           </Button>

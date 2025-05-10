@@ -79,5 +79,53 @@ export const clientService = {
     }
     
     return true;
+  },
+  
+  // Calculer le CA d'un client pour l'année en cours
+  async getClientYearRevenue(clientId: string): Promise<number> {
+    const currentYear = new Date().getFullYear();
+    const startDate = `${currentYear}-01-01`;
+    const endDate = `${currentYear}-12-31`;
+    
+    try {
+      // Récupérer tous les projets du client pour l'année en cours
+      const { data: projects, error: projectsError } = await supabase
+        .from('projects')
+        .select('id')
+        .eq('client_id', clientId)
+        .gte('start_date', startDate)
+        .lte('end_date', endDate);
+      
+      if (projectsError) {
+        console.error('Erreur lors de la récupération des projets du client:', projectsError);
+        return 0;
+      }
+      
+      if (!projects || projects.length === 0) {
+        return 0;
+      }
+      
+      // Récupérer tous les produits associés aux projets
+      const projectIds = projects.map(project => project.id);
+      const { data: projectProducts, error: productsError } = await supabase
+        .from('project_products')
+        .select('price_at_time, quantity')
+        .in('project_id', projectIds);
+      
+      if (productsError) {
+        console.error('Erreur lors de la récupération des produits des projets:', productsError);
+        return 0;
+      }
+      
+      // Calculer le CA total
+      const totalRevenue = projectProducts
+        ? projectProducts.reduce((sum, item) => sum + (item.price_at_time * item.quantity), 0)
+        : 0;
+      
+      return totalRevenue;
+    } catch (error) {
+      console.error('Erreur lors du calcul du CA du client:', error);
+      return 0;
+    }
   }
 };
