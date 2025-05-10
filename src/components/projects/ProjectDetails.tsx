@@ -25,7 +25,7 @@ export interface Project {
   status: string;
   clients: Client[];
   category?: string;
-  targetRevenue?: number; // Add this field to fix the issue
+  targetRevenue?: number;
 }
 
 interface Sale {
@@ -124,22 +124,8 @@ const ProjectDetails = ({ project, open, onClose }: ProjectDetailsProps) => {
         </DialogHeader>
         
         <div className="space-y-6 py-4">
-          {/* Revenue Summary */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-lg font-medium">Chiffre d'Affaires Total</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-3xl font-bold text-terracotta">
-                  {totalRevenue.toLocaleString()} DT
-                </div>
-                <p className="text-sm text-muted-foreground mt-2">
-                  {sales.length} ventes enregistrées
-                </p>
-              </CardContent>
-            </Card>
-            
+          {/* Only showing Target Revenue (Objectif CA) card */}
+          <div className="grid grid-cols-1 gap-4">
             <Card>
               <CardHeader className="pb-2">
                 <CardTitle className="text-lg font-medium">Objectif CA</CardTitle>
