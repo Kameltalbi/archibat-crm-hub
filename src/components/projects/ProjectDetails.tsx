@@ -1,4 +1,5 @@
-import { useState, useMemo } from "react";
+
+import { useState, useMemo, useEffect } from "react";
 import { 
   Dialog,
   DialogContent,
@@ -9,6 +10,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { TableRow, TableCell, TableHeader, TableHead, Table, TableBody } from "@/components/ui/table";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
 import { Progress } from "@/components/ui/progress";
+import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/lib/supabase";
 import AddSaleModal from "@/components/projects/AddSaleModal";
 
 interface Client {
@@ -29,7 +32,7 @@ export interface Project {
 }
 
 interface Sale {
-  id: number;
+  id: string;
   label: string;
   date: string;
   amount: number;
@@ -59,13 +62,56 @@ const ProjectDetails = ({ project, open, onClose }: ProjectDetailsProps) => {
   // Détermine la catégorie de produit associée à la catégorie du projet
   const productCategory = project?.category ? categoryMapping[project.category] || "Services" : undefined;
   
-  // Mock sales data for the project
-  const [sales, setSales] = useState<Sale[]>([
-    { id: 1, label: "Phase de conception", date: "12/04/2023", amount: 15000, category: "Étude", client: "Cabinet Martin & Associés", product: "Étude de faisabilité" },
-    { id: 2, label: "Matériaux de construction", date: "25/05/2023", amount: 45000, category: "Fourniture", client: "Cabinet Martin & Associés", product: "Rénovation complète" },
-    { id: 3, label: "Phase de construction", date: "15/06/2023", amount: 60000, category: "Travaux", client: "Cabinet Martin & Associés", product: "Installation électrique" },
-    { id: 4, label: "Finitions", date: "10/08/2023", amount: 25000, category: "Service", client: "Cabinet Martin & Associés", product: "Conseil en décoration" }
-  ]);
+  // Use real sales data instead of mock data
+  const [sales, setSales] = useState<Sale[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const { toast } = useToast();
+
+  // Fetch sales data from Supabase when the project is opened
+  useEffect(() => {
+    if (open && project) {
+      fetchSalesData();
+    }
+  }, [open, project]);
+
+  const fetchSalesData = async () => {
+    setIsLoading(true);
+    try {
+      // Replace this with your actual Supabase query to fetch sales data for the project
+      const { data, error } = await supabase
+        .from('project_sales')
+        .select('*')
+        .eq('project_id', project.id);
+        
+      if (error) {
+        throw error;
+      }
+      
+      if (data) {
+        const formattedSales: Sale[] = data.map(sale => ({
+          id: sale.id,
+          label: sale.label,
+          date: new Date(sale.date).toLocaleDateString('fr-FR'),
+          amount: sale.amount,
+          category: sale.category,
+          client: sale.client_name || project.client || '',
+          product: sale.product_name
+        }));
+        
+        setSales(formattedSales);
+      }
+    } catch (error) {
+      console.error('Erreur lors du chargement des ventes:', error);
+      toast({
+        variant: "destructive",
+        title: "Erreur",
+        description: "Impossible de charger les données de ventes pour ce projet."
+      });
+      setSales([]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   // Calculate total revenue and chart data
   const totalRevenue = useMemo(() => {
@@ -241,7 +287,11 @@ const ProjectDetails = ({ project, open, onClose }: ProjectDetailsProps) => {
             
             <Card>
               <CardContent className="p-4">
-                {sales.length > 0 ? (
+                {isLoading ? (
+                  <div className="text-center py-8 text-muted-foreground">
+                    Chargement des données de ventes...
+                  </div>
+                ) : sales.length > 0 ? (
                   <Table>
                     <TableHeader>
                       <TableRow>
