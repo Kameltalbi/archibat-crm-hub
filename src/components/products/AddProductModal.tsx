@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -139,6 +138,18 @@ const AddProductModal = ({ categories, onSave }: AddProductModalProps) => {
     }
   };
 
+  const handleCancel = () => {
+    // Close modal and reset form
+    setOpen(false);
+    setFormData({
+      name: "",
+      description: "",
+      price: "",
+      categoryId: null,
+    });
+    setErrors({});
+  };
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
@@ -244,6 +255,13 @@ const AddProductModal = ({ categories, onSave }: AddProductModalProps) => {
         </div>
         
         <DialogFooter>
+          <Button 
+            type="button"
+            variant="outline"
+            onClick={handleCancel}
+          >
+            Annuler
+          </Button>
           <Button 
             type="submit"
             onClick={handleSave}

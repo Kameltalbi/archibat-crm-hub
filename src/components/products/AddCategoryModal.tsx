@@ -45,6 +45,12 @@ const AddCategoryModal = () => {
     setFormData({ name: "", description: "" });
   };
 
+  const handleCancel = () => {
+    // Close modal and reset form
+    setOpen(false);
+    setFormData({ name: "", description: "" });
+  };
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
@@ -96,6 +102,13 @@ const AddCategoryModal = () => {
         </div>
         
         <DialogFooter>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={handleCancel}
+          >
+            Annuler
+          </Button>
           <Button
             type="submit"
             onClick={handleSave}

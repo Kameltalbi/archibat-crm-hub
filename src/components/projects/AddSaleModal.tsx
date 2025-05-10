@@ -86,6 +86,18 @@ const AddSaleModal = ({ projectClients, projectName }: AddSaleModalProps) => {
     return saleData;
   };
 
+  const handleCancel = () => {
+    // Close modal and reset form
+    setOpen(false);
+    setFormData({
+      label: "",
+      saleDate: undefined,
+      amount: "",
+      category: "",
+      clientId: "",
+    });
+  };
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
@@ -212,6 +224,13 @@ const AddSaleModal = ({ projectClients, projectName }: AddSaleModalProps) => {
         </div>
         
         <DialogFooter>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={handleCancel}
+          >
+            Annuler
+          </Button>
           <Button
             type="submit"
             onClick={handleSave}
