@@ -1,13 +1,13 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { SidebarTrigger } from "@/components/ui/sidebar";
-import { Search, Bell, User } from "lucide-react";
+import { Calendar, Clock, User } from "lucide-react";
 import EventNotifications from "@/components/calendar/EventNotifications";
 import { mockEvents, eventTypes } from "@/pages/Calendar";
 import EventDetailsModal from "@/components/calendar/EventDetailsModal";
+import { format } from "date-fns";
 
 // Mock projects for selection
 const mockProjects = [
@@ -21,6 +21,16 @@ const Header = () => {
   const isMobile = useIsMobile();
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [showEventDetails, setShowEventDetails] = useState(false);
+  const [currentDateTime, setCurrentDateTime] = useState(new Date());
+  
+  useEffect(() => {
+    // Update time every minute
+    const interval = setInterval(() => {
+      setCurrentDateTime(new Date());
+    }, 60000);
+    
+    return () => clearInterval(interval);
+  }, []);
   
   const handleEventClick = (event) => {
     setSelectedEvent(event);
@@ -31,12 +41,15 @@ const Header = () => {
     <header className="h-16 border-b border-border bg-background flex items-center justify-between px-4 md:px-6">
       <div className="flex items-center">
         {isMobile && <SidebarTrigger className="mr-4 text-foreground" />}
-        <div className="relative max-w-xs hidden md:block">
-          <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Rechercher..."
-            className="pl-8 bg-background border-light-gray"
-          />
+        <div className="flex items-center text-muted-foreground gap-1 md:gap-3">
+          <div className="flex items-center gap-1">
+            <Calendar className="h-4 w-4" />
+            <span className="text-sm">{format(currentDateTime, 'dd/MM/yyyy')}</span>
+          </div>
+          <div className="flex items-center gap-1 ml-3">
+            <Clock className="h-4 w-4" />
+            <span className="text-sm">{format(currentDateTime, 'HH:mm')}</span>
+          </div>
         </div>
       </div>
       <div className="flex items-center gap-2">
