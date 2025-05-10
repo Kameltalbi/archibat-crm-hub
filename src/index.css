@@ -35,7 +35,7 @@
 
     --radius: 0.375rem;
     
-    --sidebar-background: 0 0% 24%; /* Dark Gray #3C3C3C */
+    --sidebar-background: 200 9% 41%; /* Menu background #5C6B74 */
     --sidebar-foreground: 0 0% 88%; /* Light Gray #E0E0E0 */
     --sidebar-primary: 10 72% 62%; /* Terracotta #E26D5A */
     --sidebar-primary-foreground: 0 0% 100%;
@@ -74,7 +74,7 @@
     --input: 0 0% 24%;
     --ring: 10 72% 62%;
     
-    --sidebar-background: 0 0% 18%; /* Charcoal #2D2D2D */
+    --sidebar-background: 200 9% 41%; /* Menu background #5C6B74 */
     --sidebar-foreground: 0 0% 88%; /* Light Gray #E0E0E0 */
     --sidebar-primary: 10 72% 62%; /* Terracotta #E26D5A */
     --sidebar-primary-foreground: 0 0% 100%;

@@ -50,7 +50,7 @@ const AppSidebar = () => {
   const location = useLocation();
   
   return (
-    <Sidebar>
+    <Sidebar className="bg-menu-bg">
       <SidebarHeader className="h-16 flex items-center px-6 border-b border-sidebar-border">
         <span className="text-xl font-semibold text-terracotta">Archibat Pro</span>
       </SidebarHeader>

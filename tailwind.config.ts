@@ -69,7 +69,8 @@ export default {
 				terracotta: '#E26D5A',
 				ocre: '#A65F3D',
 				'light-gray': '#E0E0E0',
-				'matte-black': '#1C1C1C'
+				'matte-black': '#1C1C1C',
+				'menu-bg': '#5C6B74' // Add the new menu background color
 			},
 			borderRadius: {
 				lg: 'var(--radius)',
