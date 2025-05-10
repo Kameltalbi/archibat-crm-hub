@@ -4,16 +4,18 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Plus, Search, Edit, Trash } from "lucide-react";
+import { Plus, Search, Edit, Trash, FileSpreadsheet } from "lucide-react";
 import AddClientModal from "@/components/clients/AddClientModal";
 import { supabase } from "@/lib/supabase";
 import { useToast } from "@/hooks/use-toast";
 import { Client } from "@/lib/supabase";
+import ImportClientsModal from "@/components/clients/ImportClientsModal";
 
 const Clients = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [clients, setClients] = useState<Client[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [importModalOpen, setImportModalOpen] = useState(false);
   const { toast } = useToast();
   
   useEffect(() => {
@@ -84,7 +86,17 @@ const Clients = () => {
             Gérez vos clients et leurs informations
           </p>
         </div>
-        <AddClientModal onClientAdded={fetchClients} />
+        <div className="flex gap-2">
+          <Button 
+            variant="outline" 
+            className="flex items-center gap-2"
+            onClick={() => setImportModalOpen(true)}
+          >
+            <FileSpreadsheet className="h-4 w-4" />
+            Importer
+          </Button>
+          <AddClientModal onClientAdded={fetchClients} />
+        </div>
       </div>
       
       <Card className="animate-fade-in">
@@ -161,6 +173,12 @@ const Clients = () => {
           </div>
         </CardContent>
       </Card>
+      
+      <ImportClientsModal 
+        open={importModalOpen} 
+        onOpenChange={setImportModalOpen}
+        onClientsImported={fetchClients}
+      />
     </div>
   );
 };
