@@ -159,20 +159,19 @@ const ImportClientsModal = ({ open, onOpenChange, onClientsImported }: ImportCli
             <p className="mb-4 text-center text-sm text-muted-foreground">
               Le fichier doit contenir les colonnes suivantes: name (obligatoire), email, phone, address
             </p>
-            <label htmlFor="file-upload" className="cursor-pointer">
-              <input
-                id="file-upload"
-                type="file"
-                className="hidden"
-                accept=".xlsx,.xls"
-                onChange={handleFileChange}
-                disabled={isLoading}
-              />
-              <Button variant="outline" disabled={isLoading}>
-                <Upload className="mr-2 h-4 w-4" />
-                Sélectionner un fichier
-              </Button>
-            </label>
+            <input
+              id="file-upload"
+              type="file"
+              className="block w-full text-sm text-slate-500
+                file:mr-4 file:py-2 file:px-4
+                file:rounded-md file:border-0
+                file:text-sm file:font-semibold
+                file:bg-primary file:text-primary-foreground
+                hover:file:bg-primary/90 cursor-pointer"
+              accept=".xlsx,.xls"
+              onChange={handleFileChange}
+              disabled={isLoading}
+            />
           </div>
         )}
 
