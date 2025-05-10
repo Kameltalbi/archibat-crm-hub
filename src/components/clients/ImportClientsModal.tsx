@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import * as XLSX from "xlsx";
 import { Button } from "@/components/ui/button";
@@ -107,17 +108,7 @@ const ImportClientsModal = ({ open, onOpenChange, onClientsImported }: ImportCli
         name: client.name,
         email: client.email || null,
         phone: client.phone || null,
-        address: client.address || null,
-        // Add null values for all the required fields from the Client type
-        vat_code: null,
-        contact1_name: null,
-        contact1_position: null, 
-        contact1_email: null,
-        contact1_phone: null,
-        contact2_name: null,
-        contact2_position: null,
-        contact2_email: null,
-        contact2_phone: null
+        address: client.address || null
       }));
       
       // Insertion des clients par lot

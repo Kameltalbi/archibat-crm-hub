@@ -14,7 +14,7 @@ export const clientService = {
       return [];
     }
     
-    return (data || []) as Client[];
+    return data || [];
   },
   
   // Récupérer un client par son ID
@@ -30,7 +30,7 @@ export const clientService = {
       return null;
     }
     
-    return data as Client;
+    return data;
   },
   
   // Créer un nouveau client
@@ -46,7 +46,7 @@ export const clientService = {
       return null;
     }
     
-    return data as Client;
+    return data;
   },
   
   // Mettre à jour un client
@@ -63,7 +63,7 @@ export const clientService = {
       return null;
     }
     
-    return data as Client;
+    return data;
   },
   
   // Supprimer un client
