@@ -1,9 +1,9 @@
 
 import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { clientService } from "@/services/clientService";
-import { projectService } from "@/services/projectService";
+import { supabase } from "@/lib/supabase";
 
 interface ClientWithRevenue {
   id: string;
@@ -22,28 +22,53 @@ const TopClients = () => {
         setIsLoading(true);
         
         // Récupérer tous les clients
-        const allClients = await clientService.getAllClients();
-        
-        // Récupérer tous les projets
-        const allProjects = await projectService.getProjectsWithClients();
-        
-        // Calculer le nombre de projets par client et le CA (simulé)
-        const clientsWithStats = allClients.map(client => {
-          const clientProjects = allProjects.filter(p => p.client_id === client.id);
+        const { data: allClients, error: clientsError } = await supabase
+          .from('clients')
+          .select('id, name');
           
-          // Calculer le CA (simulé pour l'instant)
-          const revenue = clientProjects.length * (Math.floor(Math.random() * 10000) + 5000);
-          
-          return {
-            id: client.id,
-            name: client.name,
-            revenue,
-            projects: clientProjects.length
-          };
-        });
+        if (clientsError) throw clientsError;
         
-        // Trier par CA et prendre les 5 premiers
-        const topClients = clientsWithStats
+        // Récupérer tous les projets avec leur client associé et objectif de CA
+        const { data: projectsData, error: projectsError } = await supabase
+          .from('projects')
+          .select('id, client_id, target_revenue');
+          
+        if (projectsError) throw projectsError;
+        
+        // Créer un mapping des clients avec leur CA et nombre de projets
+        const clientMap = new Map();
+        
+        // Initialiser chaque client avec un CA de 0 et 0 projets
+        for (const client of allClients) {
+          // Éliminer les doublons par nom (car il y a des clients dupliqués)
+          if (!clientMap.has(client.name)) {
+            clientMap.set(client.name, {
+              id: client.id,
+              name: client.name,
+              revenue: 0,
+              projects: 0
+            });
+          }
+        }
+        
+        // Calculer le CA pour chaque client
+        for (const project of projectsData) {
+          if (project.client_id) {
+            const client = allClients.find(c => c.id === project.client_id);
+            if (client) {
+              const clientData = clientMap.get(client.name);
+              if (clientData) {
+                clientData.revenue += project.target_revenue || 0;
+                clientData.projects += 1;
+                clientMap.set(client.name, clientData);
+              }
+            }
+          }
+        }
+        
+        // Convertir la Map en tableau et trier par CA
+        const clientsArray = Array.from(clientMap.values());
+        const topClients = clientsArray
           .sort((a, b) => b.revenue - a.revenue)
           .slice(0, 5);
         
@@ -79,7 +104,11 @@ const TopClients = () => {
             <TableBody>
               {clients.map((client) => (
                 <TableRow key={client.id}>
-                  <TableCell className="font-medium">{client.name}</TableCell>
+                  <TableCell className="font-medium">
+                    <Link to={`/clients/${client.id}`} className="hover:underline text-blue-600">
+                      {client.name}
+                    </Link>
+                  </TableCell>
                   <TableCell className="text-right">
                     {client.revenue.toLocaleString()} TND
                   </TableCell>

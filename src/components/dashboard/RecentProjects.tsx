@@ -1,17 +1,17 @@
 
 import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { projectService } from "@/services/projectService";
+import { supabase } from "@/lib/supabase";
 
 interface ProjectWithClient {
   id: string;
   name: string;
   clients: { id: string; name: string } | null;
   status: string;
-  project_products?: any[];
-  target_revenue?: number | null; // Add target_revenue field
+  target_revenue?: number | null;
 }
 
 const RecentProjects = () => {
@@ -22,8 +22,14 @@ const RecentProjects = () => {
     const fetchProjects = async () => {
       try {
         setIsLoading(true);
-        const data = await projectService.getProjectsWithClients();
-        setProjects(data.slice(0, 5));
+        const { data, error } = await supabase
+          .from('projects')
+          .select('*, clients:client_id(id, name)')
+          .order('created_at', { ascending: false })
+          .limit(5);
+        
+        if (error) throw error;
+        setProjects(data);
       } catch (error) {
         console.error("Erreur lors de la récupération des projets récents:", error);
       } finally {
@@ -33,22 +39,6 @@ const RecentProjects = () => {
 
     fetchProjects();
   }, []);
-
-  // Calculer le CA pour chaque projet (simulé pour l'instant)
-  const getProjectRevenue = (project: ProjectWithClient): number => {
-    // Si nous avons un objectif de CA défini, l'utiliser
-    if (project.target_revenue) {
-      return project.target_revenue;
-    }
-    
-    // Si nous avons des produits associés au projet, calculer le CA
-    if (project.project_products?.length) {
-      return project.project_products.reduce((sum, pp) => sum + (pp.quantity * pp.price_at_time), 0);
-    }
-    
-    // Sinon, générer un montant aléatoire pour la démonstration
-    return Math.floor(Math.random() * 30000) + 15000;
-  };
 
   const statusColors = {
     "En cours": "bg-terracotta text-white",
@@ -79,7 +69,11 @@ const RecentProjects = () => {
             <TableBody>
               {projects.map((project) => (
                 <TableRow key={project.id}>
-                  <TableCell className="font-medium">{project.name}</TableCell>
+                  <TableCell className="font-medium">
+                    <Link to={`/projects/${project.id}`} className="hover:underline text-blue-600">
+                      {project.name}
+                    </Link>
+                  </TableCell>
                   <TableCell>{project.clients?.name || "Non assigné"}</TableCell>
                   <TableCell>
                     <Badge className={
@@ -89,7 +83,7 @@ const RecentProjects = () => {
                     </Badge>
                   </TableCell>
                   <TableCell className="text-right">
-                    {getProjectRevenue(project).toLocaleString()} TND
+                    {project.target_revenue ? `${project.target_revenue.toLocaleString()} TND` : "N/A"}
                   </TableCell>
                 </TableRow>
               ))}
