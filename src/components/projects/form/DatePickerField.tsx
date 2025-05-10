@@ -27,7 +27,7 @@ const DatePickerField = ({
   onChange, 
   required 
 }: DatePickerFieldProps) => {
-  // Add state to control the current month in the calendar
+  // Initialiser le mois du calendrier avec la date actuelle si aucune valeur n'est fournie
   const [calendarMonth, setCalendarMonth] = useState<Date>(value || new Date());
 
   return (
@@ -63,7 +63,9 @@ const DatePickerField = ({
             onMonthChange={setCalendarMonth}
             className="pointer-events-auto"
             locale={fr}
-            fromDate={new Date(2000, 0, 1)} // Allow dates from January 1, 2000
+            fromDate={new Date(2000, 0, 1)}
+            captionLayout="dropdown-buttons"
+            showOutsideDays={true}
           />
         </PopoverContent>
       </Popover>
