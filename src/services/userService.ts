@@ -30,12 +30,15 @@ export const userService = {
     const usersWithRoles: UserWithRole[] = authUsers.users.map(user => {
       const userRole = userRoles?.find(role => role.user_id === user.id);
       
+      // Ensure status is strictly typed as "active" | "pending"
+      const userStatus: "active" | "pending" = user.email_confirmed_at ? "active" : "pending";
+      
       return {
         id: user.id,
         name: user.user_metadata?.name || user.email?.split('@')[0] || 'Utilisateur',
         email: user.email || '',
         role: userRole?.role || 'lecture_seule',
-        status: user.email_confirmed_at ? "active" : "pending"
+        status: userStatus
       };
     });
 
@@ -63,12 +66,15 @@ export const userService = {
       console.error(`Erreur lors de la récupération du rôle de l'utilisateur ${userId}:`, roleError);
     }
 
+    // Ensure status is strictly typed as "active" | "pending"
+    const userStatus: "active" | "pending" = user.user.email_confirmed_at ? "active" : "pending";
+
     const userData: UserWithRole = {
       id: user.user.id,
       name: user.user.user_metadata?.name || user.user.email?.split('@')[0] || 'Utilisateur',
       email: user.user.email || '',
       role: userRole?.role || 'lecture_seule',
-      status: user.user.email_confirmed_at ? "active" : "pending"
+      status: userStatus
     };
 
     return userData;
