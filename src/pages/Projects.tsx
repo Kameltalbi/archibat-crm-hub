@@ -125,12 +125,12 @@ const Projects = () => {
     (project.category && project.category.toLowerCase().includes(searchTerm.toLowerCase()))
   );
   
-  // Format currency for target_revenue display
+  // Format currency for target_revenue display - Updated to use TND
   const formatCurrency = (amount: number | null) => {
     if (amount === null) return "-";
     return new Intl.NumberFormat('fr-FR', { 
       style: 'currency', 
-      currency: 'EUR',
+      currency: 'TND',
       minimumFractionDigits: 0
     }).format(amount);
   };
