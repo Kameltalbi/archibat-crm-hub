@@ -148,12 +148,15 @@ const AddEventModal = ({ isOpen, onClose, onSave, eventTypes, projects }: AddEve
           
           <div className="grid gap-2">
             <Label htmlFor="project">Projet associé (optionnel)</Label>
-            <Select value={projectId?.toString() || ""} onValueChange={(value) => setProjectId(value ? parseInt(value) : undefined)}>
+            <Select 
+              value={projectId?.toString() || undefined} 
+              onValueChange={(value) => setProjectId(value ? parseInt(value) : undefined)}
+            >
               <SelectTrigger id="project">
                 <SelectValue placeholder="Sélectionner un projet (optionnel)" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="" className="cursor-pointer">Aucun projet</SelectItem>
+                <SelectItem value="no-project" className="cursor-pointer">Aucun projet</SelectItem>
                 {projects.map((project) => (
                   <SelectItem key={project.id} value={project.id.toString()} className="cursor-pointer">
                     {project.name}
