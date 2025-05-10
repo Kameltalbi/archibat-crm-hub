@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -45,6 +44,8 @@ const Projects = () => {
         throw projectsError;
       }
       
+      console.log("Raw projects data:", projectsData);
+      
       // Transformer les données pour inclure le nom du client
       const formattedProjects: ProjectWithClient[] = projectsData.map(project => {
         return {
@@ -55,6 +56,7 @@ const Projects = () => {
         };
       });
       
+      console.log("Formatted projects data:", formattedProjects);
       setProjects(formattedProjects);
     } catch (error) {
       console.error('Erreur lors du chargement des projets:', error);
@@ -254,7 +256,8 @@ const Projects = () => {
             endDate: selectedProject.end_date || '',
             status: selectedProject.status || '',
             clients: [{ id: Number(selectedProject.client_id || 0), name: selectedProject.client_name }],
-            category: selectedProject.category || undefined
+            category: selectedProject.category || undefined,
+            targetRevenue: selectedProject.target_revenue || undefined // Pass the target revenue to project details
           }}
           open={isDetailsOpen} 
           onClose={closeDetails} 
