@@ -63,13 +63,13 @@ const AppSidebar = () => {
   };
 
   return (
-    <Sidebar className="bg-menu-bg">
+    <Sidebar collapsible={open ? "none" : "icon"} className="bg-menu-bg">
       <SidebarHeader className="h-16 flex items-center px-6 border-b border-sidebar-border">
         {open && <span className="text-xl font-semibold text-terracotta">Archibat Pro</span>}
       </SidebarHeader>
       <SidebarContent>
         <SidebarMenu className="py-4 space-y-4">
-          {menuItems.map((item, index) => (
+          {menuItems.map((item) => (
             <SidebarMenuItem key={item.path}>
               <SidebarMenuButton
                 asChild
