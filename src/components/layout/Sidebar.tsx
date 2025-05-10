@@ -9,7 +9,7 @@ import {
   SidebarMenuButton,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
-import { Home, Users, Briefcase, Calendar, Settings, LogOut } from "lucide-react";
+import { Home, Users, Briefcase, Calendar, Settings, LogOut, Grid, List } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 
@@ -31,8 +31,13 @@ const menuItems = [
   },
   {
     title: "Produits",
-    icon: Calendar,
+    icon: Grid,
     path: "/products",
+  },
+  {
+    title: "Catégories",
+    icon: List,
+    path: "/categories",
   },
   {
     title: "Calendrier",

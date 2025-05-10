@@ -5,6 +5,7 @@ import Dashboard from "./pages/Index";
 import Clients from "./pages/Clients";
 import Projects from "./pages/Projects";
 import Products from "./pages/Products";
+import Categories from "./pages/Categories";
 import NotFound from "./pages/NotFound";
 import Calendar from "./pages/Calendar";
 import Settings from "./pages/Settings";
@@ -21,6 +22,7 @@ const App = () => {
             <Route path="clients" element={<Clients />} />
             <Route path="projects" element={<Projects />} />
             <Route path="products" element={<Products />} />
+            <Route path="categories" element={<Categories />} />
             <Route path="calendar" element={<Calendar />} />
             <Route path="settings" element={<Settings />} />
             <Route path="*" element={<NotFound />} />
