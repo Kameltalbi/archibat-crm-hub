@@ -11,6 +11,7 @@ interface ProjectWithClient {
   clients: { id: string; name: string } | null;
   status: string;
   project_products?: any[];
+  target_revenue?: number | null; // Add target_revenue field
 }
 
 const RecentProjects = () => {
@@ -35,6 +36,11 @@ const RecentProjects = () => {
 
   // Calculer le CA pour chaque projet (simulé pour l'instant)
   const getProjectRevenue = (project: ProjectWithClient): number => {
+    // Si nous avons un objectif de CA défini, l'utiliser
+    if (project.target_revenue) {
+      return project.target_revenue;
+    }
+    
     // Si nous avons des produits associés au projet, calculer le CA
     if (project.project_products?.length) {
       return project.project_products.reduce((sum, pp) => sum + (pp.quantity * pp.price_at_time), 0);
