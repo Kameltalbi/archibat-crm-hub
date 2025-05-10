@@ -56,7 +56,7 @@ const TopClients = () => {
               <TableRow key={client.id}>
                 <TableCell className="font-medium">{client.name}</TableCell>
                 <TableCell className="text-right">
-                  {client.revenue.toLocaleString()} €
+                  {client.revenue.toLocaleString()} TND
                 </TableCell>
                 <TableCell className="text-right">{client.projects}</TableCell>
               </TableRow>

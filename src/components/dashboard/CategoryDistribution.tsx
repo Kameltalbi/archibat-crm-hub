@@ -36,7 +36,7 @@ const CategoryDistribution = () => {
                 ))}
               </Pie>
               <Tooltip
-                formatter={(value) => [`${value.toLocaleString()} €`, 'Chiffre d\'affaires']}
+                formatter={(value) => [`${value.toLocaleString()} TND`, 'Chiffre d\'affaires']}
                 contentStyle={{
                   backgroundColor: '#F5F0E6',
                   border: '1px solid #E0E0E0',

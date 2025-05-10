@@ -39,7 +39,7 @@ const DashboardSummary = () => {
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
       <StatCard
         title="CA Total"
-        value="154 890 €"
+        value="154 890 TND"
         description="Chiffre d'affaires global"
         icon={Calendar}
         trend={12}
@@ -66,7 +66,7 @@ const DashboardSummary = () => {
       />
       <StatCard
         title="Ventes du mois"
-        value="38 450 €"
+        value="38 450 TND"
         description="CA du mois en cours"
         icon={Calendar}
         trend={15}

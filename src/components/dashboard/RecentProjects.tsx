@@ -75,7 +75,7 @@ const RecentProjects = () => {
                   </Badge>
                 </TableCell>
                 <TableCell className="text-right">
-                  {project.revenue.toLocaleString()} €
+                  {project.revenue.toLocaleString()} TND
                 </TableCell>
               </TableRow>
             ))}

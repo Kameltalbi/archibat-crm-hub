@@ -46,10 +46,10 @@ const RevenueChart = () => {
               <XAxis dataKey="name" stroke="#3C3C3C" />
               <YAxis
                 stroke="#3C3C3C"
-                tickFormatter={(value) => `${value / 1000}k€`}
+                tickFormatter={(value) => `${value / 1000}k TND`}
               />
               <Tooltip
-                formatter={(value) => [`${value} €`, 'Chiffre d\'affaires']}
+                formatter={(value) => [`${value} TND`, 'Chiffre d\'affaires']}
                 labelFormatter={(label) => `Mois: ${label}`}
                 contentStyle={{
                   backgroundColor: '#F5F0E6',
