@@ -6,7 +6,6 @@ import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Search, Edit, Trash } from "lucide-react";
-import AddCategoryModal from "@/components/products/AddCategoryModal";
 import AddProductModal, { Category } from "@/components/products/AddProductModal";
 
 const products = [
@@ -86,13 +85,12 @@ const Products = () => {
     <div className="space-y-8">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-semibold mb-2">Produits & Catégories</h1>
+          <h1 className="text-3xl font-semibold mb-2">Produits</h1>
           <p className="text-muted-foreground">
             Gérez votre catalogue de produits et services
           </p>
         </div>
         <div className="flex gap-3">
-          <AddCategoryModal />
           <AddProductModal categories={categories} onSave={handleSaveProduct} />
         </div>
       </div>
