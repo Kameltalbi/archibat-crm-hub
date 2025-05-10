@@ -4,12 +4,13 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Plus, Search, Edit, Trash, FileSpreadsheet } from "lucide-react";
+import { Plus, Search, Trash, FileSpreadsheet } from "lucide-react";
 import AddClientModal from "@/components/clients/AddClientModal";
 import { supabase } from "@/lib/supabase";
 import { useToast } from "@/hooks/use-toast";
 import { Client } from "@/lib/supabase";
 import ImportClientsModal from "@/components/clients/ImportClientsModal";
+import EditClientModal from "@/components/clients/EditClientModal";
 
 const Clients = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -152,9 +153,7 @@ const Clients = () => {
                       <TableCell className="hidden md:table-cell">{client.address || '-'}</TableCell>
                       <TableCell>
                         <div className="flex items-center gap-2">
-                          <Button variant="ghost" size="icon">
-                            <Edit className="h-4 w-4" />
-                          </Button>
+                          <EditClientModal client={client} onClientUpdated={fetchClients} />
                           <Button 
                             variant="ghost" 
                             size="icon" 
