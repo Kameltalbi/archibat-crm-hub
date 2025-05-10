@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -159,15 +160,17 @@ const ProjectDetails = () => {
 
   return (
     <div className="space-y-8">
+      {/* Back Button - Added prominently at the top */}
+      <Button
+        variant="outline"
+        size="sm"
+        onClick={() => navigate('/projects')}
+        className="mb-4 flex items-center gap-2"
+      >
+        <ArrowLeft className="h-4 w-4" /> Retour à la liste des projets
+      </Button>
+
       <div className="flex items-center gap-4 mb-6">
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => navigate('/projects')}
-          className="h-8 w-8"
-        >
-          <ArrowLeft className="h-4 w-4" />
-        </Button>
         <div className="flex-1">
           <h1 className="text-2xl font-semibold flex items-center gap-3">
             {project.name}
