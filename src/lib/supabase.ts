@@ -39,6 +39,8 @@ export interface Product {
   updated_at: string;
 }
 
+export type ProjectStatus = 'En cours' | 'Planifié' | 'Terminé' | 'Suspendu';
+
 export interface Project {
   id: string;
   name: string;
@@ -46,7 +48,7 @@ export interface Project {
   description: string | null;
   start_date: string | null;
   end_date: string | null;
-  status: 'En cours' | 'Planifié' | 'Terminé' | 'Suspendu';
+  status: ProjectStatus | null;
   category: string | null;
   created_at: string;
   updated_at: string;

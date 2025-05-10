@@ -1,5 +1,5 @@
 
-import { supabase, Project } from "@/lib/supabase";
+import { supabase, Project, ProjectStatus, ProjectProduct } from "@/lib/supabase";
 
 export const projectService = {
   // Récupérer tous les projets
@@ -14,7 +14,7 @@ export const projectService = {
       return [];
     }
     
-    return data || [];
+    return data as Project[] || [];
   },
   
   // Récupérer les projets avec les informations du client
@@ -48,7 +48,7 @@ export const projectService = {
       return null;
     }
     
-    return data;
+    return data as Project;
   },
   
   // Récupérer un projet détaillé avec le client et les produits associés
@@ -102,7 +102,7 @@ export const projectService = {
       return null;
     }
     
-    return data;
+    return data as Project;
   },
   
   // Mettre à jour un projet
@@ -119,7 +119,7 @@ export const projectService = {
       return null;
     }
     
-    return data;
+    return data as Project;
   },
   
   // Supprimer un projet
@@ -138,7 +138,7 @@ export const projectService = {
   },
   
   // Ajouter un produit à un projet
-  async addProductToProject(projectProduct: Omit<any, 'id' | 'created_at'>): Promise<any | null> {
+  async addProductToProject(projectProduct: Omit<ProjectProduct, 'id' | 'created_at'>): Promise<ProjectProduct | null> {
     const { data, error } = await supabase
       .from('project_products')
       .insert(projectProduct)
@@ -150,6 +150,6 @@ export const projectService = {
       return null;
     }
     
-    return data;
+    return data as ProjectProduct;
   }
 };
