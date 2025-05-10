@@ -62,3 +62,30 @@ export interface ProjectProduct {
   price_at_time: number;
   created_at: string;
 }
+
+// Nouvelles interfaces pour les utilisateurs, rôles et permissions
+export type AppRole = 'admin' | 'collaborateur' | 'lecture_seule';
+
+export interface UserRole {
+  id: string;
+  user_id: string;
+  role: AppRole;
+  created_at: string;
+}
+
+export interface RolePermission {
+  id: string;
+  role: AppRole;
+  module_id: string;
+  can_access: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface UserWithRole {
+  id: string;
+  name: string;
+  email: string;
+  role: AppRole;
+  status: "active" | "pending";
+}

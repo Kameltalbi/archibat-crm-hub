@@ -1,5 +1,7 @@
 
-export type Role = "admin" | "collaborateur" | "lecture_seule";
+import { AppRole } from "@/lib/supabase";
+
+export type Role = AppRole;
 
 export type UserStatus = "active" | "pending" | "disabled";
 

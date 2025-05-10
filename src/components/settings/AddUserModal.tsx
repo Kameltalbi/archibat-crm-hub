@@ -28,7 +28,7 @@ import {
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { User } from "@/types/user";
+import { AppRole } from "@/lib/supabase";
 
 // Schema for form validation
 const formSchema = z.object({
@@ -45,7 +45,7 @@ type FormValues = z.infer<typeof formSchema>;
 interface AddUserModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onAddUser: (userData: Omit<User, "id" | "status">) => void;
+  onAddUser: (userData: FormValues) => void;
 }
 
 const AddUserModal = ({ isOpen, onClose, onAddUser }: AddUserModalProps) => {
@@ -60,14 +60,7 @@ const AddUserModal = ({ isOpen, onClose, onAddUser }: AddUserModalProps) => {
   });
 
   const onSubmit = (data: FormValues) => {
-    // Ensure all required properties are passed to onAddUser
-    const userData: Omit<User, "id" | "status"> = {
-      name: data.name,
-      email: data.email,
-      role: data.role,
-    };
-    
-    onAddUser(userData);
+    onAddUser(data);
     form.reset();
   };
 

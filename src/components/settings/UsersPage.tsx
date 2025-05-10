@@ -7,11 +7,11 @@ import AddUserModal from "./AddUserModal";
 import RolePermissionsMatrix from "./RolePermissionsMatrix";
 import { Plus } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/lib/supabase";
-import { User, Role } from "@/types/user";
+import { UserWithRole } from "@/lib/supabase";
+import { userService } from "@/services/userService";
 
 const UsersPage = () => {
-  const [users, setUsers] = useState<User[]>([]);
+  const [users, setUsers] = useState<UserWithRole[]>([]);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
@@ -21,16 +21,8 @@ const UsersPage = () => {
     const fetchUsers = async () => {
       try {
         setIsLoading(true);
-        
-        // This would be implemented after connecting to Supabase
-        // For now using mock data
-        const mockUsers: User[] = [
-          { id: "1", name: "Admin User", email: "admin@archibat.com", role: "admin", status: "active" },
-          { id: "2", name: "Jean Dupont", email: "jean@archibat.com", role: "collaborateur", status: "active" },
-          { id: "3", name: "Marie Martin", email: "marie@archibat.com", role: "lecture_seule", status: "pending" },
-        ];
-        
-        setUsers(mockUsers);
+        const usersWithRoles = await userService.getUsersWithRoles();
+        setUsers(usersWithRoles);
       } catch (error) {
         console.error("Error fetching users:", error);
         toast({
@@ -46,24 +38,27 @@ const UsersPage = () => {
     fetchUsers();
   }, [toast]);
 
-  const handleAddUser = async (userData: Omit<User, "id" | "status">) => {
+  const handleAddUser = async (userData: { name: string, email: string, role: "admin" | "collaborateur" | "lecture_seule", password: string }) => {
     try {
-      // This would be implemented after connecting to Supabase
-      // For now just adding to local state
-      const newUser: User = {
-        id: Date.now().toString(),
-        ...userData,
-        status: "pending",
-      };
+      const newUser = await userService.createUser(
+        userData.email,
+        userData.password,
+        userData.name,
+        userData.role
+      );
       
-      setUsers([...users, newUser]);
-      
-      toast({
-        title: "Utilisateur ajouté",
-        description: `${userData.name} a été ajouté avec succès`,
-      });
-      
-      setIsAddModalOpen(false);
+      if (newUser) {
+        setUsers([...users, newUser]);
+        
+        toast({
+          title: "Utilisateur ajouté",
+          description: `${userData.name} a été ajouté avec succès`,
+        });
+        
+        setIsAddModalOpen(false);
+      } else {
+        throw new Error("Impossible de créer l'utilisateur");
+      }
     } catch (error) {
       console.error("Error adding user:", error);
       toast({
@@ -76,14 +71,19 @@ const UsersPage = () => {
 
   const handleDeleteUser = async (userId: string) => {
     try {
-      // This would be implemented after connecting to Supabase
-      const updatedUsers = users.filter(user => user.id !== userId);
-      setUsers(updatedUsers);
+      const success = await userService.deleteUser(userId);
       
-      toast({
-        title: "Utilisateur supprimé",
-        description: "L'utilisateur a été supprimé avec succès",
-      });
+      if (success) {
+        const updatedUsers = users.filter(user => user.id !== userId);
+        setUsers(updatedUsers);
+        
+        toast({
+          title: "Utilisateur supprimé",
+          description: "L'utilisateur a été supprimé avec succès",
+        });
+      } else {
+        throw new Error("Impossible de supprimer l'utilisateur");
+      }
     } catch (error) {
       console.error("Error deleting user:", error);
       toast({
