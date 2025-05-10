@@ -1,10 +1,10 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Plus, Search, Edit, Trash } from "lucide-react";
+import AddClientModal from "@/components/clients/AddClientModal";
 
 const clients = [
   {
@@ -74,9 +74,7 @@ const Clients = () => {
             Gérez vos clients et leurs informations
           </p>
         </div>
-        <Button className="bg-terracotta hover:bg-ocre">
-          <Plus className="mr-2 h-4 w-4" /> Ajouter un client
-        </Button>
+        <AddClientModal />
       </div>
       
       <Card className="animate-fade-in">
