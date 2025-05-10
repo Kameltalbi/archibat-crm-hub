@@ -1,3 +1,4 @@
+
 import {
   Sidebar,
   SidebarContent,
@@ -112,8 +113,8 @@ const AppSidebar = () => {
         <SidebarTrigger className="absolute top-3 right-3 lg:hidden text-white" />
       </Sidebar>
       
-      {/* Bouton de contrôle du menu placé au milieu de la bordure droite */}
-      <div className="absolute top-1/2 -right-5 transform -translate-y-1/2 z-20">
+      {/* Bouton de contrôle du menu placé au milieu de la bordure droite avec z-index plus élevé */}
+      <div className="fixed top-1/2 left-[calc(var(--sidebar-width)_-_5px)] transform -translate-y-1/2 z-50">
         <Button 
           onClick={toggleSidebar}
           className="rounded-full w-10 h-10 bg-[#F97316] hover:bg-[#F97316]/90 flex items-center justify-center shadow-md"
