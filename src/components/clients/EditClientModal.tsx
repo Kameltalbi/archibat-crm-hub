@@ -29,9 +29,10 @@ interface ClientForm {
 interface EditClientModalProps {
   client: Client;
   onClientUpdated?: () => void;
+  onOpenChange?: (open: boolean) => void;
 }
 
-const EditClientModal = ({ client, onClientUpdated }: EditClientModalProps) => {
+const EditClientModal = ({ client, onClientUpdated, onOpenChange }: EditClientModalProps) => {
   const [open, setOpen] = useState(false);
   const { toast } = useToast();
   const [formData, setFormData] = useState<ClientForm>({
@@ -152,7 +153,13 @@ const EditClientModal = ({ client, onClientUpdated }: EditClientModalProps) => {
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={(value) => {
+      setOpen(value);
+      // Call the onOpenChange callback if provided
+      if (onOpenChange) {
+        onOpenChange(value);
+      }
+    }}>
       <DialogTrigger asChild>
         <Button variant="ghost" size="icon">
           <Edit className="h-4 w-4" />
