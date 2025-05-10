@@ -65,6 +65,8 @@ const ProjectDetails = () => {
       if (data) {
         setProject({
           ...data,
+          // Explicitly cast the status to ProjectStatus to resolve type error
+          status: data.status as ProjectStatus,
           client_name: data.clients ? data.clients.name : 'Pas de client'
         });
       }
