@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -6,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Plus, Search, Edit, Trash } from "lucide-react";
+import AddCategoryModal from "@/components/products/AddCategoryModal";
 
 const products = [
   {
@@ -76,9 +76,7 @@ const Products = () => {
           </p>
         </div>
         <div className="flex gap-3">
-          <Button variant="outline">
-            <Plus className="mr-2 h-4 w-4" /> Catégorie
-          </Button>
+          <AddCategoryModal />
           <Button className="bg-terracotta hover:bg-ocre">
             <Plus className="mr-2 h-4 w-4" /> Produit
           </Button>
