@@ -14,6 +14,7 @@ export const productService = {
       return [];
     }
     
+    console.log(`Nombre total de produits dans la base: ${data?.length || 0}`);
     return data || [];
   },
   
@@ -32,6 +33,8 @@ export const productService = {
       return [];
     }
     
+    console.log(`Nombre total de produits avec catégories: ${data?.length || 0}`);
+    console.log('Catégories disponibles:', [...new Set(data?.map(p => p.categories?.name).filter(Boolean))]);
     return data || [];
   },
   
@@ -69,6 +72,8 @@ export const productService = {
   
   // Récupérer les produits par nom de catégorie
   async getProductsByCategoryName(categoryName: string): Promise<any[]> {
+    console.log(`Recherche des produits pour la catégorie "${categoryName}"...`);
+    
     // D'abord obtenir l'ID de la catégorie par son nom
     const { data: categoryData, error: categoryError } = await supabase
       .from('categories')
@@ -80,6 +85,8 @@ export const productService = {
       console.error(`Erreur lors de la récupération de la catégorie ${categoryName}:`, categoryError);
       return [];
     }
+    
+    console.log(`Catégorie "${categoryName}" trouvée avec l'ID: ${categoryData.id}`);
     
     // Ensuite récupérer les produits de cette catégorie
     const { data: products, error: productsError } = await supabase
@@ -96,6 +103,7 @@ export const productService = {
       return [];
     }
     
+    console.log(`Nombre de produits trouvés pour la catégorie "${categoryName}": ${products?.length || 0}`);
     return products || [];
   },
   
