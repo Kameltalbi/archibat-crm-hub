@@ -1,24 +1,30 @@
 
+import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { useForm } from "react-hook-form";
 
 interface LabelFieldProps {
-  value: string;
-  onChange: (value: string) => void;
+  form: ReturnType<typeof useForm>;
 }
 
-const LabelField = ({ value, onChange }: LabelFieldProps) => {
+const LabelField = ({ form }: LabelFieldProps) => {
   return (
-    <div>
-      <Label htmlFor="label">Libellé *</Label>
-      <Input
-        id="label"
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        placeholder="Entrez un libellé pour cette vente"
-        className="mt-1"
-      />
-    </div>
+    <FormField
+      control={form.control}
+      name="label"
+      render={({ field }) => (
+        <FormItem>
+          <FormLabel>Libellé *</FormLabel>
+          <FormControl>
+            <Input 
+              placeholder="Entrez un libellé pour cette vente" 
+              {...field}
+            />
+          </FormControl>
+          <FormMessage />
+        </FormItem>
+      )}
+    />
   );
 };
 

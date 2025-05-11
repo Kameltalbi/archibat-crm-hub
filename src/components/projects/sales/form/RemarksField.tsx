@@ -1,24 +1,30 @@
 
+import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
+import { useForm } from "react-hook-form";
 
 interface RemarksFieldProps {
-  value: string;
-  onChange: (value: string) => void;
+  form: ReturnType<typeof useForm>;
 }
 
-const RemarksField = ({ value, onChange }: RemarksFieldProps) => {
+const RemarksField = ({ form }: RemarksFieldProps) => {
   return (
-    <div>
-      <Label htmlFor="remarks">Remarques</Label>
-      <Textarea
-        id="remarks"
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        placeholder="Ajouter des remarques ou commentaires (optionnel)"
-        className="mt-1"
-      />
-    </div>
+    <FormField
+      control={form.control}
+      name="remarks"
+      render={({ field }) => (
+        <FormItem>
+          <FormLabel>Remarques</FormLabel>
+          <FormControl>
+            <Textarea 
+              placeholder="Ajouter des remarques ou commentaires (optionnel)" 
+              {...field}
+            />
+          </FormControl>
+          <FormMessage />
+        </FormItem>
+      )}
+    />
   );
 };
 

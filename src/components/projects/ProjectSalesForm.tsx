@@ -1,5 +1,4 @@
 
-import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useSalesForm } from "./sales/form/useSalesForm";
 import { formatPrice } from "./sales/product-select/utils";

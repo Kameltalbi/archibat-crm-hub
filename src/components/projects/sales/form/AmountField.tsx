@@ -1,25 +1,31 @@
 
+import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { useForm } from "react-hook-form";
 
 interface AmountFieldProps {
-  value: string;
-  onChange: (value: string) => void;
+  form: ReturnType<typeof useForm>;
 }
 
-const AmountField = ({ value, onChange }: AmountFieldProps) => {
+const AmountField = ({ form }: AmountFieldProps) => {
   return (
-    <div>
-      <Label htmlFor="amount">Montant (DT) *</Label>
-      <Input
-        id="amount"
-        type="number"
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        placeholder="Entrez le montant"
-        className="mt-1"
-      />
-    </div>
+    <FormField
+      control={form.control}
+      name="amount"
+      render={({ field }) => (
+        <FormItem>
+          <FormLabel>Montant (DT) *</FormLabel>
+          <FormControl>
+            <Input 
+              type="number" 
+              placeholder="Entrez le montant" 
+              {...field}
+            />
+          </FormControl>
+          <FormMessage />
+        </FormItem>
+      )}
+    />
   );
 };
 
