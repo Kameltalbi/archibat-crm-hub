@@ -1,10 +1,8 @@
 
 import { useState, useEffect } from "react";
-import { CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -14,16 +12,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
 import { Label } from "@/components/ui/label";
-import { cn } from "@/lib/utils";
 import { productService } from "@/services/productService";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/lib/supabase";
+import DatePickerField from "./sales/DatePickerField";
 
 // Définir le type du produit
 interface Product {
@@ -288,36 +281,11 @@ const ProjectSalesForm = ({
 
         {/* Date */}
         <div>
-          <Label htmlFor="saleDate">Date de vente *</Label>
-          <div className="mt-1">
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button
-                  id="saleDate"
-                  variant="outline"
-                  className={cn(
-                    "w-full justify-start text-left font-normal",
-                    !formData.date && "text-muted-foreground"
-                  )}
-                >
-                  <CalendarIcon className="mr-2 h-4 w-4" />
-                  {formData.date ? (
-                    format(formData.date, "dd MMMM yyyy", { locale: fr })
-                  ) : (
-                    <span>Sélectionner une date</span>
-                  )}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0" align="start">
-                <Calendar
-                  mode="single"
-                  selected={formData.date}
-                  onSelect={(date) => handleChange("date", date || new Date())}
-                  initialFocus
-                />
-              </PopoverContent>
-            </Popover>
-          </div>
+          <DatePickerField
+            date={formData.date}
+            onDateChange={(date) => handleChange("date", date)}
+            label="Date de vente *"
+          />
         </div>
 
         {/* Product */}
