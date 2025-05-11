@@ -4,7 +4,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogT
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/lib/supabase";
+import { supabase, Client } from "@/lib/supabase";
 import ClientSelect from "@/components/projects/form/ClientSelect";
 import MultiProductSelect from "@/components/projects/sales/MultiProductSelect";
 import PriceField from "@/components/projects/sales/PriceField";
@@ -17,11 +17,6 @@ interface AddSaleDialogProps {
   projectName?: string;
   projectCategory?: string;
   onSaleAdded: () => void;
-}
-
-interface Client {
-  id: string;
-  name: string;
 }
 
 interface Product {
@@ -57,7 +52,7 @@ const AddSaleDialog = ({ projectId, projectName, projectCategory, onSaleAdded }:
       try {
         const { data, error } = await supabase
           .from('clients')
-          .select('id, name')
+          .select('id, name, email, phone, address, created_at, updated_at')
           .order('name');
           
         if (error) throw error;
