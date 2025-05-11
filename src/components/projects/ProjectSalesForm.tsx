@@ -73,6 +73,7 @@ const ProjectSalesForm = ({
     date: new Date(),
     amount: "",
     productId: "",
+    label: "",
     remarks: "",
   });
 
@@ -184,6 +185,10 @@ const ProjectSalesForm = ({
       // Récupérer le produit sélectionné
       const selectedProduct = availableProducts.find(p => p.id === formData.productId);
       
+      // Trouver le nom du client sélectionné
+      const selectedClient = clients?.find(c => c.id === formData.clientId);
+      const clientName = selectedClient ? selectedClient.name : null;
+      
       // Catégorie du produit (ou du projet si pas de catégorie de produit)
       const productCategory = selectedProduct?.categories?.name || filteredCategory || "Service";
       
@@ -196,8 +201,9 @@ const ProjectSalesForm = ({
           amount: parseFloat(formData.amount),
           date: format(formData.date, 'yyyy-MM-dd'),
           product_name: selectedProduct ? selectedProduct.name : null,
-          client_name: clientName || null,
-          category: productCategory
+          client_name: clientName,
+          category: productCategory,
+          remarks: formData.remarks || null
         })
         .select()
         .single();
@@ -214,10 +220,11 @@ const ProjectSalesForm = ({
       
       // Réinitialiser le formulaire
       setFormData({
-        label: "",
+        clientId: "",
         date: new Date(),
         amount: "",
         productId: "",
+        label: "",
         remarks: "",
       });
     } catch (error) {
@@ -265,6 +272,18 @@ const ProjectSalesForm = ({
               )}
             </SelectContent>
           </Select>
+        </div>
+
+        {/* Libellé */}
+        <div>
+          <Label htmlFor="label">Libellé *</Label>
+          <Input
+            id="label"
+            value={formData.label}
+            onChange={(e) => handleChange("label", e.target.value)}
+            placeholder="Entrez un libellé pour cette vente"
+            className="mt-1"
+          />
         </div>
 
         {/* Date */}
