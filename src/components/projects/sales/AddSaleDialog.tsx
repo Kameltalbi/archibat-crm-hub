@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -26,7 +27,9 @@ interface AddSaleDialogProps {
   projectName?: string;
   projectCategory?: string;
   onSaleAdded: () => void;
-  triggerButton?: boolean; // Nouvelle prop pour contrôler si on affiche le bouton trigger
+  triggerButton?: boolean; // Prop pour contrôler si on affiche le bouton trigger
+  open?: boolean; // Nouvelle prop pour contrôler l'état d'ouverture depuis le parent
+  onOpenChange?: (open: boolean) => void; // Nouvelle prop pour notifier le parent des changements d'état
 }
 
 interface Product {
@@ -43,9 +46,17 @@ interface SelectedProduct {
   quantity: number;
 }
 
-const AddSaleDialog = ({ projectId, projectName, projectCategory, onSaleAdded, triggerButton = true }: AddSaleDialogProps) => {
+const AddSaleDialog = ({ 
+  projectId, 
+  projectName, 
+  projectCategory, 
+  onSaleAdded, 
+  triggerButton = true,
+  open: externalOpen,
+  onOpenChange: externalOnOpenChange
+}: AddSaleDialogProps) => {
   const { toast } = useToast();
-  const [isOpen, setIsOpen] = useState(false);
+  const [internalOpen, setInternalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [clients, setClients] = useState<Client[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
@@ -56,6 +67,21 @@ const AddSaleDialog = ({ projectId, projectName, projectCategory, onSaleAdded, t
   const [saleDate, setSaleDate] = useState<Date>(new Date());
   const [remarks, setRemarks] = useState("");
   
+  // Détermine si le contrôle est interne ou externe
+  const isControlledExternally = externalOpen !== undefined && externalOnOpenChange !== undefined;
+  
+  // État d'ouverture final
+  const isOpen = isControlledExternally ? externalOpen : internalOpen;
+  
+  // Fonction pour modifier l'état d'ouverture
+  const setIsOpen = (value: boolean) => {
+    if (isControlledExternally) {
+      externalOnOpenChange!(value);
+    } else {
+      setInternalOpen(value);
+    }
+  };
+
   // Charger les clients
   useEffect(() => {
     const fetchClients = async () => {
@@ -249,6 +275,8 @@ const AddSaleDialog = ({ projectId, projectName, projectCategory, onSaleAdded, t
       setIsSubmitting(false);
     }
   };
+  
+  console.log("AddSaleDialog rendu, isOpen:", isOpen);
   
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>

@@ -7,7 +7,6 @@ import { ArrowLeft, Plus } from "lucide-react";
 import { ProjectStatus, supabase } from "@/lib/supabase";
 import { useToast } from "@/hooks/use-toast";
 import AddSaleDialog from "@/components/projects/sales/AddSaleDialog";
-import { Dialog } from "@/components/ui/dialog";
 
 interface ProjectWithClient {
   id: string;
@@ -125,6 +124,8 @@ const ProjectDetails = () => {
       title: "Vente ajoutée",
       description: "La vente a été enregistrée avec succès."
     });
+    // Fermer la boîte de dialogue après l'ajout
+    setAddSaleDialogOpen(false);
   };
 
   const getStatusClass = (status: string | null) => {
@@ -146,6 +147,7 @@ const ProjectDetails = () => {
 
   // Ouvrir la boîte de dialogue d'ajout de vente
   const openAddSaleDialog = () => {
+    console.log("Ouverture de la boîte de dialogue d'ajout de vente");
     setAddSaleDialogOpen(true);
   };
 
@@ -199,23 +201,12 @@ const ProjectDetails = () => {
             {project.end_date && ` • Fin prévue le ${new Date(project.end_date).toLocaleDateString()}`}
           </p>
         </div>
-        <Dialog open={addSaleDialogOpen} onOpenChange={setAddSaleDialogOpen}>
-          <Button 
-            onClick={openAddSaleDialog}
-            className="flex items-center gap-2"
-          >
-            <Plus className="h-4 w-4" /> Ajouter une vente
-          </Button>
-          {addSaleDialogOpen && (
-            <AddSaleDialog 
-              projectId={id!}
-              projectName={project.name}
-              projectCategory={project.category || undefined}
-              onSaleAdded={handleSaleAdded}
-              triggerButton={false}
-            />
-          )}
-        </Dialog>
+        <Button 
+          onClick={openAddSaleDialog}
+          className="flex items-center gap-2"
+        >
+          <Plus className="h-4 w-4" /> Ajouter une vente
+        </Button>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -324,16 +315,16 @@ const ProjectDetails = () => {
         </CardContent>
       </Card>
       
-      {/* Composant de dialogue d'ajout de vente en mode non visible initialement */}
-      {addSaleDialogOpen && (
-        <AddSaleDialog 
-          projectId={id!}
-          projectName={project.name}
-          projectCategory={project.category || undefined}
-          onSaleAdded={handleSaleAdded} 
-          triggerButton={false}
-        />
-      )}
+      {/* Utiliser le composant AddSaleDialog directement */}
+      <AddSaleDialog 
+        projectId={id!}
+        projectName={project.name}
+        projectCategory={project.category || undefined}
+        onSaleAdded={handleSaleAdded} 
+        triggerButton={false}
+        open={addSaleDialogOpen}
+        onOpenChange={setAddSaleDialogOpen}
+      />
     </div>
   );
 };
