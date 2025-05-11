@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -6,7 +7,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { ArrowLeft } from "lucide-react";
 import { ProjectStatus, supabase } from "@/lib/supabase";
 import { useToast } from "@/hooks/use-toast";
-// Suppression de l'import ProjectSalesForm
+import AddSaleDialog from "@/components/projects/sales/AddSaleDialog";
 
 interface ProjectWithClient {
   id: string;
@@ -29,6 +30,7 @@ interface ProjectSale {
   client_name: string | null;
   product_name: string | null;
   date: string;
+  remarks?: string | null;
 }
 
 const ProjectDetails = () => {
@@ -38,7 +40,6 @@ const ProjectDetails = () => {
   const [project, setProject] = useState<ProjectWithClient | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [sales, setSales] = useState<ProjectSale[]>([]);
-  // Suppression de la variable d'état showSalesForm
 
   useEffect(() => {
     if (id) {
@@ -116,7 +117,14 @@ const ProjectDetails = () => {
     }).format(amount);
   };
 
-  // Suppression de la fonction handleSaleAdded
+  // Fonction pour gérer l'ajout d'une nouvelle vente
+  const handleSaleAdded = () => {
+    fetchProjectSales(id!);
+    toast({
+      title: "Vente ajoutée",
+      description: "La vente a été enregistrée avec succès."
+    });
+  };
 
   const getStatusClass = (status: string | null) => {
     if (!status) return "bg-gray-100 text-gray-700 border border-gray-200";
@@ -253,11 +261,14 @@ const ProjectDetails = () => {
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle>Ventes liées</CardTitle>
-          
+          <AddSaleDialog 
+            projectId={id!}
+            projectName={project.name}
+            projectCategory={project.category || undefined}
+            onSaleAdded={handleSaleAdded}
+          />
         </CardHeader>
         <CardContent>
-          
-
           {sales.length > 0 ? (
             <Table>
               <TableHeader>
