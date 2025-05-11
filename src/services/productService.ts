@@ -67,6 +67,38 @@ export const productService = {
     return data || [];
   },
   
+  // Récupérer les produits par nom de catégorie
+  async getProductsByCategoryName(categoryName: string): Promise<any[]> {
+    // D'abord obtenir l'ID de la catégorie par son nom
+    const { data: categoryData, error: categoryError } = await supabase
+      .from('categories')
+      .select('id')
+      .ilike('name', categoryName)
+      .single();
+    
+    if (categoryError || !categoryData) {
+      console.error(`Erreur lors de la récupération de la catégorie ${categoryName}:`, categoryError);
+      return [];
+    }
+    
+    // Ensuite récupérer les produits de cette catégorie
+    const { data: products, error: productsError } = await supabase
+      .from('products')
+      .select(`
+        *,
+        categories:category_id (id, name)
+      `)
+      .eq('category_id', categoryData.id)
+      .order('name');
+    
+    if (productsError) {
+      console.error(`Erreur lors de la récupération des produits de la catégorie ${categoryName}:`, productsError);
+      return [];
+    }
+    
+    return products || [];
+  },
+  
   // Créer un nouveau produit
   async createProduct(product: Omit<Product, 'id' | 'created_at' | 'updated_at'>): Promise<Product | null> {
     const { data, error } = await supabase

@@ -65,10 +65,12 @@ const ProjectDetails = () => {
       if (data) {
         setProject({
           ...data,
-          // Explicitly cast the status to ProjectStatus to resolve type error
+          // Explicitement cast le status à ProjectStatus pour résoudre l'erreur de type
           status: data.status as ProjectStatus,
           client_name: data.clients ? data.clients.name : 'Pas de client'
         });
+        
+        console.log("Catégorie du projet:", data.category); // Debug log pour voir la catégorie
       }
     } catch (error) {
       console.error('Erreur lors du chargement du projet:', error);
@@ -274,6 +276,7 @@ const ProjectDetails = () => {
               <ProjectSalesForm 
                 projectId={id!} 
                 projectName={project.name}
+                projectCategory={project.category || undefined}
                 clientName={project.client_name || ''}
                 onSaleAdded={handleSaleAdded} 
                 onCancel={() => setShowSalesForm(false)} 
