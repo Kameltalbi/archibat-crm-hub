@@ -10,8 +10,10 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { Home, Users, Briefcase, Calendar, Settings, LogOut, Grid, List } from "lucide-react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
+import { supabase } from "@/lib/supabase";
+import { useToast } from "@/hooks/use-toast";
 
 const menuItems = [
   {
@@ -53,10 +55,33 @@ const menuItems = [
 
 const AppSidebar = () => {
   const location = useLocation();
+  const navigate = useNavigate();
+  const { toast } = useToast();
   
-  const handleLogout = () => {
-    // This is where you would implement logout functionality
-    console.log("Logout clicked");
+  // Fonction de déconnexion mise à jour
+  const handleLogout = async () => {
+    try {
+      // Nettoyer les états d'authentification
+      const { error } = await supabase.auth.signOut({ scope: 'global' });
+      
+      if (error) throw error;
+      
+      // Afficher une notification de déconnexion réussie
+      toast({
+        title: "Déconnexion réussie",
+        description: "Vous avez été déconnecté avec succès.",
+      });
+      
+      // Rediriger vers la page d'accueil
+      navigate("/");
+    } catch (error) {
+      console.error("Erreur lors de la déconnexion:", error);
+      toast({
+        title: "Erreur",
+        description: "Une erreur est survenue lors de la déconnexion.",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
