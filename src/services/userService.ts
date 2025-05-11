@@ -4,134 +4,119 @@ import { supabase, UserRole, RolePermission, UserWithRole, AppRole } from "@/lib
 export const userService = {
   // Récupérer les utilisateurs avec leurs rôles
   async getUsersWithRoles(): Promise<UserWithRole[]> {
-    // Récupérer d'abord tous les utilisateurs de Supabase Auth
-    const { data: authUsers, error: authError } = await supabase.auth.admin.listUsers();
-    
-    if (authError) {
-      console.error('Erreur lors de la récupération des utilisateurs:', authError);
-      return [];
-    }
-
-    if (!authUsers || authUsers.users.length === 0) {
-      return [];
-    }
-
-    // Récupérer ensuite tous les rôles des utilisateurs
-    const { data: userRoles, error: rolesError } = await supabase
-      .from('user_roles')
-      .select('*');
-
-    if (rolesError) {
-      console.error('Erreur lors de la récupération des rôles:', rolesError);
-      return [];
-    }
-
-    // Fusionner les données pour obtenir les utilisateurs avec leurs rôles
-    const usersWithRoles: UserWithRole[] = authUsers.users.map(user => {
-      const userRole = userRoles?.find(role => role.user_id === user.id);
+    try {
+      // Récupérer le token de l'utilisateur actuel
+      const { data: { session } } = await supabase.auth.getSession();
       
-      // Ensure status is strictly typed as "active" | "pending"
-      const userStatus: "active" | "pending" = user.email_confirmed_at ? "active" : "pending";
+      if (!session) {
+        throw new Error("Non autorisé: vous devez être connecté");
+      }
       
-      return {
-        id: user.id,
-        name: user.user_metadata?.name || user.email?.split('@')[0] || 'Utilisateur',
-        email: user.email || '',
-        role: userRole?.role || 'lecture_seule',
-        status: userStatus
-      };
-    });
-
-    return usersWithRoles;
+      // Appeler la fonction Edge avec le token d'authentification
+      const response = await supabase.functions.invoke('manage-users', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+        },
+        body: {
+          action: 'LIST_USERS',
+        },
+      });
+      
+      if (response.error) {
+        throw new Error(response.error.message || "Erreur lors de la récupération des utilisateurs");
+      }
+      
+      return response.data as UserWithRole[];
+    } catch (error) {
+      console.error('Erreur lors de la récupération des utilisateurs:', error);
+      return [];
+    }
   },
 
   // Récupérer un utilisateur spécifique avec son rôle
   async getUserWithRole(userId: string): Promise<UserWithRole | null> {
-    // Récupérer l'utilisateur
-    const { data: user, error: userError } = await supabase.auth.admin.getUserById(userId);
-
-    if (userError || !user) {
-      console.error(`Erreur lors de la récupération de l'utilisateur ${userId}:`, userError);
+    try {
+      // Récupérer tous les utilisateurs et filtrer
+      const users = await this.getUsersWithRoles();
+      return users.find(user => user.id === userId) || null;
+    } catch (error) {
+      console.error(`Erreur lors de la récupération de l'utilisateur ${userId}:`, error);
       return null;
     }
-
-    // Récupérer le rôle de l'utilisateur
-    const { data: userRole, error: roleError } = await supabase
-      .from('user_roles')
-      .select('*')
-      .eq('user_id', userId)
-      .single();
-
-    if (roleError && roleError.code !== 'PGRST116') { // Ignorer l'erreur si aucun rôle n'est trouvé
-      console.error(`Erreur lors de la récupération du rôle de l'utilisateur ${userId}:`, roleError);
-    }
-
-    // Ensure status is strictly typed as "active" | "pending"
-    const userStatus: "active" | "pending" = user.user.email_confirmed_at ? "active" : "pending";
-
-    const userData: UserWithRole = {
-      id: user.user.id,
-      name: user.user.user_metadata?.name || user.user.email?.split('@')[0] || 'Utilisateur',
-      email: user.user.email || '',
-      role: userRole?.role || 'lecture_seule',
-      status: userStatus
-    };
-
-    return userData;
   },
 
   // Créer un nouvel utilisateur
   async createUser(email: string, password: string, name: string, role: AppRole): Promise<UserWithRole | null> {
-    // Créer l'utilisateur dans Supabase Auth
-    const { data: authData, error: authError } = await supabase.auth.admin.createUser({
-      email,
-      password,
-      email_confirm: true, // Confirmer automatiquement l'email pour simplifier
-      user_metadata: { name }
-    });
-
-    if (authError || !authData.user) {
-      console.error('Erreur lors de la création de l\'utilisateur:', authError);
+    try {
+      // Récupérer le token de l'utilisateur actuel
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session) {
+        throw new Error("Non autorisé: vous devez être connecté");
+      }
+      
+      // Appeler la fonction Edge avec le token d'authentification
+      const response = await supabase.functions.invoke('manage-users', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+        },
+        body: {
+          action: 'CREATE_USER',
+          data: {
+            email,
+            password,
+            name,
+            role
+          }
+        },
+      });
+      
+      if (response.error) {
+        throw new Error(response.error.message || "Erreur lors de la création de l'utilisateur");
+      }
+      
+      return response.data as UserWithRole;
+    } catch (error) {
+      console.error('Erreur lors de la création de l\'utilisateur:', error);
       return null;
     }
-
-    // Assigner le rôle à l'utilisateur
-    const { error: roleError } = await supabase
-      .from('user_roles')
-      .insert({
-        user_id: authData.user.id,
-        role
-      });
-
-    if (roleError) {
-      console.error('Erreur lors de l\'attribution du rôle:', roleError);
-      // On pourrait supprimer l'utilisateur ici en cas d'échec, mais on va le garder pour simplifier
-    }
-
-    // Retourner les données de l'utilisateur créé
-    const newUser: UserWithRole = {
-      id: authData.user.id,
-      name,
-      email,
-      role,
-      status: "active" // Nous avons défini email_confirm à true, donc l'utilisateur est actif
-    };
-
-    return newUser;
   },
 
   // Supprimer un utilisateur
   async deleteUser(userId: string): Promise<boolean> {
-    // Supprimer l'utilisateur dans Supabase Auth
-    // Note: La suppression en cascade supprimera également les entrées dans user_roles
-    const { error } = await supabase.auth.admin.deleteUser(userId);
-
-    if (error) {
+    try {
+      // Récupérer le token de l'utilisateur actuel
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session) {
+        throw new Error("Non autorisé: vous devez être connecté");
+      }
+      
+      // Appeler la fonction Edge avec le token d'authentification
+      const response = await supabase.functions.invoke('manage-users', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+        },
+        body: {
+          action: 'DELETE_USER',
+          data: {
+            userId
+          }
+        },
+      });
+      
+      if (response.error) {
+        throw new Error(response.error.message || "Erreur lors de la suppression de l'utilisateur");
+      }
+      
+      return true;
+    } catch (error) {
       console.error(`Erreur lors de la suppression de l'utilisateur ${userId}:`, error);
       return false;
     }
-
-    return true;
   },
 
   // Récupérer toutes les permissions par rôle
