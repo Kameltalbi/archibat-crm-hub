@@ -17,37 +17,37 @@ const menuItems = [
   {
     title: "Dashboard",
     icon: Home,
-    path: "/",
+    path: "/dashboard",
   },
   {
     title: "Clients",
     icon: Users,
-    path: "/clients",
+    path: "/dashboard/clients",
   },
   {
     title: "Projets",
     icon: Briefcase,
-    path: "/projects",
+    path: "/dashboard/projects",
   },
   {
     title: "Produits",
     icon: Grid,
-    path: "/products",
+    path: "/dashboard/products",
   },
   {
     title: "Catégories",
     icon: List,
-    path: "/categories",
+    path: "/dashboard/categories",
   },
   {
     title: "Calendrier",
     icon: Calendar,
-    path: "/calendar",
+    path: "/dashboard/calendar",
   },
   {
     title: "Paramètres",
     icon: Settings,
-    path: "/settings",
+    path: "/dashboard/settings",
   },
 ];
 

@@ -31,7 +31,9 @@ const App = () => {
             <Route path="categories" element={<Categories />} />
             <Route path="calendar" element={<Calendar />} />
             <Route path="settings" element={<Settings />} />
-            <Route path="*" element={<NotFound />} />
+          </Route>
+          <Route path="/settings" element={<Layout />}>
+            <Route index element={<Settings />} />
           </Route>
           <Route path="*" element={<NotFound />} />
         </Routes>
