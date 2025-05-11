@@ -39,11 +39,17 @@ interface Product {
 }
 
 // Props pour le composant
+interface ClientMinimal {
+  id: string;
+  name: string;
+}
+
 interface ProjectSalesFormProps {
   projectId: string;
   projectName?: string;
   projectCategory?: string;
-  clientName?: string;
+  clientId?: string;
+  clients?: ClientMinimal[];
   onSaleAdded: () => void;
   onCancel: () => void;
 }
@@ -52,7 +58,8 @@ const ProjectSalesForm = ({
   projectId, 
   projectName,
   projectCategory,
-  clientName,
+  clientId,
+  clients = [],
   onSaleAdded, 
   onCancel 
 }: ProjectSalesFormProps) => {
@@ -62,7 +69,7 @@ const ProjectSalesForm = ({
   const [filteredCategory, setFilteredCategory] = useState<string | null>(null);
   
   const [formData, setFormData] = useState({
-    label: "",
+    clientId: clientId || "",
     date: new Date(),
     amount: "",
     productId: "",
@@ -238,16 +245,26 @@ const ProjectSalesForm = ({
       )}
       
       <div className="grid gap-4">
-        {/* Label */}
+        {/* Client */}
         <div>
-          <Label htmlFor="label">Libellé *</Label>
-          <Input
-            id="label"
-            value={formData.label}
-            onChange={(e) => handleChange("label", e.target.value)}
-            placeholder="Entrez le libellé de la vente"
-            className="mt-1"
-          />
+          <Label htmlFor="client">Client *</Label>
+          <Select
+            value={formData.clientId}
+            onValueChange={(value) => handleChange("clientId", value)}
+          >
+            <SelectTrigger id="client" className="mt-1">
+              <SelectValue placeholder="Sélectionner un client" />
+            </SelectTrigger>
+            <SelectContent>
+              {clients && clients.length > 0 ? (
+                clients.map(client => (
+                  <SelectItem key={client.id} value={client.id}>{client.name}</SelectItem>
+                ))
+              ) : (
+                <SelectItem value="no-client" disabled>Aucun client</SelectItem>
+              )}
+            </SelectContent>
+          </Select>
         </div>
 
         {/* Date */}
@@ -305,7 +322,7 @@ const ProjectSalesForm = ({
                   </SelectItem>
                 ))
               ) : (
-                <SelectItem value="no-products" disabled>
+                <SelectItem value="no-product" disabled>
                   Aucun produit disponible pour cette catégorie
                 </SelectItem>
               )}

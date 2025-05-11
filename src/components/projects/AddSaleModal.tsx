@@ -46,9 +46,9 @@ const AddSaleModal = ({ projectClients, projectName, projectCategory }: AddSaleM
           </DialogTitle>
         </DialogHeader>
         
-        {/* Sélecteur de client - toujours visible */}
+        {/* Sélecteur de client - obligatoire */}
         <div className="mb-4">
-          <Label htmlFor="client-select" className="block text-sm font-medium mb-1">Client associé à cette vente</Label>
+          <Label htmlFor="client-select" className="block text-sm font-medium mb-1">Sélectionner un client *</Label>
           <Select
             value={selectedClientId}
             onValueChange={setSelectedClientId}
@@ -72,12 +72,13 @@ const AddSaleModal = ({ projectClients, projectName, projectCategory }: AddSaleM
             </SelectContent>
           </Select>
         </div>
-        
+
         <ProjectSalesForm 
           projectId="mock-project-id" 
           projectName={projectName}
           projectCategory={projectCategory}
-          clientName={selectedClientName}
+          clientId={selectedClientId}
+          clients={projectClients}
           onSaleAdded={handleSaleAdded} 
           onCancel={() => setOpen(false)} 
         />
