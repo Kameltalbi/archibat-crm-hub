@@ -15,6 +15,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
@@ -29,6 +30,8 @@ import {
 } from "@/components/ui/popover";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
+import { productService } from "@/services/productService";
+import { useToast } from "@/hooks/use-toast";
 
 // Define the client type
 interface Client {
@@ -38,88 +41,84 @@ interface Client {
 
 // Define the product type
 interface Product {
-  id: number;
+  id: string;
   name: string;
-  category: string;
-  description: string;
+  category_name?: string;
+  description?: string | null;
   price: number;
+  category_id?: string | null;
 }
-
-// Mock products - similar to those in Products.tsx
-const mockProducts = [
-  {
-    id: 1,
-    name: "Étude de faisabilité",
-    category: "Études",
-    description: "Analyse préliminaire du projet et évaluation technique",
-    price: 2500,
-  },
-  {
-    id: 2,
-    name: "Plan d'aménagement",
-    category: "Études",
-    description: "Réalisation des plans pour l'aménagement intérieur",
-    price: 1800,
-  },
-  {
-    id: 3,
-    name: "Rénovation complète",
-    category: "Travaux",
-    description: "Rénovation complète incluant matériaux et main d'œuvre",
-    price: 15000,
-  },
-  {
-    id: 4,
-    name: "Installation électrique",
-    category: "Travaux",
-    description: "Remise aux normes et installation électrique complète",
-    price: 4200,
-  },
-  {
-    id: 5,
-    name: "Accompagnement projet",
-    category: "Services",
-    description: "Accompagnement et suivi de projet (mensuel)",
-    price: 1200,
-  },
-  {
-    id: 6,
-    name: "Conseil en décoration",
-    category: "Services",
-    description: "Conseils sur l'aménagement et le design intérieur",
-    price: 950,
-  },
-];
 
 // Define the props for the component
 interface AddSaleModalProps {
   projectClients: Client[];
   projectName?: string;
-  projectCategory?: string; // Ajout de la catégorie du projet
+  projectCategory?: string; // Catégorie du projet
 }
 
 const AddSaleModal = ({ projectClients, projectName, projectCategory }: AddSaleModalProps) => {
   const [open, setOpen] = useState(false);
+  const { toast } = useToast();
   const [formData, setFormData] = useState({
     label: "",
-    saleDate: undefined as Date | undefined,
+    saleDate: new Date(),
     amount: "",
     productId: "",
     clientId: "",
+    remarks: "", // Nouveau champ pour les remarques
   });
   const [availableProducts, setAvailableProducts] = useState<Product[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
 
-  // Filtrer les produits en fonction de la catégorie du projet
+  // Récupérer les produits depuis Supabase en fonction de la catégorie du projet
   useEffect(() => {
-    if (projectCategory) {
-      const filteredProducts = mockProducts.filter(
-        product => product.category === projectCategory
-      );
-      setAvailableProducts(filteredProducts);
-    } else {
-      setAvailableProducts(mockProducts);
-    }
-  }, [projectCategory]);
+    const fetchProducts = async () => {
+      if (!open) return;
+
+      try {
+        setIsLoading(true);
+        const products = await productService.getProductsWithCategories();
+        
+        // Filtrer les produits en fonction de la catégorie du projet
+        if (projectCategory) {
+          // Mapper les catégories de projets aux catégories de produits
+          const categoryMapping: Record<string, string[]> = {
+            "Rénovation": ["Travaux", "Services"],
+            "Construction": ["Travaux", "Matériaux"],
+            "Aménagement": ["Services", "Fournitures"],
+            "Design": ["Services", "Études"],
+            "Études": ["Études", "Services"],
+            "Conseils": ["Services"]
+          };
+          
+          const matchingCategories = categoryMapping[projectCategory] || [];
+          
+          if (matchingCategories.length > 0) {
+            const filtered = products.filter(product => {
+              const productCategory = product.categories?.name || "";
+              return matchingCategories.includes(productCategory);
+            });
+            setAvailableProducts(filtered);
+          } else {
+            setAvailableProducts(products);
+          }
+        } else {
+          setAvailableProducts(products);
+        }
+      } catch (error) {
+        console.error("Erreur lors du chargement des produits:", error);
+        toast({
+          variant: "destructive",
+          title: "Erreur",
+          description: "Impossible de charger la liste des produits"
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchProducts();
+  }, [open, projectCategory, toast]);
 
   const handleChange = (field: string, value: any) => {
     // Si on change de produit, mettons à jour le montant avec le prix du produit sélectionné
@@ -142,7 +141,11 @@ const AddSaleModal = ({ projectClients, projectName, projectCategory }: AddSaleM
   const handleSave = () => {
     // Validate form data
     if (!formData.label || !formData.saleDate || !formData.amount || !formData.productId || !formData.clientId) {
-      console.error("Veuillez remplir tous les champs obligatoires");
+      toast({
+        variant: "destructive",
+        title: "Champs obligatoires",
+        description: "Veuillez remplir tous les champs obligatoires"
+      });
       return;
     }
 
@@ -154,10 +157,15 @@ const AddSaleModal = ({ projectClients, projectName, projectCategory }: AddSaleM
       ...formData,
       amount: parseFloat(formData.amount),
       product: selectedProduct ? selectedProduct.name : "Produit inconnu",
-      category: selectedProduct ? selectedProduct.category : "Catégorie inconnue"
+      category: selectedProduct ? selectedProduct.category_name || "Catégorie inconnue" : "Catégorie inconnue"
     };
 
     console.log("Saving sale:", saleData);
+    
+    toast({
+      title: "Vente ajoutée",
+      description: "La vente a été ajoutée avec succès"
+    });
     
     // Close the modal
     setOpen(false);
@@ -165,10 +173,11 @@ const AddSaleModal = ({ projectClients, projectName, projectCategory }: AddSaleM
     // Reset the form
     setFormData({
       label: "",
-      saleDate: undefined,
+      saleDate: new Date(),
       amount: "",
       productId: "",
       clientId: "",
+      remarks: "",
     });
 
     return saleData;
@@ -179,10 +188,11 @@ const AddSaleModal = ({ projectClients, projectName, projectCategory }: AddSaleM
     setOpen(false);
     setFormData({
       label: "",
-      saleDate: undefined,
+      saleDate: new Date(),
       amount: "",
       productId: "",
       clientId: "",
+      remarks: "",
     });
   };
 
@@ -243,18 +253,19 @@ const AddSaleModal = ({ projectClients, projectName, projectCategory }: AddSaleM
                   )}
                 </Button>
               </PopoverTrigger>
-              <PopoverContent className="w-auto p-0" align="start">
+              <PopoverContent className="w-auto p-0 z-50 bg-white" align="start">
                 <Calendar
                   mode="single"
                   selected={formData.saleDate}
                   onSelect={(date) => handleChange("saleDate", date)}
                   initialFocus
+                  className="pointer-events-auto"
                 />
               </PopoverContent>
             </Popover>
           </div>
 
-          {/* Product Selection (replacing Category) */}
+          {/* Product Selection */}
           <div className="grid gap-2">
             <Label htmlFor="product">Produit *</Label>
             <Select
@@ -262,10 +273,12 @@ const AddSaleModal = ({ projectClients, projectName, projectCategory }: AddSaleM
               onValueChange={(value) => handleChange("productId", value)}
             >
               <SelectTrigger id="product" className="w-full">
-                <SelectValue placeholder="Sélectionner un produit" />
+                <SelectValue placeholder={isLoading ? "Chargement..." : "Sélectionner un produit"} />
               </SelectTrigger>
-              <SelectContent>
-                {availableProducts.length > 0 ? (
+              <SelectContent className="bg-white max-h-[300px]">
+                {isLoading ? (
+                  <SelectItem value="loading" disabled>Chargement des produits...</SelectItem>
+                ) : availableProducts.length > 0 ? (
                   availableProducts.map((product) => (
                     <SelectItem key={product.id} value={product.id.toString()}>
                       {product.name} - {product.price} DT
@@ -293,6 +306,19 @@ const AddSaleModal = ({ projectClients, projectName, projectCategory }: AddSaleM
             />
           </div>
 
+          {/* Remarques */}
+          <div className="grid gap-2">
+            <Label htmlFor="remarks">Remarques</Label>
+            <Textarea
+              id="remarks"
+              value={formData.remarks}
+              onChange={(e) => handleChange("remarks", e.target.value)}
+              placeholder="Ajouter des remarques ou commentaires (optionnel)"
+              className="border-input"
+              rows={3}
+            />
+          </div>
+
           {/* Client */}
           <div className="grid gap-2">
             <Label htmlFor="client">Client *</Label>
@@ -303,7 +329,7 @@ const AddSaleModal = ({ projectClients, projectName, projectCategory }: AddSaleM
               <SelectTrigger id="client" className="w-full">
                 <SelectValue placeholder="Sélectionner un client" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="bg-white">
                 {projectClients.length > 0 ? (
                   projectClients.map((client) => (
                     <SelectItem key={client.id} value={client.id.toString()}>
