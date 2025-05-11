@@ -64,7 +64,7 @@ serve(async (req) => {
     
     switch (action) {
       case 'CREATE_USER':
-        const { email, password, name, role } = data
+        const { email, password, name, role: userRole } = data
         
         // Créer l'utilisateur
         const { data: userData, error: createError } = await supabase.auth.admin.createUser({
@@ -82,7 +82,7 @@ serve(async (req) => {
             .from('user_roles')
             .insert({
               user_id: userData.user.id,
-              role
+              role: userRole
             })
           
           if (roleInsertError) throw roleInsertError
@@ -91,7 +91,7 @@ serve(async (req) => {
             id: userData.user.id,
             name,
             email,
-            role,
+            role: userRole,
             status: "active"
           }
         }
