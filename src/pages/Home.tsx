@@ -110,7 +110,7 @@ const Home = () => {
         <div className="container mx-auto px-4 md:flex items-center justify-between">
           <div className="md:w-1/2 mb-10 md:mb-0">
             <h1 className="text-4xl md:text-5xl font-bold mb-6">
-              Gérer vos projets de vente et faites prévisions annuelles avec simplicité
+              Gérer vos projets de vente et faites vos prévisions annuelles avec simplicité
             </h1>
             <p className="text-lg mb-8 text-muted-foreground">
               ArchiPlus vous offre une solution complète pour gérer vos projets
