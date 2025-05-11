@@ -108,7 +108,7 @@ const DashboardSummary = ({ isLoading = false, stats }: DashboardSummaryProps) =
         if (monthlySalesError) throw monthlySalesError;
         
         const monthlyRevenueValue = monthlySalesData.reduce((sum, sale) => {
-          return sum + (parseFloat(sale.amount) || 0);
+          return sum + (parseFloat(sale.amount.toString()) || 0);
         }, 0);
         setMonthlyRevenue(monthlyRevenueValue);
         

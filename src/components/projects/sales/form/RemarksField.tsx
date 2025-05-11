@@ -1,10 +1,11 @@
 
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Textarea } from "@/components/ui/textarea";
-import { useForm } from "react-hook-form";
+import { UseFormReturn } from "react-hook-form";
+import { SaleFormData } from "./types";
 
 interface RemarksFieldProps {
-  form: ReturnType<typeof useForm>;
+  form: UseFormReturn<SaleFormData>;
 }
 
 const RemarksField = ({ form }: RemarksFieldProps) => {

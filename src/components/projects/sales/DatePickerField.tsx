@@ -1,33 +1,26 @@
 
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { CalendarIcon } from "lucide-react";
-import { format } from "date-fns";
-import { fr } from "date-fns/locale";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { CalendarIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useForm } from "react-hook-form";
+import { format } from "date-fns";
+import { fr } from "date-fns/locale";
+import { UseFormReturn } from "react-hook-form";
+import { SaleFormData } from "./form/types";
 
-interface DatePickerFieldProps {
-  form: ReturnType<typeof useForm>;
+export interface DatePickerFieldProps {
   name: string;
-  label?: string;
+  label: string;
+  form: UseFormReturn<SaleFormData>;
 }
 
-const DatePickerField = ({ 
-  form, 
-  name,
-  label = "Date" 
-}: DatePickerFieldProps) => {
+const DatePickerField = ({ name, label, form }: DatePickerFieldProps) => {
   return (
     <FormField
       control={form.control}
-      name={name}
+      name={name as any}
       render={({ field }) => (
         <FormItem className="flex flex-col">
           <FormLabel>{label}</FormLabel>
@@ -42,7 +35,7 @@ const DatePickerField = ({
                   )}
                 >
                   {field.value ? (
-                    format(field.value, "dd MMMM yyyy", { locale: fr })
+                    format(new Date(field.value), "PP", { locale: fr })
                   ) : (
                     <span>Sélectionner une date</span>
                   )}
@@ -53,13 +46,10 @@ const DatePickerField = ({
             <PopoverContent className="w-auto p-0" align="start">
               <Calendar
                 mode="single"
-                selected={field.value}
-                onSelect={field.onChange}
-                disabled={(date) =>
-                  date < new Date("1900-01-01")
-                }
-                initialFocus
+                selected={field.value ? new Date(field.value) : undefined}
+                onSelect={(date) => field.onChange(date)}
                 locale={fr}
+                initialFocus
               />
             </PopoverContent>
           </Popover>

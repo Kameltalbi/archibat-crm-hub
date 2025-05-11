@@ -1,10 +1,11 @@
 
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { useForm } from "react-hook-form";
+import { UseFormReturn } from "react-hook-form";
+import { SaleFormData } from "./types";
 
 interface LabelFieldProps {
-  form: ReturnType<typeof useForm>;
+  form: UseFormReturn<SaleFormData>;
 }
 
 const LabelField = ({ form }: LabelFieldProps) => {
