@@ -88,7 +88,23 @@ export const productService = {
     
     console.log(`Catégorie "${categoryName}" trouvée avec l'ID: ${categoryData.id}`);
     
-    // Ensuite récupérer les produits de cette catégorie
+    // Récupérer TOUS les produits pour afficher leurs noms quoi qu'il arrive
+    const { data: allProducts, error: allProductsError } = await supabase
+      .from('products')
+      .select(`
+        *,
+        categories:category_id (id, name)
+      `)
+      .order('name');
+    
+    if (allProductsError) {
+      console.error('Erreur lors de la récupération de tous les produits:', allProductsError);
+      return [];
+    }
+    
+    console.log(`Nombre total de produits dans la base: ${allProducts?.length || 0}`);
+
+    // Récupérer spécifiquement les produits de la catégorie
     const { data: products, error: productsError } = await supabase
       .from('products')
       .select(`
@@ -100,11 +116,18 @@ export const productService = {
     
     if (productsError) {
       console.error(`Erreur lors de la récupération des produits de la catégorie ${categoryName}:`, productsError);
-      return [];
+      return allProducts || []; // Retourner tous les produits en cas d'erreur
     }
     
     console.log(`Nombre de produits trouvés pour la catégorie "${categoryName}": ${products?.length || 0}`);
-    return products || [];
+    
+    // Si aucun produit n'est trouvé pour cette catégorie, retourner tous les produits
+    if (!products || products.length === 0) {
+      console.log(`Aucun produit trouvé pour la catégorie "${categoryName}", retour de tous les produits`);
+      return allProducts || [];
+    }
+    
+    return products;
   },
   
   // Créer un nouveau produit
