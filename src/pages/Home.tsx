@@ -58,7 +58,7 @@ const Home = () => {
       <header className="bg-white dark:bg-matte-black border-b border-border sticky top-0 z-10">
         <div className="container mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center space-x-1">
-            <span className="text-xl font-semibold text-terracotta">ArchiPlus</span>
+            <span className="text-xl font-semibold text-terracotta">Archibat CRM</span>
           </div>
           
           <div className="hidden md:flex items-center space-x-6">
