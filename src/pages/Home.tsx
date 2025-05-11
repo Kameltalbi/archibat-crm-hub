@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -78,8 +77,12 @@ const Home = () => {
       {/* Header */}
       <header className="bg-white dark:bg-matte-black border-b border-border sticky top-0 z-10">
         <div className="container mx-auto px-4 py-3 flex items-center justify-between">
-          <div className="flex items-center space-x-1">
-            <span className="text-xl font-semibold text-terracotta">Archibat CRM</span>
+          <div className="flex items-center space-x-2">
+            <img 
+              src="/lovable-uploads/6e406553-32da-493a-87fe-c175bc00e795.png" 
+              alt="Archibat Logo" 
+              className="h-10 w-auto object-contain"
+            />
           </div>
           
           <div className="hidden md:flex items-center space-x-6">
