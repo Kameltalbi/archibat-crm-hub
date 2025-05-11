@@ -47,7 +47,7 @@ const StatCard = ({ title, value, description, icon: Icon, trend, trendLabel, de
   </Card>
 );
 
-// Update the component to correctly calculate total target revenue and active projects
+// Update the component to accept the props defined in the interface
 const DashboardSummary = ({ isLoading = false, stats }: DashboardSummaryProps) => {
   const [totalRevenue, setTotalRevenue] = useState<number>(0);
   const [activeProjects, setActiveProjects] = useState<number>(0);
@@ -69,46 +69,52 @@ const DashboardSummary = ({ isLoading = false, stats }: DashboardSummaryProps) =
       try {
         setIsLoadingLocal(true);
         
-        // Get all projects to calculate total target revenue
-        const { data: projectsData, error: projectsError } = await supabase
+        // Récupérer le nombre de projets actifs
+        const { data: activeProjectsData, error: projectsError } = await supabase
           .from('projects')
-          .select('target_revenue, status');
+          .select('id')
+          .eq('status', 'En cours');
           
         if (projectsError) throw projectsError;
+        setActiveProjects(activeProjectsData.length);
         
-        // Calculate total target revenue from all projects
-        const totalTargetRevenue = projectsData.reduce((sum, project) => {
-          return sum + (project.target_revenue || 0);
-        }, 0);
-        setTotalRevenue(totalTargetRevenue);
-        
-        // Count active projects with status "En cours"
-        const activeProjectsCount = projectsData.filter(project => project.status === 'En cours').length;
-        setActiveProjects(activeProjectsCount);
-        
-        // Get total clients count
+        // Récupérer le nombre total de clients
         const { data: clientsData, error: clientsError } = await supabase
           .from('clients')
           .select('id');
           
         if (clientsError) throw clientsError;
-        setTotalClients(clientsData.length);
+        // Éliminer les doublons par nom (car il y a des clients dupliqués)
+        const uniqueClientNames = new Set(clientsData.map((client: any) => client.name));
+        setTotalClients(uniqueClientNames.size);
         
-        // Calculate monthly revenue (projects started in current month)
+        // Récupérer les projets avec leurs objectifs de CA pour calculer le CA total
+        const { data: projectsData, error: revenueError } = await supabase
+          .from('projects')
+          .select('target_revenue');
+          
+        if (revenueError) throw revenueError;
+        
+        const totalRevenueValue = projectsData.reduce((sum, project) => {
+          return sum + (project.target_revenue || 0);
+        }, 0);
+        setTotalRevenue(totalRevenueValue);
+        
+        // Calculer le CA du mois en cours
         const currentDate = new Date();
-        const currentMonth = currentDate.getMonth() + 1; // getMonth() is 0-indexed
+        const currentMonth = currentDate.getMonth() + 1; // getMonth() est 0-indexé
         const currentYear = currentDate.getFullYear();
         
-        const { data: monthlySalesData, error: monthlySalesError } = await supabase
-          .from('project_sales')
-          .select('amount')
-          .gte('date', `${currentYear}-${currentMonth.toString().padStart(2, '0')}-01`)
-          .lte('date', `${currentYear}-${currentMonth.toString().padStart(2, '0')}-31`);
+        const { data: monthlyProjectsData, error: monthlyError } = await supabase
+          .from('projects')
+          .select('target_revenue')
+          .gte('start_date', `${currentYear}-${currentMonth.toString().padStart(2, '0')}-01`)
+          .lte('start_date', `${currentYear}-${currentMonth.toString().padStart(2, '0')}-31`);
           
-        if (monthlySalesError) throw monthlySalesError;
+        if (monthlyError) throw monthlyError;
         
-        const monthlyRevenueValue = monthlySalesData.reduce((sum, sale) => {
-          return sum + (parseFloat(sale.amount.toString()) || 0);
+        const monthlyRevenueValue = monthlyProjectsData.reduce((sum, project) => {
+          return sum + (project.target_revenue || 0);
         }, 0);
         setMonthlyRevenue(monthlyRevenueValue);
         
@@ -133,7 +139,7 @@ const DashboardSummary = ({ isLoading = false, stats }: DashboardSummaryProps) =
       <StatCard
         title="CA Total"
         value={effectiveLoading ? "Chargement..." : `${totalRevenue.toLocaleString()} TND`}
-        description="Objectif CA des projets"
+        description="Chiffre d'affaires global"
         icon={Calendar}
         trend={12}
         trendLabel="vs période précédente"
