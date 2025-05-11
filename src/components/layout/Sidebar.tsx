@@ -87,7 +87,14 @@ const AppSidebar = () => {
   return (
     <Sidebar className="bg-menu-bg">
       <SidebarHeader className="h-16 flex items-center px-6 border-b border-sidebar-border">
-        <span className="text-xl font-semibold text-terracotta">Archibat Pro</span>
+        <div className="flex items-center">
+          <img 
+            src="/lovable-uploads/cd2bb4ea-8bca-441f-bdff-c9319ac0e042.png" 
+            alt="Archibat Logo" 
+            className="h-8 mr-2" 
+          />
+          <span className="text-xl font-semibold text-charcoal">Pro</span>
+        </div>
       </SidebarHeader>
       <SidebarContent>
         <SidebarMenu className="py-4 space-y-4">
