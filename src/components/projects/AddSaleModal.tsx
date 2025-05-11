@@ -44,26 +44,31 @@ const AddSaleModal = ({ projectClients, projectName, projectCategory }: AddSaleM
           </DialogTitle>
         </DialogHeader>
         
-        {projectClients.length > 1 && (
-          <div className="mb-4">
-            <Label htmlFor="client-select">Client associé à cette vente</Label>
-            <Select
-              value={selectedClientId}
-              onValueChange={setSelectedClientId}
-            >
-              <SelectTrigger id="client-select" className="mt-1">
-                <SelectValue placeholder="Sélectionner un client" />
-              </SelectTrigger>
-              <SelectContent>
-                {projectClients.map((client) => (
+        {/* Affiche toujours le sélecteur de client, peu importe le nombre de clients */}
+        <div className="mb-4">
+          <Label htmlFor="client-select">Client associé à cette vente</Label>
+          <Select
+            value={selectedClientId}
+            onValueChange={setSelectedClientId}
+          >
+            <SelectTrigger id="client-select" className="mt-1">
+              <SelectValue placeholder="Sélectionner un client" />
+            </SelectTrigger>
+            <SelectContent>
+              {projectClients.length > 0 ? (
+                projectClients.map((client) => (
                   <SelectItem key={client.id} value={client.id}>
                     {client.name}
                   </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        )}
+                ))
+              ) : (
+                <SelectItem value="no-client" disabled>
+                  Aucun client disponible
+                </SelectItem>
+              )}
+            </SelectContent>
+          </Select>
+        </div>
         
         <ProjectSalesForm 
           projectId="mock-project-id" 
