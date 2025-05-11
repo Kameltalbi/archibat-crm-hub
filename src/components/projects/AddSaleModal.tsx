@@ -34,12 +34,7 @@ import { productService } from "@/services/productService";
 import { useToast } from "@/hooks/use-toast";
 import { clientService } from "@/services/clientService";
 import ClientSelect from "./form/ClientSelect";
-
-// Define the client type
-interface Client {
-  id: number;
-  name: string;
-}
+import { Client } from "@/lib/supabase"; // Importer le type Client depuis supabase.ts
 
 // Define the product type
 interface Product {
