@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -356,9 +355,9 @@ const AddSaleDialog = ({
           {/* Date de vente */}
           <div className="grid w-full items-center gap-2">
             <DatePickerField
+              label="Date de vente *"
               date={saleDate}
               onDateChange={setSaleDate}
-              label="Date de vente *"
             />
           </div>
           
