@@ -1,10 +1,5 @@
 
 import { useEffect, useState } from "react";
-import DashboardSummary from "@/components/dashboard/DashboardSummary";
-import RevenueChart from "@/components/dashboard/RevenueChart";
-import TopClients from "@/components/dashboard/TopClients";
-import RecentProjects from "@/components/dashboard/RecentProjects";
-import CategoryDistribution from "@/components/dashboard/CategoryDistribution";
 import { supabase } from "@/lib/supabase";
 
 const Dashboard = () => {
@@ -61,16 +56,8 @@ const Dashboard = () => {
         <p className="text-muted-foreground">Vue d'ensemble de votre activité pour {currentYear}</p>
       </div>
       
-      <DashboardSummary isLoading={isLoading} stats={stats} />
-      
-      <div className="grid gap-6 md:grid-cols-2">
-        <RevenueChart />
-        <CategoryDistribution />
-      </div>
-      
-      <div className="grid gap-6 md:grid-cols-2">
-        <RecentProjects />
-        <TopClients />
+      <div className="flex items-center justify-center h-[60vh]">
+        <p className="text-xl text-muted-foreground">Tableau de bord vide</p>
       </div>
     </div>
   );
