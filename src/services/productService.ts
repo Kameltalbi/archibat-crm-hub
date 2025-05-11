@@ -120,6 +120,7 @@ export const productService = {
     }
     
     console.log(`Nombre de produits trouvés pour la catégorie "${categoryName}": ${products?.length || 0}`);
+    console.log('Produits pour la catégorie exacte:', products);
     
     // Si aucun produit n'est trouvé pour cette catégorie, retourner tous les produits
     if (!products || products.length === 0) {
@@ -132,6 +133,8 @@ export const productService = {
   
   // Créer un nouveau produit
   async createProduct(product: Omit<Product, 'id' | 'created_at' | 'updated_at'>): Promise<Product | null> {
+    console.log("Création du produit avec les données:", product);
+    
     const { data, error } = await supabase
       .from('products')
       .insert(product)
@@ -143,6 +146,7 @@ export const productService = {
       return null;
     }
     
+    console.log("Produit créé avec succès:", data);
     return data;
   },
   

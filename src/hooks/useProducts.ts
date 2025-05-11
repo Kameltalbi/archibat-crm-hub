@@ -108,13 +108,26 @@ export function useProducts() {
   
   const handleSaveProduct = async (productData: any) => {
     try {
+      console.log("Données reçues pour la sauvegarde:", productData);
+      
+      // Vérifier si category_id est fourni et qu'il n'est pas null
+      if (!productData.category_id) {
+        console.error('Erreur: category_id est requis');
+        toast({
+          variant: "destructive",
+          title: "Erreur",
+          description: "La catégorie est requise pour ajouter un produit."
+        });
+        return;
+      }
+      
       const { data, error } = await supabase
         .from('products')
         .insert([{
           name: productData.name,
           description: productData.description,
           price: productData.price,
-          category_id: productData.category_id
+          category_id: productData.category_id // Assurez-vous que c'est la bonne propriété
         }])
         .select(`
           *,
@@ -122,10 +135,13 @@ export function useProducts() {
         `);
         
       if (error) {
+        console.error('Erreur Supabase lors de l\'ajout du produit:', error);
         throw error;
       }
       
       if (data && data.length > 0) {
+        console.log("Produit sauvegardé avec succès:", data[0]);
+        
         const newProduct: ProductWithCategory = {
           ...data[0],
           category_name: data[0].categories ? data[0].categories.name : 'Non catégorisé'

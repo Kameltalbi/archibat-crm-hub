@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -32,7 +33,7 @@ interface ProductFormData {
   name: string;
   description: string;
   price: string;
-  categoryId: string | number | null;
+  category_id: string | number | null; // Modifié: categoryId -> category_id pour correspondre au modèle de données Supabase
 }
 
 // Define the modal props
@@ -42,7 +43,7 @@ interface AddProductModalProps {
     name: string;
     description: string;
     price: number;
-    categoryId: string | number;
+    category_id: string | number; // Modifié: categoryId -> category_id
   }) => void;
 }
 
@@ -52,7 +53,7 @@ const AddProductModal = ({ categories, onSave }: AddProductModalProps) => {
     name: "",
     description: "",
     price: "",
-    categoryId: null,
+    category_id: null, // Modifié: categoryId -> category_id
   });
   const [errors, setErrors] = useState<Partial<Record<keyof ProductFormData, string>>>({});
 
@@ -69,8 +70,8 @@ const AddProductModal = ({ categories, onSave }: AddProductModalProps) => {
       newErrors.price = "Le prix doit être supérieur à 0";
     }
     
-    if (!formData.categoryId) {
-      newErrors.categoryId = "La catégorie est requise";
+    if (!formData.category_id) { // Modifié: categoryId -> category_id
+      newErrors.category_id = "La catégorie est requise"; // Modifié: categoryId -> category_id
     }
     
     setErrors(newErrors);
@@ -98,14 +99,14 @@ const AddProductModal = ({ categories, onSave }: AddProductModalProps) => {
   const handleSelectChange = (value: string) => {
     setFormData((prev) => ({
       ...prev,
-      categoryId: value,
+      category_id: value, // Modifié: categoryId -> category_id
     }));
     
     // Clear error when user selects
-    if (errors.categoryId) {
+    if (errors.category_id) { // Modifié: categoryId -> category_id
       setErrors((prev) => ({
         ...prev,
-        categoryId: undefined,
+        category_id: undefined, // Modifié: categoryId -> category_id
       }));
     }
   };
@@ -117,7 +118,7 @@ const AddProductModal = ({ categories, onSave }: AddProductModalProps) => {
         name: formData.name.trim(),
         description: formData.description.trim(),
         price: parseFloat(formData.price),
-        categoryId: formData.categoryId as string | number,
+        category_id: formData.category_id as string | number, // Modifié: categoryId -> category_id
       };
       
       console.log("Saving product:", productData);
@@ -132,7 +133,7 @@ const AddProductModal = ({ categories, onSave }: AddProductModalProps) => {
         name: "",
         description: "",
         price: "",
-        categoryId: null,
+        category_id: null, // Modifié: categoryId -> category_id
       });
       setErrors({});
     }
@@ -145,7 +146,7 @@ const AddProductModal = ({ categories, onSave }: AddProductModalProps) => {
       name: "",
       description: "",
       price: "",
-      categoryId: null,
+      category_id: null, // Modifié: categoryId -> category_id
     });
     setErrors({});
   };
@@ -224,16 +225,16 @@ const AddProductModal = ({ categories, onSave }: AddProductModalProps) => {
 
           {/* Category */}
           <div className="grid gap-2">
-            <Label htmlFor="category" className={errors.categoryId ? "text-destructive" : ""}>
+            <Label htmlFor="category" className={errors.category_id ? "text-destructive" : ""}>
               Catégorie *
             </Label>
             <Select
-              value={formData.categoryId?.toString() || ""}
+              value={formData.category_id?.toString() || ""}
               onValueChange={handleSelectChange}
             >
               <SelectTrigger 
                 id="category"
-                className={errors.categoryId ? "border-destructive" : "border-input"}
+                className={errors.category_id ? "border-destructive" : "border-input"}
               >
                 <SelectValue placeholder="Sélectionnez une catégorie" />
               </SelectTrigger>
@@ -248,8 +249,8 @@ const AddProductModal = ({ categories, onSave }: AddProductModalProps) => {
                 ))}
               </SelectContent>
             </Select>
-            {errors.categoryId && (
-              <p className="text-xs text-destructive">{errors.categoryId}</p>
+            {errors.category_id && (
+              <p className="text-xs text-destructive">{errors.category_id}</p>
             )}
           </div>
         </div>
