@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
@@ -37,11 +37,22 @@ const MultiProductSelect = ({
   projectCategory
 }: MultiProductSelectProps) => {
   const [open, setOpen] = useState(false);
+  const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   
-  // Filtrer les produits déjà sélectionnés
-  const availableProducts = products.filter(
-    product => !selectedProducts.some(selected => selected.id === product.id)
-  );
+  // Filter products based on project category and selected products
+  useEffect(() => {
+    // First, filter out already selected products
+    let availableProducts = products.filter(
+      product => !selectedProducts.some(selected => selected.id === product.id)
+    );
+    
+    // Log for debugging
+    console.log(`Total available products: ${availableProducts.length}`, availableProducts);
+    console.log(`Project category: ${projectCategory}`);
+    
+    // Set filtered products
+    setFilteredProducts(availableProducts);
+  }, [products, selectedProducts, projectCategory]);
   
   const handleSelectProduct = (product: Product) => {
     onChange([...selectedProducts, { 
@@ -140,7 +151,9 @@ const MultiProductSelect = ({
           >
             {selectedProducts.length > 0 
               ? `${selectedProducts.length} produit${selectedProducts.length > 1 ? 's' : ''} sélectionné${selectedProducts.length > 1 ? 's' : ''}`
-              : "Sélectionner des produits"}
+              : filteredProducts.length > 0 
+                ? "Sélectionner des produits" 
+                : "Aucun produit disponible"}
             <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
           </Button>
         </PopoverTrigger>
@@ -150,26 +163,32 @@ const MultiProductSelect = ({
             <CommandList>
               <CommandEmpty>Aucun produit trouvé.</CommandEmpty>
               <CommandGroup>
-                {availableProducts.map((product) => (
-                  <CommandItem
-                    key={product.id}
-                    value={product.id}
-                    onSelect={() => handleSelectProduct(product)}
-                    className="flex justify-between"
-                  >
-                    <div className="flex flex-col">
-                      <span>{product.name}</span>
-                      {product.category && (
-                        <span className="text-xs text-muted-foreground">
-                          Catégorie: {product.category}
-                        </span>
-                      )}
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Badge variant="outline">{formatPrice(product.price)}</Badge>
-                    </div>
+                {filteredProducts.length > 0 ? (
+                  filteredProducts.map((product) => (
+                    <CommandItem
+                      key={product.id}
+                      value={product.id}
+                      onSelect={() => handleSelectProduct(product)}
+                      className="flex justify-between"
+                    >
+                      <div className="flex flex-col">
+                        <span>{product.name}</span>
+                        {product.category && (
+                          <span className="text-xs text-muted-foreground">
+                            Catégorie: {product.category}
+                          </span>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Badge variant="outline">{formatPrice(product.price)}</Badge>
+                      </div>
+                    </CommandItem>
+                  ))
+                ) : (
+                  <CommandItem disabled className="italic text-muted-foreground">
+                    Aucun produit disponible.
                   </CommandItem>
-                ))}
+                )}
               </CommandGroup>
             </CommandList>
           </Command>

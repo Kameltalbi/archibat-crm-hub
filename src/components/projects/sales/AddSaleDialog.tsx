@@ -93,6 +93,7 @@ const AddSaleDialog = ({
           
         if (error) throw error;
         setClients(data || []);
+        console.log("Clients chargés:", data?.length || 0);
       } catch (error) {
         console.error('Erreur lors du chargement des clients:', error);
       }
@@ -107,27 +108,35 @@ const AddSaleDialog = ({
   useEffect(() => {
     const fetchProducts = async () => {
       try {
+        console.log(`Chargement des produits pour la catégorie: ${projectCategory || "toutes catégories"}`);
+        
+        // Si une catégorie est spécifiée, essayer de trouver les produits correspondants
+        const categoryFilter = projectCategory 
+          ? await fetchCategoryId(projectCategory)
+          : null;
+          
+        console.log("ID de catégorie trouvé:", categoryFilter);
+        
         let query = supabase
           .from('products')
-          .select('id, name, price, categories:category_id (name)')
+          .select(`
+            id, 
+            name, 
+            price, 
+            categories:category_id (id, name)
+          `)
           .order('name');
           
-        // Si une catégorie est spécifiée, filtrer les produits
-        if (projectCategory) {
-          const { data: categoryData } = await supabase
-            .from('categories')
-            .select('id')
-            .ilike('name', projectCategory)
-            .maybeSingle();
-            
-          if (categoryData?.id) {
-            query = query.eq('category_id', categoryData.id);
-          }
+        // Filtrer par catégorie si nous avons un ID
+        if (categoryFilter) {
+          query = query.eq('category_id', categoryFilter);
         }
         
         const { data, error } = await query;
         
         if (error) throw error;
+        
+        console.log(`${data?.length || 0} produits trouvés:`, data);
         
         const formattedProducts = (data || []).map(product => ({
           id: product.id,
@@ -137,8 +146,26 @@ const AddSaleDialog = ({
         }));
         
         setProducts(formattedProducts);
+        console.log("Produits formattés:", formattedProducts);
       } catch (error) {
         console.error('Erreur lors du chargement des produits:', error);
+      }
+    };
+    
+    // Fonction pour récupérer l'ID de catégorie à partir du nom
+    const fetchCategoryId = async (categoryName: string): Promise<string | null> => {
+      try {
+        const { data, error } = await supabase
+          .from('categories')
+          .select('id')
+          .ilike('name', categoryName)
+          .maybeSingle();
+          
+        if (error) throw error;
+        return data?.id || null;
+      } catch (error) {
+        console.error(`Erreur lors de la récupération de l'ID de catégorie ${categoryName}:`, error);
+        return null;
       }
     };
     
@@ -277,6 +304,8 @@ const AddSaleDialog = ({
   };
   
   console.log("AddSaleDialog rendu, isOpen:", isOpen);
+  console.log("Produits disponibles:", products.length);
+  console.log("Catégorie du projet:", projectCategory);
   
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
