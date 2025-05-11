@@ -10,11 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { TableRow, TableCell, TableHeader, TableHead, Table, TableBody } from "@/components/ui/table";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
 import AddSaleModal from "@/components/projects/AddSaleModal";
-
-interface Client {
-  id: number;
-  name: string;
-}
+import { Client } from "@/lib/supabase"; // Import the Client type from supabase
 
 export interface Project {
   id: number;
@@ -23,7 +19,10 @@ export interface Project {
   startDate: string;
   endDate: string;
   status: string;
-  clients: Client[];
+  clients: {
+    id: string;
+    name: string;
+  }[];
   category?: string;
 }
 
