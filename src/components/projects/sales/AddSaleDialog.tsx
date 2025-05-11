@@ -26,6 +26,7 @@ interface AddSaleDialogProps {
   projectName?: string;
   projectCategory?: string;
   onSaleAdded: () => void;
+  triggerButton?: boolean; // Nouvelle prop pour contrôler si on affiche le bouton trigger
 }
 
 interface Product {
@@ -42,8 +43,7 @@ interface SelectedProduct {
   quantity: number;
 }
 
-const AddSaleDialog = ({ projectId, projectName, projectCategory, onSaleAdded }: AddSaleDialogProps) => {
-  // Reset the state for the controlled dialog
+const AddSaleDialog = ({ projectId, projectName, projectCategory, onSaleAdded, triggerButton = true }: AddSaleDialogProps) => {
   const { toast } = useToast();
   const [isOpen, setIsOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -252,11 +252,13 @@ const AddSaleDialog = ({ projectId, projectName, projectCategory, onSaleAdded }:
   
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger asChild>
-        <Button className="flex items-center gap-2" id="addSaleButton">
-          <Plus className="h-4 w-4" /> Ajouter une vente
-        </Button>
-      </DialogTrigger>
+      {triggerButton ? (
+        <DialogTrigger asChild>
+          <Button className="flex items-center gap-2">
+            <Plus className="h-4 w-4" /> Ajouter une vente
+          </Button>
+        </DialogTrigger>
+      ) : null}
       <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Ajouter une vente au projet {projectName}</DialogTitle>

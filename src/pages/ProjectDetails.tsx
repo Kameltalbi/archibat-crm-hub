@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -8,6 +7,7 @@ import { ArrowLeft, Plus } from "lucide-react";
 import { ProjectStatus, supabase } from "@/lib/supabase";
 import { useToast } from "@/hooks/use-toast";
 import AddSaleDialog from "@/components/projects/sales/AddSaleDialog";
+import { Dialog } from "@/components/ui/dialog";
 
 interface ProjectWithClient {
   id: string;
@@ -40,6 +40,7 @@ const ProjectDetails = () => {
   const [project, setProject] = useState<ProjectWithClient | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [sales, setSales] = useState<ProjectSale[]>([]);
+  const [addSaleDialogOpen, setAddSaleDialogOpen] = useState(false);
 
   useEffect(() => {
     if (id) {
@@ -143,6 +144,11 @@ const ProjectDetails = () => {
     }
   };
 
+  // Ouvrir la boîte de dialogue d'ajout de vente
+  const openAddSaleDialog = () => {
+    setAddSaleDialogOpen(true);
+  };
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-[calc(100vh-200px)]">
@@ -193,12 +199,23 @@ const ProjectDetails = () => {
             {project.end_date && ` • Fin prévue le ${new Date(project.end_date).toLocaleDateString()}`}
           </p>
         </div>
-        <Button 
-          onClick={() => document.getElementById('addSaleModalTrigger')?.click()}
-          className="flex items-center gap-2"
-        >
-          <Plus className="h-4 w-4" /> Ajouter une vente
-        </Button>
+        <Dialog open={addSaleDialogOpen} onOpenChange={setAddSaleDialogOpen}>
+          <Button 
+            onClick={openAddSaleDialog}
+            className="flex items-center gap-2"
+          >
+            <Plus className="h-4 w-4" /> Ajouter une vente
+          </Button>
+          {addSaleDialogOpen && (
+            <AddSaleDialog 
+              projectId={id!}
+              projectName={project.name}
+              projectCategory={project.category || undefined}
+              onSaleAdded={handleSaleAdded}
+              triggerButton={false}
+            />
+          )}
+        </Dialog>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -269,7 +286,7 @@ const ProjectDetails = () => {
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle>Ventes liées</CardTitle>
           <Button 
-            onClick={() => document.getElementById('addSaleModalTrigger')?.click()}
+            onClick={openAddSaleDialog}
             className="flex items-center gap-2"
           >
             <Plus className="h-4 w-4" /> Ajouter une vente
@@ -307,15 +324,16 @@ const ProjectDetails = () => {
         </CardContent>
       </Card>
       
-      {/* Hidden modal trigger - will be clicked programmatically */}
-      <span id="addSaleModalTrigger" className="hidden">
+      {/* Composant de dialogue d'ajout de vente en mode non visible initialement */}
+      {addSaleDialogOpen && (
         <AddSaleDialog 
           projectId={id!}
           projectName={project.name}
           projectCategory={project.category || undefined}
-          onSaleAdded={handleSaleAdded}
+          onSaleAdded={handleSaleAdded} 
+          triggerButton={false}
         />
-      </span>
+      )}
     </div>
   );
 };
