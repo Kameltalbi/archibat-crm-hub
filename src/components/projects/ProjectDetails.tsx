@@ -1,4 +1,3 @@
-
 import { useState, useMemo } from "react";
 import { 
   Dialog,
@@ -10,7 +9,13 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { TableRow, TableCell, TableHeader, TableHead, Table, TableBody } from "@/components/ui/table";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
 import AddSaleModal from "@/components/projects/AddSaleModal";
-import { Client } from "@/lib/supabase"; // Import the Client type from supabase
+// Removing the import of Client from supabase since we're not using its full interface
+
+// Define a minimal client type for this component's needs
+interface ClientMinimal {
+  id: string;
+  name: string;
+}
 
 export interface Project {
   id: number;
@@ -19,10 +24,7 @@ export interface Project {
   startDate: string;
   endDate: string;
   status: string;
-  clients: {
-    id: string;
-    name: string;
-  }[];
+  clients: ClientMinimal[]; // Use the minimal client type
   category?: string;
 }
 
