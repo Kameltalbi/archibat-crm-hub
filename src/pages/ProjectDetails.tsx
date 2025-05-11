@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -7,7 +6,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { ArrowLeft, Plus } from "lucide-react";
 import { ProjectStatus, supabase } from "@/lib/supabase";
 import { useToast } from "@/hooks/use-toast";
-import ProjectSalesForm from "@/components/projects/ProjectSalesForm";
+import AddSaleDialog from "@/components/projects/sales/AddSaleDialog";
+import { Dialog } from "@/components/ui/dialog";
 
 interface ProjectWithClient {
   id: string;
@@ -30,6 +30,7 @@ interface ProjectSale {
   client_name: string | null;
   product_name: string | null;
   date: string;
+  remarks?: string | null;
 }
 
 const ProjectDetails = () => {
@@ -39,7 +40,7 @@ const ProjectDetails = () => {
   const [project, setProject] = useState<ProjectWithClient | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [sales, setSales] = useState<ProjectSale[]>([]);
-  const [showSalesForm, setShowSalesForm] = useState(false);
+  const [addSaleDialogOpen, setAddSaleDialogOpen] = useState(false);
 
   useEffect(() => {
     if (id) {
@@ -117,9 +118,9 @@ const ProjectDetails = () => {
     }).format(amount);
   };
 
+  // Fonction pour gérer l'ajout d'une nouvelle vente
   const handleSaleAdded = () => {
     fetchProjectSales(id!);
-    setShowSalesForm(false);
     toast({
       title: "Vente ajoutée",
       description: "La vente a été enregistrée avec succès."
@@ -141,6 +142,11 @@ const ProjectDetails = () => {
       default:
         return "bg-gray-100 text-gray-700 border border-gray-200";
     }
+  };
+
+  // Ouvrir la boîte de dialogue d'ajout de vente
+  const openAddSaleDialog = () => {
+    setAddSaleDialogOpen(true);
   };
 
   if (isLoading) {
@@ -172,7 +178,8 @@ const ProjectDetails = () => {
         <ArrowLeft className="h-4 w-4" /> Retour à la liste des projets
       </Button>
 
-      <div className="flex items-center gap-4 mb-6">
+      {/* Header avec bouton d'ajout de vente */}
+      <div className="flex items-center justify-between gap-4 mb-6">
         <div className="flex-1">
           <h1 className="text-2xl font-semibold flex items-center gap-3">
             {project.name}
@@ -192,6 +199,23 @@ const ProjectDetails = () => {
             {project.end_date && ` • Fin prévue le ${new Date(project.end_date).toLocaleDateString()}`}
           </p>
         </div>
+        <Dialog open={addSaleDialogOpen} onOpenChange={setAddSaleDialogOpen}>
+          <Button 
+            onClick={openAddSaleDialog}
+            className="flex items-center gap-2"
+          >
+            <Plus className="h-4 w-4" /> Ajouter une vente
+          </Button>
+          {addSaleDialogOpen && (
+            <AddSaleDialog 
+              projectId={id!}
+              projectName={project.name}
+              projectCategory={project.category || undefined}
+              onSaleAdded={handleSaleAdded}
+              triggerButton={false}
+            />
+          )}
+        </Dialog>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -261,29 +285,14 @@ const ProjectDetails = () => {
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle>Ventes liées</CardTitle>
-          {!showSalesForm && (
-            <Button 
-              onClick={() => setShowSalesForm(true)} 
-              className="flex items-center gap-2"
-            >
-              <Plus className="h-4 w-4" /> Ajouter une vente
-            </Button>
-          )}
+          <Button 
+            onClick={openAddSaleDialog}
+            className="flex items-center gap-2"
+          >
+            <Plus className="h-4 w-4" /> Ajouter une vente
+          </Button>
         </CardHeader>
         <CardContent>
-          {showSalesForm && (
-            <div className="mb-6 border rounded-lg p-4 bg-muted/30">
-              <ProjectSalesForm 
-                projectId={id!} 
-                projectName={project.name}
-                projectCategory={project.category || undefined}
-                clientName={project.client_name || ''}
-                onSaleAdded={handleSaleAdded} 
-                onCancel={() => setShowSalesForm(false)} 
-              />
-            </div>
-          )}
-
           {sales.length > 0 ? (
             <Table>
               <TableHeader>
@@ -314,6 +323,17 @@ const ProjectDetails = () => {
           )}
         </CardContent>
       </Card>
+      
+      {/* Composant de dialogue d'ajout de vente en mode non visible initialement */}
+      {addSaleDialogOpen && (
+        <AddSaleDialog 
+          projectId={id!}
+          projectName={project.name}
+          projectCategory={project.category || undefined}
+          onSaleAdded={handleSaleAdded} 
+          triggerButton={false}
+        />
+      )}
     </div>
   );
 };
