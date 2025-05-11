@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { supabase } from "@/lib/supabase";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line } from 'recharts';
-import { Briefcase, CircleDollarSign, FileText, TrendingUp } from "lucide-react";
+import { Briefcase, CircleDollarSign, TrendingUp } from "lucide-react";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 
 const Dashboard = () => {
@@ -17,7 +17,7 @@ const Dashboard = () => {
   });
   const [projectsByCategory, setProjectsByCategory] = useState<any[]>([]);
   const [monthlyObjectives, setMonthlyObjectives] = useState<any[]>([]);
-  const [progressData, setProgressData] = useState<any[]>([]);
+  const [monthlySalesVsObjectives, setMonthlySalesVsObjectives] = useState<any[]>([]);
 
   useEffect(() => {
     const fetchDashboardData = async () => {
@@ -39,7 +39,7 @@ const Dashboard = () => {
         // Récupérer les ventes
         const { data: salesData, error: salesError } = await supabase
           .from('project_sales')
-          .select('amount');
+          .select('*');
           
         if (salesError) throw salesError;
         
@@ -80,12 +80,32 @@ const Dashboard = () => {
         });
         setMonthlyObjectives(objectivesByMonth);
         
-        // Préparer les données pour le graphique de progression
-        setProgressData([
-          { name: 'Objectifs', value: totalObjectives },
-          { name: 'Ventes', value: totalSales }
-        ]);
-        
+        // Préparer les données pour le graphique de progression ventes vs objectifs par mois
+        const monthlyData = monthNames.map(name => ({ 
+          name, 
+          objectives: 0,
+          sales: 0
+        }));
+
+        // Ajouter les objectifs par mois
+        projectsData?.forEach(project => {
+          if (project.start_date && project.target_revenue) {
+            const startDate = new Date(project.start_date);
+            const month = startDate.getMonth();
+            monthlyData[month].objectives += project.target_revenue;
+          }
+        });
+
+        // Ajouter les ventes par mois
+        salesData?.forEach(sale => {
+          if (sale.date) {
+            const saleDate = new Date(sale.date);
+            const month = saleDate.getMonth();
+            monthlyData[month].sales += sale.amount;
+          }
+        });
+
+        setMonthlySalesVsObjectives(monthlyData);
       } catch (err) {
         console.error("Erreur lors du chargement des données du dashboard:", err);
       } finally {
@@ -218,20 +238,20 @@ const Dashboard = () => {
               </CardContent>
             </Card>
 
-            {/* Graphique 3: Progression des ventes par rapport aux objectifs */}
+            {/* Graphique 3: Courbe Ventes vs Objectifs par mois */}
             <Card className="col-span-1 lg:col-span-3">
               <CardHeader>
-                <CardTitle>Ventes vs Objectifs</CardTitle>
+                <CardTitle>Ventes vs Objectifs par mois</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="h-[300px]">
                   <ChartContainer
                     config={{
                       objectives: { color: "#A65F3D" },
-                      sales: { color: "#E26D5A" }
+                      sales: { color: "#9b87f5" }
                     }}
                   >
-                    <BarChart data={progressData}>
+                    <LineChart data={monthlySalesVsObjectives}>
                       <CartesianGrid strokeDasharray="3 3" />
                       <XAxis dataKey="name" />
                       <YAxis tickFormatter={(value) => `${value / 1000}k`} />
@@ -244,8 +264,22 @@ const Dashboard = () => {
                           />
                         }
                       />
-                      <Bar dataKey="value" name="Montant" fill="var(--color-objectives)" />
-                    </BarChart>
+                      <Line 
+                        type="monotone" 
+                        dataKey="objectives" 
+                        name="Objectifs" 
+                        stroke="#A65F3D" 
+                        strokeWidth={2}
+                      />
+                      <Line 
+                        type="monotone" 
+                        dataKey="sales" 
+                        name="Ventes" 
+                        stroke="#9b87f5" 
+                        strokeWidth={2}
+                        activeDot={{ r: 8 }}
+                      />
+                    </LineChart>
                   </ChartContainer>
                 </div>
               </CardContent>
