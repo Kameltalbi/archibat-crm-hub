@@ -1,3 +1,4 @@
+
 import {
   Sidebar,
   SidebarContent,
@@ -85,12 +86,13 @@ const AppSidebar = () => {
 
   return (
     <Sidebar className="bg-menu-bg">
-      <SidebarHeader className="h-16 flex items-center justify-center px-6 border-b border-sidebar-border">
+      <SidebarHeader className="h-20 flex items-center justify-center px-6 border-b border-sidebar-border">
         <div className="flex items-center justify-center">
           <img 
             src="/lovable-uploads/cd2bb4ea-8bca-441f-bdff-c9319ac0e042.png" 
             alt="Archibat Logo" 
-            className="h-12" 
+            className="h-16 w-auto object-contain mix-blend-multiply"
+            style={{ filter: 'brightness(0) invert(0.15)' }}
           />
         </div>
       </SidebarHeader>
