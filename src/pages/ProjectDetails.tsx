@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { ArrowLeft, Edit, Plus, Trash } from "lucide-react";
+import { ArrowLeft, Pencil, Plus, Trash2 } from "lucide-react";
 import { ProjectStatus, supabase } from "@/lib/supabase";
 import { useToast } from "@/hooks/use-toast";
 import AddSaleDialog from "@/components/projects/sales/AddSaleDialog";
@@ -360,7 +360,7 @@ const ProjectDetails = () => {
                           onClick={() => openEditSaleDialog(sale)}
                           title="Modifier"
                         >
-                          <Edit className="h-4 w-4" />
+                          <Pencil className="h-4 w-4" />
                         </Button>
                         
                         <AlertDialog>
@@ -371,7 +371,7 @@ const ProjectDetails = () => {
                               className="text-red-500 hover:text-red-600"
                               title="Supprimer"
                             >
-                              <Trash className="h-4 w-4" />
+                              <Trash2 className="h-4 w-4" />
                             </Button>
                           </AlertDialogTrigger>
                           <AlertDialogContent>
