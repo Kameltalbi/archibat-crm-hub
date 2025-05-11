@@ -8,7 +8,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ExternalLink, CheckCircle, Phone } from "lucide-react";
+import { ExternalLink, CheckCircle, Phone, Eye, EyeOff } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { useToast } from "@/hooks/use-toast";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -21,6 +21,7 @@ const formSchema = z.object({
 const Home = () => {
   const { toast } = useToast();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
   
   // Vérifier si l'utilisateur est déjà connecté
@@ -69,6 +70,8 @@ const Home = () => {
       });
     }
   };
+
+  const toggleShowPassword = () => setShowPassword(!showPassword);
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -165,9 +168,24 @@ const Home = () => {
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Mot de passe</FormLabel>
-                          <FormControl>
-                            <Input type="password" {...field} />
-                          </FormControl>
+                          <div className="relative">
+                            <FormControl>
+                              <Input 
+                                type={showPassword ? "text" : "password"} 
+                                {...field} 
+                              />
+                            </FormControl>
+                            <button 
+                              type="button"
+                              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 focus:outline-none"
+                              onClick={toggleShowPassword}
+                            >
+                              {showPassword ? 
+                                <EyeOff className="h-4 w-4" /> : 
+                                <Eye className="h-4 w-4" />
+                              }
+                            </button>
+                          </div>
                           <FormMessage />
                         </FormItem>
                       )}
@@ -237,4 +255,3 @@ const Home = () => {
 };
 
 export default Home;
-
