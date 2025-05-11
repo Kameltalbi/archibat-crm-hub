@@ -1,13 +1,12 @@
-
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { ArrowLeft, Plus } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { ProjectStatus, supabase } from "@/lib/supabase";
 import { useToast } from "@/hooks/use-toast";
-import ProjectSalesForm from "@/components/projects/ProjectSalesForm";
+// Suppression de l'import ProjectSalesForm
 
 interface ProjectWithClient {
   id: string;
@@ -39,7 +38,7 @@ const ProjectDetails = () => {
   const [project, setProject] = useState<ProjectWithClient | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [sales, setSales] = useState<ProjectSale[]>([]);
-  const [showSalesForm, setShowSalesForm] = useState(false);
+  // Suppression de la variable d'état showSalesForm
 
   useEffect(() => {
     if (id) {
@@ -117,14 +116,7 @@ const ProjectDetails = () => {
     }).format(amount);
   };
 
-  const handleSaleAdded = () => {
-    fetchProjectSales(id!);
-    setShowSalesForm(false);
-    toast({
-      title: "Vente ajoutée",
-      description: "La vente a été enregistrée avec succès."
-    });
-  };
+  // Suppression de la fonction handleSaleAdded
 
   const getStatusClass = (status: string | null) => {
     if (!status) return "bg-gray-100 text-gray-700 border border-gray-200";
@@ -261,28 +253,10 @@ const ProjectDetails = () => {
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle>Ventes liées</CardTitle>
-          {!showSalesForm && (
-            <Button 
-              onClick={() => setShowSalesForm(true)} 
-              className="flex items-center gap-2"
-            >
-              <Plus className="h-4 w-4" /> Ajouter une vente
-            </Button>
-          )}
+          
         </CardHeader>
         <CardContent>
-          {showSalesForm && (
-            <div className="mb-6 border rounded-lg p-4 bg-muted/30">
-              <ProjectSalesForm 
-                projectId={id!} 
-                projectName={project.name}
-                projectCategory={project.category || undefined}
-                clientName={project.client_name || ''}
-                onSaleAdded={handleSaleAdded} 
-                onCancel={() => setShowSalesForm(false)} 
-              />
-            </div>
-          )}
+          
 
           {sales.length > 0 ? (
             <Table>
