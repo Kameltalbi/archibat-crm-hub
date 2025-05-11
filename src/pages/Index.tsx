@@ -22,27 +22,35 @@ const Dashboard = () => {
       try {
         setIsLoading(true);
         
-        // Récupérer les statistiques générales
-        const [projectsResult, clientsResult, salesResult] = await Promise.all([
-          supabase.from('projects').select('count'),
-          supabase.from('clients').select('count'),
-          supabase.from('project_sales').select('amount')
-        ]);
-        
-        // Récupérer le nombre de projets actifs (statut "En cours")
-        const activeProjectsResult = await supabase
+        // Récupérer les projets avec leur statut et target_revenue
+        const { data: projectsData, error: projectsError } = await supabase
           .from('projects')
-          .select('count')
-          .eq('status', 'En cours');
+          .select('status, target_revenue');
+          
+        if (projectsError) throw projectsError;
         
-        // Calculer le montant total des ventes
-        const totalSalesAmount = salesResult.data?.reduce((sum, sale) => sum + Number(sale.amount), 0) || 0;
+        const totalProjects = projectsData.length;
+        
+        // Compter les projets actifs (statut "En cours")
+        const activeProjects = projectsData.filter(project => project.status === 'En cours').length;
+        
+        // Calculer le montant total des objectifs CA
+        const totalTargetRevenue = projectsData.reduce((sum, project) => {
+          return sum + (project.target_revenue || 0);
+        }, 0);
+        
+        // Récupérer le nombre total de clients
+        const { data: clientsData, error: clientsError } = await supabase
+          .from('clients')
+          .select('id');
+          
+        if (clientsError) throw clientsError;
         
         setStats({
-          totalProjects: projectsResult.count || 0,
-          activeProjects: activeProjectsResult.count || 0,
-          totalSales: totalSalesAmount,
-          totalClients: clientsResult.count || 0
+          totalProjects: totalProjects,
+          activeProjects: activeProjects,
+          totalSales: totalTargetRevenue,
+          totalClients: clientsData.length
         });
       } catch (err) {
         console.error("Erreur lors du chargement des données du dashboard:", err);
