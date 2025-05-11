@@ -14,6 +14,17 @@ interface StatCardProps {
   delay: number;
 }
 
+// Define the props interface for DashboardSummary
+export interface DashboardSummaryProps {
+  isLoading?: boolean;
+  stats?: {
+    totalProjects: number;
+    activeProjects: number;
+    totalSales: number;
+    totalClients: number;
+  };
+}
+
 const StatCard = ({ title, value, description, icon: Icon, trend, trendLabel, delay }: StatCardProps) => (
   <Card className={`animate-fade-in delay-${delay}`}>
     <CardHeader className="flex flex-row items-center justify-between pb-2">
@@ -36,17 +47,27 @@ const StatCard = ({ title, value, description, icon: Icon, trend, trendLabel, de
   </Card>
 );
 
-const DashboardSummary = () => {
+// Update the component to accept the props defined in the interface
+const DashboardSummary = ({ isLoading = false, stats }: DashboardSummaryProps) => {
   const [totalRevenue, setTotalRevenue] = useState<number>(0);
   const [activeProjects, setActiveProjects] = useState<number>(0);
   const [totalClients, setTotalClients] = useState<number>(0);
   const [monthlyRevenue, setMonthlyRevenue] = useState<number>(0);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isLoadingLocal, setIsLoadingLocal] = useState<boolean>(isLoading);
 
+  // Use the stats props if provided, otherwise fetch from supabase
   useEffect(() => {
+    // If stats are provided, use them instead of fetching
+    if (stats) {
+      setTotalRevenue(stats.totalSales);
+      setActiveProjects(stats.activeProjects);
+      setTotalClients(stats.totalClients);
+      return;
+    }
+
     const fetchDashboardData = async () => {
       try {
-        setIsLoading(true);
+        setIsLoadingLocal(true);
         
         // Récupérer le nombre de projets actifs
         const { data: activeProjectsData, error: projectsError } = await supabase
@@ -100,21 +121,24 @@ const DashboardSummary = () => {
       } catch (error) {
         console.error("Erreur lors du chargement des données du dashboard:", error);
       } finally {
-        setIsLoading(false);
+        setIsLoadingLocal(false);
       }
     };
 
     fetchDashboardData();
-  }, []);
+  }, [stats]);
 
-  // Obtenir l'année en cours
+  // Use the effective loading state: either from props or from local state
+  const effectiveLoading = isLoading || isLoadingLocal;
+  
+  // Get current year
   const currentYear = new Date().getFullYear();
 
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
       <StatCard
         title="CA Total"
-        value={isLoading ? "Chargement..." : `${totalRevenue.toLocaleString()} TND`}
+        value={effectiveLoading ? "Chargement..." : `${totalRevenue.toLocaleString()} TND`}
         description="Chiffre d'affaires global"
         icon={Calendar}
         trend={12}
@@ -123,7 +147,7 @@ const DashboardSummary = () => {
       />
       <StatCard
         title="Projets Actifs"
-        value={isLoading ? "Chargement..." : `${activeProjects}`}
+        value={effectiveLoading ? "Chargement..." : `${activeProjects}`}
         description="Projets en cours"
         icon={Briefcase}
         trend={8}
@@ -132,7 +156,7 @@ const DashboardSummary = () => {
       />
       <StatCard
         title="Clients"
-        value={isLoading ? "Chargement..." : `${totalClients}`}
+        value={effectiveLoading ? "Chargement..." : `${totalClients}`}
         description="Total des clients"
         icon={Users}
         trend={5}
@@ -141,7 +165,7 @@ const DashboardSummary = () => {
       />
       <StatCard
         title="Ventes du mois"
-        value={isLoading ? "Chargement..." : `${monthlyRevenue.toLocaleString()} TND`}
+        value={effectiveLoading ? "Chargement..." : `${monthlyRevenue.toLocaleString()} TND`}
         description="CA du mois en cours"
         icon={Calendar}
         trend={15}
