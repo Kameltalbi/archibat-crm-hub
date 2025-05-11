@@ -72,10 +72,10 @@ const Home = () => {
           
           <div className="flex items-center space-x-4">
             <Button asChild variant="outline" size="sm">
-              <Link to="/clients">
+              <a href="#login-section">
                 Se connecter
                 <ExternalLink className="ml-1 h-4 w-4" />
-              </Link>
+              </a>
             </Button>
           </div>
         </div>
@@ -114,7 +114,7 @@ const Home = () => {
           </div>
           
           {/* Login Form */}
-          <div className="md:w-5/12">
+          <div id="login-section" className="md:w-5/12">
             <Card className="shadow-lg">
               <CardHeader>
                 <CardTitle className="text-xl">Connectez-vous à votre compte</CardTitle>
