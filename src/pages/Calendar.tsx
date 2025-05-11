@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -10,7 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 
-// Mock event types with colors
+// Types d'événements avec couleurs
 export const eventTypes = [
   { id: "projet", name: "Projet", color: "bg-terracotta text-white" },
   { id: "vente", name: "Vente", color: "bg-ocre text-white" },
@@ -19,41 +20,7 @@ export const eventTypes = [
   { id: "autre", name: "Autre", color: "bg-light-gray text-dark-gray" }
 ];
 
-// Mock projects for selection
-const mockProjects = [
-  { id: 1, name: "Rénovation Appartement Dupont" },
-  { id: 2, name: "Construction Villa Martin" },
-  { id: 3, name: "Design Intérieur Bureau Société XYZ" },
-  { id: 4, name: "Extension Maison Lefevre" }
-];
-
-// Mock calendar events
-export const mockEvents = [
-  {
-    id: 1,
-    title: "Début projet Villa Martin",
-    date: new Date(2025, 4, 15), // May 15, 2025
-    eventType: "projet",
-    projectId: 2,
-    notes: "Première réunion de lancement sur le site"
-  },
-  {
-    id: 2,
-    title: "Signature contrat Dupont",
-    date: new Date(2025, 4, 12), // May 12, 2025
-    eventType: "vente",
-    projectId: 1,
-    notes: "Signature des documents finaux"
-  },
-  {
-    id: 3,
-    title: "Prospection nouveaux clients",
-    date: new Date(2025, 4, 20), // May 20, 2025
-    eventType: "prospection",
-    notes: "Rendez-vous salon immobilier"
-  }
-];
-
+// Types pour les événements, projets et types d'événements
 export type Event = {
   id: number;
   title: string;
@@ -74,9 +41,11 @@ export type Project = {
   name: string;
 };
 
+// Projets disponibles (à remplacer par de vraies données ultérieurement)
+const mockProjects: Project[] = [];
+
 const CalendarPage = () => {
-  // ... keep existing code (state variables and handlers)
-  const [events, setEvents] = useState<Event[]>(mockEvents);
+  const [events, setEvents] = useState<Event[]>([]);
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
   const [selectedView, setSelectedView] = useState<"month" | "week">("month");
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
