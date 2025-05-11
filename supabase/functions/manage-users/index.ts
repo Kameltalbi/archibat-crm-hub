@@ -1,4 +1,3 @@
-
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.0'
 import { serve } from 'https://deno.land/std@0.177.0/http/server.ts'
 
@@ -49,6 +48,9 @@ serve(async (req) => {
     }
     
     // Vérifier si l'utilisateur est un admin
+    let isAdmin = false;
+    
+    // Vérification habituelle des rôles d'administrateur
     const { data: userRoles, error: roleError } = await supabase
       .from('user_roles')
       .select('*')
@@ -56,7 +58,32 @@ serve(async (req) => {
       .eq('role', 'admin')
       .single()
     
-    if (roleError || !userRoles) {
+    if (userRoles) {
+      isAdmin = true;
+    } else {
+      // Si aucun admin n'existe encore dans le système, considérer cet utilisateur comme le premier admin
+      const { count, error: countError } = await supabase
+        .from('user_roles')
+        .select('*', { count: 'exact', head: true })
+        .eq('role', 'admin');
+      
+      if (!countError && count === 0) {
+        // C'est le premier utilisateur, on lui accorde les droits d'admin
+        const { error: insertError } = await supabase
+          .from('user_roles')
+          .insert({
+            user_id: user.id,
+            role: 'admin'
+          });
+        
+        if (!insertError) {
+          isAdmin = true;
+          console.log("Premier utilisateur promu administrateur:", user.id);
+        }
+      }
+    }
+    
+    if (!isAdmin) {
       throw new Error('Unauthorized: Admin privileges required')
     }
     
