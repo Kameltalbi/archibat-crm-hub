@@ -1,6 +1,6 @@
 
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -21,6 +21,21 @@ const formSchema = z.object({
 const Home = () => {
   const { toast } = useToast();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const navigate = useNavigate();
+  
+  // Vérifier si l'utilisateur est déjà connecté
+  useEffect(() => {
+    const checkSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (session) {
+        // Si l'utilisateur est déjà connecté, rediriger vers le dashboard
+        navigate("/dashboard");
+      }
+    };
+    
+    checkSession();
+  }, [navigate]);
   
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -32,7 +47,7 @@ const Home = () => {
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      const { error } = await supabase.auth.signInWithPassword({
+      const { data, error } = await supabase.auth.signInWithPassword({
         email: values.email,
         password: values.password,
       });
@@ -43,6 +58,9 @@ const Home = () => {
         title: "Connexion réussie",
         description: "Vous êtes maintenant connecté",
       });
+      
+      // Rediriger vers le tableau de bord après connexion
+      navigate("/dashboard");
     } catch (error: any) {
       toast({
         title: "Erreur de connexion",
@@ -219,3 +237,4 @@ const Home = () => {
 };
 
 export default Home;
+
