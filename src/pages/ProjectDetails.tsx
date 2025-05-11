@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -172,7 +173,7 @@ const ProjectDetails = () => {
       </Button>
 
       {/* Header avec bouton d'ajout de vente */}
-      <div className="flex items-center gap-4 mb-6">
+      <div className="flex items-center justify-between gap-4 mb-6">
         <div className="flex-1">
           <h1 className="text-2xl font-semibold flex items-center gap-3">
             {project.name}
@@ -192,12 +193,12 @@ const ProjectDetails = () => {
             {project.end_date && ` • Fin prévue le ${new Date(project.end_date).toLocaleDateString()}`}
           </p>
         </div>
-        <AddSaleDialog 
-          projectId={id!}
-          projectName={project.name}
-          projectCategory={project.category || undefined}
-          onSaleAdded={handleSaleAdded}
-        />
+        <Button 
+          onClick={() => document.getElementById('addSaleModalTrigger')?.click()}
+          className="flex items-center gap-2"
+        >
+          <Plus className="h-4 w-4" /> Ajouter une vente
+        </Button>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -267,12 +268,12 @@ const ProjectDetails = () => {
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle>Ventes liées</CardTitle>
-          <AddSaleDialog 
-            projectId={id!}
-            projectName={project.name}
-            projectCategory={project.category || undefined}
-            onSaleAdded={handleSaleAdded}
-          />
+          <Button 
+            onClick={() => document.getElementById('addSaleModalTrigger')?.click()}
+            className="flex items-center gap-2"
+          >
+            <Plus className="h-4 w-4" /> Ajouter une vente
+          </Button>
         </CardHeader>
         <CardContent>
           {sales.length > 0 ? (
@@ -305,6 +306,16 @@ const ProjectDetails = () => {
           )}
         </CardContent>
       </Card>
+      
+      {/* Hidden modal trigger - will be clicked programmatically */}
+      <span id="addSaleModalTrigger" className="hidden">
+        <AddSaleDialog 
+          projectId={id!}
+          projectName={project.name}
+          projectCategory={project.category || undefined}
+          onSaleAdded={handleSaleAdded}
+        />
+      </span>
     </div>
   );
 };

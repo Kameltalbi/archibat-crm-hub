@@ -1,16 +1,25 @@
-
 import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { supabase, Client } from "@/lib/supabase";
+import { supabase } from "@/lib/supabase";
 import ClientSelect from "@/components/projects/form/ClientSelect";
 import MultiProductSelect from "@/components/projects/sales/MultiProductSelect";
 import PriceField from "@/components/projects/sales/PriceField";
 import DatePickerField from "@/components/projects/sales/DatePickerField";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+
+interface Client {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  address: string;
+  created_at: string;
+  updated_at: string;
+}
 
 interface AddSaleDialogProps {
   projectId: string;
@@ -34,6 +43,7 @@ interface SelectedProduct {
 }
 
 const AddSaleDialog = ({ projectId, projectName, projectCategory, onSaleAdded }: AddSaleDialogProps) => {
+  // Reset the state for the controlled dialog
   const { toast } = useToast();
   const [isOpen, setIsOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -243,7 +253,7 @@ const AddSaleDialog = ({ projectId, projectName, projectCategory, onSaleAdded }:
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button className="flex items-center gap-2">
+        <Button className="flex items-center gap-2" id="addSaleButton">
           <Plus className="h-4 w-4" /> Ajouter une vente
         </Button>
       </DialogTrigger>
