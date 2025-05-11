@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,9 +8,10 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ExternalLink, CheckCircle } from "lucide-react";
+import { ExternalLink, CheckCircle, Phone } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { useToast } from "@/hooks/use-toast";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 const formSchema = z.object({
   email: z.string().email({ message: "Email invalide" }),
@@ -19,6 +20,8 @@ const formSchema = z.object({
 
 const Home = () => {
   const { toast } = useToast();
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -157,7 +160,7 @@ const Home = () => {
               </CardContent>
               <CardFooter className="flex justify-center border-t pt-4">
                 <p className="text-sm text-muted-foreground">
-                  Vous n'avez pas de compte ? <Link to="/signup" className="text-terracotta hover:underline">Créer un compte</Link>
+                  Vous n'avez pas de compte ? <Button variant="link" className="p-0 h-auto text-terracotta hover:underline" onClick={() => setIsDialogOpen(true)}>Créer un compte</Button>
                 </p>
               </CardFooter>
             </Card>
@@ -191,6 +194,26 @@ const Home = () => {
           </div>
         </div>
       </section>
+
+      {/* Create Account Dialog */}
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Création de compte</DialogTitle>
+            <DialogDescription>
+              Pour créer un compte, veuillez contacter l'administrateur:
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex items-center justify-center py-4">
+            <div className="flex flex-col items-center space-y-2">
+              <div className="flex items-center space-x-2 text-lg">
+                <Phone className="h-5 w-5 text-terracotta" />
+                <span className="font-medium">55 053 505</span>
+              </div>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
