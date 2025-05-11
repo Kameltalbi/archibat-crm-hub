@@ -1,6 +1,7 @@
 
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Layout from "./components/layout/Layout";
+import Home from "./pages/Home";
 import Dashboard from "./pages/Index";
 import Clients from "./pages/Clients";
 import ClientDetails from "./pages/ClientDetails";
@@ -19,7 +20,8 @@ const App = () => {
     <SidebarProvider>
       <Router>
         <Routes>
-          <Route path="/" element={<Layout />}>
+          <Route path="/" element={<Home />} />
+          <Route path="/dashboard" element={<Layout />}>
             <Route index element={<Dashboard />} />
             <Route path="clients" element={<Clients />} />
             <Route path="clients/:id" element={<ClientDetails />} />
@@ -31,6 +33,7 @@ const App = () => {
             <Route path="settings" element={<Settings />} />
             <Route path="*" element={<NotFound />} />
           </Route>
+          <Route path="*" element={<NotFound />} />
         </Routes>
         <Toaster />
       </Router>
