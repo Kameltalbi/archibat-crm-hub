@@ -154,6 +154,7 @@ export type Database = {
           label: string
           product_name: string | null
           project_id: string
+          remarks: string | null
           updated_at: string
         }
         Insert: {
@@ -166,6 +167,7 @@ export type Database = {
           label: string
           product_name?: string | null
           project_id: string
+          remarks?: string | null
           updated_at?: string
         }
         Update: {
@@ -178,6 +180,7 @@ export type Database = {
           label?: string
           product_name?: string | null
           project_id?: string
+          remarks?: string | null
           updated_at?: string
         }
         Relationships: [

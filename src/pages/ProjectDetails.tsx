@@ -1,12 +1,15 @@
+
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { ArrowLeft, Plus } from "lucide-react";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { ArrowLeft, Edit, Plus, Trash } from "lucide-react";
 import { ProjectStatus, supabase } from "@/lib/supabase";
 import { useToast } from "@/hooks/use-toast";
 import AddSaleDialog from "@/components/projects/sales/AddSaleDialog";
+import EditSaleDialog from "@/components/projects/sales/EditSaleDialog";
 
 interface ProjectWithClient {
   id: string;
@@ -40,6 +43,8 @@ const ProjectDetails = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [sales, setSales] = useState<ProjectSale[]>([]);
   const [addSaleDialogOpen, setAddSaleDialogOpen] = useState(false);
+  const [editSaleDialogOpen, setEditSaleDialogOpen] = useState(false);
+  const [selectedSale, setSelectedSale] = useState<ProjectSale | null>(null);
 
   useEffect(() => {
     if (id) {
@@ -128,6 +133,43 @@ const ProjectDetails = () => {
     setAddSaleDialogOpen(false);
   };
 
+  // Nouvelle fonction pour gérer la mise à jour d'une vente
+  const handleSaleUpdated = () => {
+    fetchProjectSales(id!);
+    toast({
+      title: "Vente mise à jour",
+      description: "La vente a été mise à jour avec succès."
+    });
+    // Fermer la boîte de dialogue après la modification
+    setEditSaleDialogOpen(false);
+    setSelectedSale(null);
+  };
+
+  // Nouvelle fonction pour gérer la suppression d'une vente
+  const handleDeleteSale = async (saleId: string) => {
+    try {
+      const { error } = await supabase
+        .from('project_sales')
+        .delete()
+        .eq('id', saleId);
+
+      if (error) throw error;
+
+      fetchProjectSales(id!);
+      toast({
+        title: "Vente supprimée",
+        description: "La vente a été supprimée avec succès."
+      });
+    } catch (error) {
+      console.error('Erreur lors de la suppression de la vente:', error);
+      toast({
+        variant: "destructive",
+        title: "Erreur",
+        description: "Impossible de supprimer la vente."
+      });
+    }
+  };
+
   const getStatusClass = (status: string | null) => {
     if (!status) return "bg-gray-100 text-gray-700 border border-gray-200";
     
@@ -149,6 +191,13 @@ const ProjectDetails = () => {
   const openAddSaleDialog = () => {
     console.log("Ouverture de la boîte de dialogue d'ajout de vente");
     setAddSaleDialogOpen(true);
+  };
+
+  // Ouvrir la boîte de dialogue de modification de vente
+  const openEditSaleDialog = (sale: ProjectSale) => {
+    console.log("Ouverture de la boîte de dialogue de modification de vente", sale);
+    setSelectedSale(sale);
+    setEditSaleDialogOpen(true);
   };
 
   if (isLoading) {
@@ -293,6 +342,7 @@ const ProjectDetails = () => {
                   <TableHead>Produit</TableHead>
                   <TableHead>Date</TableHead>
                   <TableHead className="text-right">Montant</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -303,6 +353,49 @@ const ProjectDetails = () => {
                     <TableCell>{sale.product_name || '-'}</TableCell>
                     <TableCell>{new Date(sale.date).toLocaleDateString()}</TableCell>
                     <TableCell className="text-right">{formatCurrency(sale.amount)}</TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex items-center justify-end gap-2">
+                        <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          onClick={() => openEditSaleDialog(sale)}
+                          title="Modifier"
+                        >
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                        
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button 
+                              variant="ghost" 
+                              size="icon" 
+                              className="text-red-500 hover:text-red-600"
+                              title="Supprimer"
+                            >
+                              <Trash className="h-4 w-4" />
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Confirmer la suppression</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                Êtes-vous sûr de vouloir supprimer cette vente ? 
+                                Cette action est irréversible.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Annuler</AlertDialogCancel>
+                              <AlertDialogAction
+                                className="bg-red-500 hover:bg-red-600"
+                                onClick={() => handleDeleteSale(sale.id)}
+                              >
+                                Supprimer
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      </div>
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -325,6 +418,19 @@ const ProjectDetails = () => {
         open={addSaleDialogOpen}
         onOpenChange={setAddSaleDialogOpen}
       />
+      
+      {/* Nouveau composant EditSaleDialog pour modifier une vente */}
+      {selectedSale && (
+        <EditSaleDialog 
+          projectId={id!}
+          projectName={project.name}
+          projectCategory={project.category || undefined}
+          sale={selectedSale}
+          onSaleUpdated={handleSaleUpdated}
+          open={editSaleDialogOpen}
+          onOpenChange={setEditSaleDialogOpen}
+        />
+      )}
     </div>
   );
 };
