@@ -1,5 +1,5 @@
 
-import { useEffect, useMemo } from 'react';
+import { useEffect, useState } from 'react';
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -16,7 +16,7 @@ interface ProductFieldProps {
 }
 
 export const ProductField = ({ form, projectCategory }: ProductFieldProps) => {
-  const [products, setProducts] = useMemo<Product[]>(() => [], []);
+  const [products, setProducts] = useState<Product[]>([]);
   
   useEffect(() => {
     const fetchProducts = async () => {
@@ -30,7 +30,7 @@ export const ProductField = ({ form, projectCategory }: ProductFieldProps) => {
 
         // Filtrer les produits selon la catégorie du projet si elle est définie
         const filteredProducts = projectCategory
-          ? data.filter(product => product.category === projectCategory)
+          ? data.filter(product => product.category_id === projectCategory)
           : data;
 
         setProducts(filteredProducts as Product[]);

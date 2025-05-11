@@ -7,7 +7,7 @@ import { ProjectSalesFormProps } from "./sales/form/types";
 import ClientField from "./sales/form/ClientField";
 import LabelField from "./sales/form/LabelField";
 import DatePickerField from "./sales/DatePickerField";
-import ProductField from "./sales/form/ProductField";
+import { ProductField } from "./sales/form/ProductField";
 import AmountField from "./sales/form/AmountField";
 import RemarksField from "./sales/form/RemarksField";
 import FormActions from "./sales/form/FormActions";
@@ -22,12 +22,9 @@ const ProjectSalesForm = ({
   onCancel 
 }: ProjectSalesFormProps) => {
   const {
-    formData,
-    isLoading,
-    availableProducts,
-    filteredCategory,
-    handleChange,
-    handleSave,
+    form,
+    isSubmitting,
+    onSubmit
   } = useSalesForm(projectId, projectCategory, clientId, onSaleAdded);
 
   return (
@@ -37,7 +34,6 @@ const ProjectSalesForm = ({
           <p className="text-sm font-medium text-muted-foreground">
             Projet: <span className="font-semibold text-foreground">{projectName}</span>
             {projectCategory && ` - Catégorie: ${projectCategory}`}
-            {filteredCategory && ` - Produits filtrés par: ${filteredCategory}`}
           </p>
         </div>
       )}
@@ -45,49 +41,43 @@ const ProjectSalesForm = ({
       <div className="grid gap-4">
         {/* Client */}
         <ClientField 
-          value={formData.clientId} 
-          onChange={(value) => handleChange("clientId", value)} 
+          form={form}
           clients={clients} 
         />
 
         {/* Libellé */}
         <LabelField 
-          value={formData.label}
-          onChange={(value) => handleChange("label", value)}
+          form={form}
         />
 
         {/* Date */}
         <DatePickerField 
-          date={formData.date} 
-          onDateChange={(date) => handleChange("date", date || new Date())}
+          form={form}
+          name="date"
           label="Date de vente *"
         />
 
         {/* Product */}
         <ProductField 
-          value={formData.productId}
-          onChange={(value) => handleChange("productId", value)}
-          products={availableProducts}
-          isLoading={isLoading}
+          form={form}
+          projectCategory={projectCategory}
         />
 
         {/* Amount */}
         <AmountField 
-          value={formData.amount}
-          onChange={(value) => handleChange("amount", value)}
+          form={form}
         />
 
         {/* Remarks */}
         <RemarksField 
-          value={formData.remarks}
-          onChange={(value) => handleChange("remarks", value)}
+          form={form}
         />
       </div>
 
       <FormActions 
         onCancel={onCancel}
-        onSave={handleSave}
-        isLoading={isLoading}
+        onSave={form.handleSubmit(onSubmit)}
+        isLoading={isSubmitting}
       />
     </div>
   );
