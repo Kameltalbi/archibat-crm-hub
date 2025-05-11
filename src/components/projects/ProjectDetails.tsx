@@ -9,7 +9,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { TableRow, TableCell, TableHeader, TableHead, Table, TableBody } from "@/components/ui/table";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
-import AddSaleModal from "@/components/projects/AddSaleModal";
+// Removing the import of AddSaleModal
 // Removing the import of Client from supabase since we're not using its full interface
 
 // Define a minimal client type for this component's needs
@@ -205,15 +205,11 @@ const ProjectDetails = ({ project, open, onClose }: ProjectDetailsProps) => {
             </Card>
           </div>
           
-          {/* Sales Section */}
+          {/* Sales Section - Removed "Ajouter une vente" button */}
           <div>
             <div className="flex items-center justify-between mb-2">
               <h3 className="text-lg font-medium text-charcoal dark:text-light-gray">Ventes</h3>
-              <AddSaleModal 
-                projectClients={projectClients} 
-                projectName={project.name} 
-                projectCategory={productCategory} 
-              />
+              {/* AddSaleModal removed from here */}
             </div>
             
             <Card>
