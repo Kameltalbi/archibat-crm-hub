@@ -121,12 +121,31 @@ export const userService = {
 
   // Récupérer toutes les permissions par rôle
   async getRolePermissions(): Promise<Record<AppRole, string[]>> {
-    const { data, error } = await supabase
-      .from('role_permissions')
-      .select('*')
-      .eq('can_access', true);
-    
-    if (error) {
+    try {
+      // Récupérer le token de l'utilisateur actuel
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session) {
+        throw new Error("Non autorisé: vous devez être connecté");
+      }
+      
+      // Appeler la fonction Edge pour récupérer les permissions
+      const response = await supabase.functions.invoke('manage-users', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+        },
+        body: {
+          action: 'GET_PERMISSIONS'
+        },
+      });
+      
+      if (response.error) {
+        throw new Error(response.error.message || "Erreur lors de la récupération des permissions");
+      }
+      
+      return response.data as Record<AppRole, string[]>;
+    } catch (error) {
       console.error('Erreur lors de la récupération des permissions:', error);
       return {
         admin: [],
@@ -134,64 +153,42 @@ export const userService = {
         lecture_seule: []
       };
     }
-
-    // Organiser les permissions par rôle
-    const permissions: Record<AppRole, string[]> = {
-      admin: [],
-      collaborateur: [],
-      lecture_seule: []
-    };
-
-    data?.forEach(permission => {
-      if (permission.can_access && permissions[permission.role]) {
-        permissions[permission.role].push(permission.module_id);
-      }
-    });
-
-    return permissions;
   },
 
   // Mettre à jour les permissions d'un rôle
   async updateRolePermission(role: AppRole, moduleId: string, canAccess: boolean): Promise<boolean> {
-    // Vérifier si la permission existe déjà
-    const { data: existingPermission, error: fetchError } = await supabase
-      .from('role_permissions')
-      .select('*')
-      .eq('role', role)
-      .eq('module_id', moduleId)
-      .single();
-
-    if (fetchError && fetchError.code !== 'PGRST116') { // Ignorer l'erreur si aucune permission n'est trouvée
-      console.error('Erreur lors de la vérification des permissions existantes:', fetchError);
+    try {
+      // Récupérer le token de l'utilisateur actuel
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session) {
+        throw new Error("Non autorisé: vous devez être connecté");
+      }
+      
+      // Appeler la fonction Edge pour mettre à jour la permission
+      const response = await supabase.functions.invoke('manage-users', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+        },
+        body: {
+          action: 'UPDATE_PERMISSION',
+          data: {
+            role,
+            moduleId,
+            canAccess
+          }
+        },
+      });
+      
+      if (response.error) {
+        throw new Error(response.error.message || "Erreur lors de la mise à jour de la permission");
+      }
+      
+      return true;
+    } catch (error) {
+      console.error('Erreur lors de la mise à jour de la permission:', error);
       return false;
     }
-
-    // Si la permission existe, la mettre à jour, sinon la créer
-    if (existingPermission) {
-      const { error: updateError } = await supabase
-        .from('role_permissions')
-        .update({ can_access: canAccess })
-        .eq('id', existingPermission.id);
-
-      if (updateError) {
-        console.error('Erreur lors de la mise à jour de la permission:', updateError);
-        return false;
-      }
-    } else {
-      const { error: insertError } = await supabase
-        .from('role_permissions')
-        .insert({
-          role,
-          module_id: moduleId,
-          can_access: canAccess
-        });
-
-      if (insertError) {
-        console.error('Erreur lors de la création de la permission:', insertError);
-        return false;
-      }
-    }
-
-    return true;
   }
 };

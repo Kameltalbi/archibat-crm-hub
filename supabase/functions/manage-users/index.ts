@@ -132,6 +132,79 @@ serve(async (req) => {
         result = { success: true }
         break
         
+      // Ajout du cas pour gérer les permissions
+      case 'GET_PERMISSIONS':
+        // Récupérer toutes les permissions
+        const { data: permissions, error: permissionsError } = await supabase
+          .from('role_permissions')
+          .select('*')
+        
+        if (permissionsError) throw permissionsError
+        
+        // Organiser les permissions par rôle
+        const permissionsByRole = {
+          admin: [],
+          collaborateur: [],
+          lecture_seule: []
+        };
+        
+        permissions?.forEach(permission => {
+          if (permissionsByRole[permission.role]) {
+            if (permission.can_access) {
+              permissionsByRole[permission.role].push(permission.module_id);
+            }
+          }
+        });
+        
+        result = permissionsByRole;
+        break;
+        
+      case 'UPDATE_PERMISSION':
+        const { role, moduleId, canAccess } = data;
+        
+        // Vérifier si la permission existe déjà
+        const { data: existingPermission, error: fetchError } = await supabase
+          .from('role_permissions')
+          .select('*')
+          .eq('role', role)
+          .eq('module_id', moduleId)
+          .maybeSingle();
+        
+        if (fetchError) throw fetchError;
+        
+        let updateResult;
+        
+        if (existingPermission) {
+          // Mettre à jour la permission existante
+          const { error: updateError } = await supabase
+            .from('role_permissions')
+            .update({ can_access: canAccess })
+            .eq('id', existingPermission.id);
+          
+          if (updateError) throw updateError;
+          updateResult = { updated: true, id: existingPermission.id };
+        } else {
+          // Créer une nouvelle permission
+          const { data: insertedPermission, error: insertError } = await supabase
+            .from('role_permissions')
+            .insert({
+              role,
+              module_id: moduleId,
+              can_access: canAccess
+            })
+            .select('id')
+            .single();
+          
+          if (insertError) throw insertError;
+          updateResult = { inserted: true, id: insertedPermission.id };
+        }
+        
+        result = {
+          success: true,
+          ...updateResult
+        };
+        break;
+      
       default:
         throw new Error(`Unknown action: ${action}`)
     }

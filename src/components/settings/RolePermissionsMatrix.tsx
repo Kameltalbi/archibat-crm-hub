@@ -4,6 +4,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { userService } from "@/services/userService";
 import { AppRole } from "@/lib/supabase";
+import { Loader2 } from "lucide-react";
 
 // Define modules
 const modules = [
@@ -29,6 +30,7 @@ const RolePermissionsMatrix = () => {
     lecture_seule: [],
   });
   const [isLoading, setIsLoading] = useState(true);
+  const [isUpdating, setIsUpdating] = useState<{role: string, module: string} | null>(null);
   const { toast } = useToast();
 
   // Fetch permissions from Supabase
@@ -37,6 +39,7 @@ const RolePermissionsMatrix = () => {
       try {
         setIsLoading(true);
         const rolePermissions = await userService.getRolePermissions();
+        console.log("Permissions récupérées:", rolePermissions);
         setPermissions(rolePermissions);
       } catch (error) {
         console.error("Error fetching permissions:", error);
@@ -55,6 +58,9 @@ const RolePermissionsMatrix = () => {
 
   const handlePermissionChange = async (roleId: AppRole, moduleId: string, checked: boolean) => {
     try {
+      // Set updating state
+      setIsUpdating({role: roleId, module: moduleId});
+      
       // Optimistic update
       const updatedPermissions = { ...permissions };
       
@@ -89,6 +95,8 @@ const RolePermissionsMatrix = () => {
         description: "Impossible de mettre à jour les permissions",
         variant: "destructive",
       });
+    } finally {
+      setIsUpdating(null);
     }
   };
 
@@ -97,7 +105,12 @@ const RolePermissionsMatrix = () => {
   };
 
   if (isLoading) {
-    return <div className="text-center py-4">Chargement des permissions...</div>;
+    return (
+      <div className="flex justify-center items-center py-10">
+        <Loader2 className="h-8 w-8 animate-spin text-terracotta" />
+        <span className="ml-2">Chargement des permissions...</span>
+      </div>
+    );
   }
 
   return (
@@ -119,13 +132,17 @@ const RolePermissionsMatrix = () => {
               <td className="p-2 font-medium">{module.name}</td>
               {roles.map(role => (
                 <td key={`${role.id}-${module.id}`} className="p-2 text-center">
-                  <Checkbox 
-                    checked={hasPermission(role.id, module.id)}
-                    disabled={role.id === "admin"} // Admin always has all permissions
-                    onCheckedChange={(checked) => {
-                      handlePermissionChange(role.id, module.id, checked === true);
-                    }}
-                  />
+                  {isUpdating && isUpdating.role === role.id && isUpdating.module === module.id ? (
+                    <Loader2 className="h-4 w-4 animate-spin mx-auto" />
+                  ) : (
+                    <Checkbox 
+                      checked={hasPermission(role.id, module.id)}
+                      disabled={role.id === "admin"} // Admin always has all permissions
+                      onCheckedChange={(checked) => {
+                        handlePermissionChange(role.id, module.id, checked === true);
+                      }}
+                    />
+                  )}
                 </td>
               ))}
             </tr>
