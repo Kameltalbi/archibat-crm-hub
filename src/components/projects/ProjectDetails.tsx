@@ -68,6 +68,11 @@ const ProjectDetails = ({ project, open, onClose }: ProjectDetailsProps) => {
     { id: 4, label: "Finitions", date: "10/08/2023", amount: 25000, category: "Service", client: "Cabinet Martin & Associés", product: "Conseil en décoration" }
   ]);
 
+  // S'assurer que project.clients existe toujours et n'est jamais undefined
+  const projectClients = useMemo(() => {
+    return project?.clients || [];
+  }, [project]);
+
   // Calculate total revenue and chart data
   const totalRevenue = useMemo(() => {
     return sales.reduce((sum, sale) => sum + sale.amount, 0);
@@ -205,7 +210,7 @@ const ProjectDetails = ({ project, open, onClose }: ProjectDetailsProps) => {
             <div className="flex items-center justify-between mb-2">
               <h3 className="text-lg font-medium text-charcoal dark:text-light-gray">Ventes</h3>
               <AddSaleModal 
-                projectClients={project.clients} 
+                projectClients={projectClients} 
                 projectName={project.name} 
                 projectCategory={productCategory} 
               />

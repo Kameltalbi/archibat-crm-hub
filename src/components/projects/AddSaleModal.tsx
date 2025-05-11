@@ -30,6 +30,8 @@ const AddSaleModal = ({ projectClients, projectName, projectCategory }: AddSaleM
 
   const selectedClientName = projectClients.find(client => client.id === selectedClientId)?.name || '';
 
+  console.log("Rendering AddSaleModal with clients:", projectClients);
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
@@ -44,14 +46,15 @@ const AddSaleModal = ({ projectClients, projectName, projectCategory }: AddSaleM
           </DialogTitle>
         </DialogHeader>
         
-        {/* Affiche toujours le sélecteur de client, peu importe le nombre de clients */}
+        {/* Sélecteur de client - toujours visible */}
         <div className="mb-4">
-          <Label htmlFor="client-select">Client associé à cette vente</Label>
+          <Label htmlFor="client-select" className="block text-sm font-medium mb-1">Client associé à cette vente</Label>
           <Select
             value={selectedClientId}
             onValueChange={setSelectedClientId}
+            disabled={projectClients.length === 0}
           >
-            <SelectTrigger id="client-select" className="mt-1">
+            <SelectTrigger id="client-select" className="w-full">
               <SelectValue placeholder="Sélectionner un client" />
             </SelectTrigger>
             <SelectContent>
