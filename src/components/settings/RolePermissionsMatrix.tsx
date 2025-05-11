@@ -137,7 +137,7 @@ const RolePermissionsMatrix = () => {
                   ) : (
                     <Checkbox 
                       checked={hasPermission(role.id, module.id)}
-                      disabled={role.id === "admin"} // Admin always has all permissions
+                      // Supprimer la désactivation pour le rôle admin
                       onCheckedChange={(checked) => {
                         handlePermissionChange(role.id, module.id, checked === true);
                       }}
@@ -150,7 +150,7 @@ const RolePermissionsMatrix = () => {
         </tbody>
       </table>
       <p className="text-sm text-muted-foreground mt-4">
-        * L'Administrateur a toujours accès à tous les modules
+        * Assurez-vous que l'Administrateur a accès à tous les modules nécessaires
       </p>
     </div>
   );
