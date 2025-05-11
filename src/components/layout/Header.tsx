@@ -66,6 +66,7 @@ const Header = () => {
             <EventNotifications 
               events={upcomingEvents}
               onEventClick={handleEventClick}
+              eventTypes={eventTypes}
             />
           </PopoverContent>
         </Popover>
