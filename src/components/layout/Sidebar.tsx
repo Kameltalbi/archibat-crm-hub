@@ -1,4 +1,3 @@
-
 import {
   Sidebar,
   SidebarContent,
@@ -86,14 +85,13 @@ const AppSidebar = () => {
 
   return (
     <Sidebar className="bg-menu-bg">
-      <SidebarHeader className="h-16 flex items-center px-6 border-b border-sidebar-border">
-        <div className="flex items-center">
+      <SidebarHeader className="h-16 flex items-center justify-center px-6 border-b border-sidebar-border">
+        <div className="flex items-center justify-center">
           <img 
             src="/lovable-uploads/cd2bb4ea-8bca-441f-bdff-c9319ac0e042.png" 
             alt="Archibat Logo" 
-            className="h-8 mr-2" 
+            className="h-12" 
           />
-          <span className="text-xl font-semibold text-charcoal">Pro</span>
         </div>
       </SidebarHeader>
       <SidebarContent>
@@ -128,7 +126,7 @@ const AppSidebar = () => {
           <span className="text-base font-semibold">Se déconnecter</span>
         </button>
         <div className="border-t border-sidebar-border pt-4">
-          <p>Archibat Pro CRM</p>
+          <p>Archibat CRM</p>
           <p>v1.0.0</p>
         </div>
       </SidebarFooter>
