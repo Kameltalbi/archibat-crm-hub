@@ -3,12 +3,13 @@ import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Bell } from "lucide-react";
+import { Bell, HelpCircle } from "lucide-react";
 import { Calendar, Clock, User } from "lucide-react";
 import EventNotifications from "@/components/calendar/EventNotifications";
 import { eventTypes } from "@/pages/Calendar";
 import EventDetailsModal from "@/components/calendar/EventDetailsModal";
 import { format } from "date-fns";
+import { Link } from "react-router-dom";
 
 // Since mockEvents was removed, we should remove any dependencies on it
 // Here, I'm creating a minimal type setup based on existing types
@@ -50,6 +51,18 @@ const Header = () => {
       </div>
       
       <div className="flex items-center space-x-3">
+        <Button
+          variant="outline"
+          size="sm"
+          asChild
+          className="hidden md:flex items-center gap-1 text-muted-foreground hover:text-foreground"
+        >
+          <Link to="/documentation">
+            <HelpCircle className="h-4 w-4" />
+            <span>Aide</span>
+          </Link>
+        </Button>
+        
         <Popover open={showNotifications} onOpenChange={setShowNotifications}>
           <PopoverTrigger asChild>
             <Button 

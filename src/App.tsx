@@ -12,6 +12,7 @@ import Categories from "./pages/Categories";
 import NotFound from "./pages/NotFound";
 import Calendar from "./pages/Calendar";
 import Settings from "./pages/Settings";
+import Documentation from "./pages/Documentation";
 import { Toaster } from "./components/ui/toaster";
 import { SidebarProvider } from "./components/ui/sidebar";
 import { useState, useEffect } from "react";
@@ -61,9 +62,13 @@ const App = () => {
             <Route path="categories" element={<Categories />} />
             <Route path="calendar" element={<Calendar />} />
             <Route path="settings" element={<Settings />} />
+            <Route path="documentation" element={<Documentation />} />
           </Route>
           <Route path="/settings" element={<Layout />}>
             <Route index element={<Settings />} />
+          </Route>
+          <Route path="/documentation" element={<Layout />}>
+            <Route index element={<Documentation />} />
           </Route>
           <Route path="*" element={<NotFound />} />
         </Routes>
