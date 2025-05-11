@@ -32,6 +32,8 @@ import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import { productService } from "@/services/productService";
 import { useToast } from "@/hooks/use-toast";
+import { clientService } from "@/services/clientService";
+import ClientSelect from "./form/ClientSelect";
 
 // Define the client type
 interface Client {
@@ -60,15 +62,16 @@ const AddSaleModal = ({ projectClients, projectName, projectCategory }: AddSaleM
   const [open, setOpen] = useState(false);
   const { toast } = useToast();
   const [formData, setFormData] = useState({
-    label: "",
+    clientId: "",
     saleDate: new Date(),
     amount: "",
     productId: "",
-    clientId: "",
-    remarks: "", // Nouveau champ pour les remarques
+    remarks: "",
   });
   const [availableProducts, setAvailableProducts] = useState<Product[]>([]);
+  const [allClients, setAllClients] = useState<Client[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingClients, setIsLoadingClients] = useState(false);
 
   // Récupérer les produits depuis Supabase en fonction de la catégorie du projet
   useEffect(() => {
@@ -120,6 +123,30 @@ const AddSaleModal = ({ projectClients, projectName, projectCategory }: AddSaleM
     fetchProducts();
   }, [open, projectCategory, toast]);
 
+  // Récupérer tous les clients
+  useEffect(() => {
+    const fetchAllClients = async () => {
+      if (!open) return;
+
+      try {
+        setIsLoadingClients(true);
+        const clients = await clientService.getAllClients();
+        setAllClients(clients);
+      } catch (error) {
+        console.error("Erreur lors du chargement des clients:", error);
+        toast({
+          variant: "destructive",
+          title: "Erreur",
+          description: "Impossible de charger la liste des clients"
+        });
+      } finally {
+        setIsLoadingClients(false);
+      }
+    };
+
+    fetchAllClients();
+  }, [open, toast]);
+
   const handleChange = (field: string, value: any) => {
     // Si on change de produit, mettons à jour le montant avec le prix du produit sélectionné
     if (field === "productId") {
@@ -140,7 +167,7 @@ const AddSaleModal = ({ projectClients, projectName, projectCategory }: AddSaleM
 
   const handleSave = () => {
     // Validate form data
-    if (!formData.label || !formData.saleDate || !formData.amount || !formData.productId || !formData.clientId) {
+    if (!formData.saleDate || !formData.amount || !formData.productId || !formData.clientId) {
       toast({
         variant: "destructive",
         title: "Champs obligatoires",
@@ -149,15 +176,17 @@ const AddSaleModal = ({ projectClients, projectName, projectCategory }: AddSaleM
       return;
     }
 
-    // Get the selected product
+    // Get the selected product and client
     const selectedProduct = availableProducts.find(p => p.id.toString() === formData.productId);
+    const selectedClient = allClients.find(c => c.id.toString() === formData.clientId);
 
     // Convert amount to number and prepare data
     const saleData = {
       ...formData,
       amount: parseFloat(formData.amount),
       product: selectedProduct ? selectedProduct.name : "Produit inconnu",
-      category: selectedProduct ? selectedProduct.category_name || "Catégorie inconnue" : "Catégorie inconnue"
+      category: selectedProduct ? selectedProduct.category_name || "Catégorie inconnue" : "Catégorie inconnue",
+      clientName: selectedClient ? selectedClient.name : "Client inconnu"
     };
 
     console.log("Saving sale:", saleData);
@@ -172,11 +201,10 @@ const AddSaleModal = ({ projectClients, projectName, projectCategory }: AddSaleM
     
     // Reset the form
     setFormData({
-      label: "",
+      clientId: "",
       saleDate: new Date(),
       amount: "",
       productId: "",
-      clientId: "",
       remarks: "",
     });
 
@@ -187,11 +215,10 @@ const AddSaleModal = ({ projectClients, projectName, projectCategory }: AddSaleM
     // Close modal and reset form
     setOpen(false);
     setFormData({
-      label: "",
+      clientId: "",
       saleDate: new Date(),
       amount: "",
       productId: "",
-      clientId: "",
       remarks: "",
     });
   };
@@ -220,17 +247,16 @@ const AddSaleModal = ({ projectClients, projectName, projectCategory }: AddSaleM
         </DialogHeader>
         
         <div className="grid gap-4 py-4">
-          {/* Label */}
-          <div className="grid gap-2">
-            <Label htmlFor="label">Libellé *</Label>
-            <Input
-              id="label"
-              value={formData.label}
-              onChange={(e) => handleChange("label", e.target.value)}
-              placeholder="Entrez le libellé de la vente"
-              className="border-input"
-            />
-          </div>
+          {/* Client Selection */}
+          <ClientSelect 
+            clients={allClients.length > 0 ? allClients : projectClients}
+            value={formData.clientId}
+            onValueChange={(value) => handleChange("clientId", value)}
+            label="Client *"
+            placeholder={isLoadingClients ? "Chargement des clients..." : "Sélectionnez un client"}
+            withSearch={true}
+            disabled={isLoadingClients}
+          />
 
           {/* Sale Date */}
           <div className="grid gap-2">
@@ -317,32 +343,6 @@ const AddSaleModal = ({ projectClients, projectName, projectCategory }: AddSaleM
               className="border-input"
               rows={3}
             />
-          </div>
-
-          {/* Client */}
-          <div className="grid gap-2">
-            <Label htmlFor="client">Client *</Label>
-            <Select
-              value={formData.clientId}
-              onValueChange={(value) => handleChange("clientId", value)}
-            >
-              <SelectTrigger id="client" className="w-full">
-                <SelectValue placeholder="Sélectionner un client" />
-              </SelectTrigger>
-              <SelectContent className="bg-white">
-                {projectClients.length > 0 ? (
-                  projectClients.map((client) => (
-                    <SelectItem key={client.id} value={client.id.toString()}>
-                      {client.name}
-                    </SelectItem>
-                  ))
-                ) : (
-                  <SelectItem value="no-clients" disabled>
-                    Aucun client disponible
-                  </SelectItem>
-                )}
-              </SelectContent>
-            </Select>
           </div>
         </div>
         
