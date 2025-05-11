@@ -1,10 +1,9 @@
-
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Plus } from "lucide-react";
 import { ProjectStatus, supabase } from "@/lib/supabase";
 import { useToast } from "@/hooks/use-toast";
 import AddSaleDialog from "@/components/projects/sales/AddSaleDialog";
@@ -172,6 +171,7 @@ const ProjectDetails = () => {
         <ArrowLeft className="h-4 w-4" /> Retour à la liste des projets
       </Button>
 
+      {/* Header avec bouton d'ajout de vente */}
       <div className="flex items-center gap-4 mb-6">
         <div className="flex-1">
           <h1 className="text-2xl font-semibold flex items-center gap-3">
@@ -192,6 +192,12 @@ const ProjectDetails = () => {
             {project.end_date && ` • Fin prévue le ${new Date(project.end_date).toLocaleDateString()}`}
           </p>
         </div>
+        <AddSaleDialog 
+          projectId={id!}
+          projectName={project.name}
+          projectCategory={project.category || undefined}
+          onSaleAdded={handleSaleAdded}
+        />
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
