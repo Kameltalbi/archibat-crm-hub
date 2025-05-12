@@ -114,6 +114,7 @@ const Leaves = () => {
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold">Gestion des congés</h1>
         
+        {/* Afficher le bouton pour tous les utilisateurs non-admin */}
         {!isAdmin && (
           <Button 
             onClick={handleOpenModal} 
@@ -131,7 +132,6 @@ const Leaves = () => {
         <EmployeeProfile />
       )}
       
-      {/* Modifiez cette condition pour permettre l'ouverture même sans employé existant */}
       <LeaveRequestModal
         isOpen={isModalOpen}
         onClose={handleCloseModal}
