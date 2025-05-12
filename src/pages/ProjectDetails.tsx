@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -211,18 +212,18 @@ const ProjectDetails = () => {
     return (
       <div className="flex flex-col items-center justify-center h-[calc(100vh-200px)] space-y-4">
         <p className="text-xl text-muted-foreground">Projet non trouvé</p>
-        <Button onClick={() => navigate('/projects')}>Retour aux projets</Button>
+        <Button onClick={() => navigate('/dashboard/projects')}>Retour aux projets</Button>
       </div>
     );
   }
 
   return (
     <div className="space-y-8">
-      {/* Bouton de retour - Placé visiblement en haut */}
+      {/* Bouton de retour - Fixed path to /dashboard/projects */}
       <Button
         variant="outline"
         size="sm"
-        onClick={() => navigate('/projects')}
+        onClick={() => navigate('/dashboard/projects')}
         className="mb-4 flex items-center gap-2"
       >
         <ArrowLeft className="h-4 w-4" /> Retour à la liste des projets
