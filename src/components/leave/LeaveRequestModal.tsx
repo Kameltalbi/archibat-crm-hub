@@ -8,7 +8,7 @@ interface LeaveRequestModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSuccess: () => void;
-  employee: Employee;
+  employee: Employee | null;
 }
 
 const LeaveRequestModal = ({ 
@@ -24,10 +24,19 @@ const LeaveRequestModal = ({
           <DialogTitle className="text-xl">Demande de congé</DialogTitle>
         </DialogHeader>
         
-        <LeaveRequestForm 
-          employee={employee} 
-          onSuccess={onSuccess} 
-        />
+        {employee ? (
+          <LeaveRequestForm 
+            employee={employee} 
+            onSuccess={onSuccess} 
+          />
+        ) : (
+          <div className="py-4 text-center">
+            <p className="text-lg mb-4">Vous n'êtes pas encore enregistré comme employé.</p>
+            <p className="text-muted-foreground">
+              Veuillez contacter l'administrateur pour vous ajouter au système avant de pouvoir demander un congé.
+            </p>
+          </div>
+        )}
       </DialogContent>
     </Dialog>
   );

@@ -55,8 +55,13 @@ const Leaves = () => {
           }
           
           // Récupérer l'employé courant
-          const employee = await leaveService.getCurrentEmployee();
-          setCurrentEmployee(employee);
+          try {
+            const employee = await leaveService.getCurrentEmployee();
+            setCurrentEmployee(employee);
+          } catch (error) {
+            console.error("Erreur lors de la récupération de l'employé:", error);
+            // Ne pas bloquer l'affichage si l'employé n'est pas trouvé
+          }
         }
         
         setIsLoading(false);
@@ -72,11 +77,9 @@ const Leaves = () => {
   const handleOpenModal = () => {
     if (!currentEmployee) {
       toast({
-        title: "Erreur",
-        description: "Vous devez être enregistré comme employé pour demander un congé.",
-        variant: "destructive",
+        title: "Information",
+        description: "Vous n'êtes pas encore enregistré comme employé. Veuillez contacter l'administrateur pour vous ajouter au système.",
       });
-      return;
     }
     setIsModalOpen(true);
   };
@@ -128,14 +131,13 @@ const Leaves = () => {
         <EmployeeProfile />
       )}
       
-      {currentEmployee && (
-        <LeaveRequestModal
-          isOpen={isModalOpen}
-          onClose={handleCloseModal}
-          onSuccess={handleLeaveRequestSuccess}
-          employee={currentEmployee}
-        />
-      )}
+      {/* Modifiez cette condition pour permettre l'ouverture même sans employé existant */}
+      <LeaveRequestModal
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+        onSuccess={handleLeaveRequestSuccess}
+        employee={currentEmployee}
+      />
     </div>
   );
 };
