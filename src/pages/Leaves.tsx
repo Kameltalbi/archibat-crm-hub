@@ -4,6 +4,7 @@ import { userService } from "@/services/userService";
 import { leaveService } from "@/services/leaveService";
 import AdminDashboard from "@/components/leave/AdminDashboard";
 import EmployeeProfile from "@/components/leave/EmployeeProfile";
+import { supabase } from "@/lib/supabase";
 
 const Leaves = () => {
   const [isAdmin, setIsAdmin] = useState<boolean>(false);

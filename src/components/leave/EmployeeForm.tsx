@@ -23,6 +23,8 @@ const formSchema = z.object({
   leave_balance: z.coerce.number().min(0, { message: "Le solde ne peut pas être négatif" }).default(25),
 });
 
+type FormValues = z.infer<typeof formSchema>;
+
 interface EmployeeFormProps {
   onSuccess: () => void;
   initialData?: Employee;
@@ -32,7 +34,7 @@ const EmployeeForm = ({ onSuccess, initialData }: EmployeeFormProps) => {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   
-  const form = useForm<z.infer<typeof formSchema>>({
+  const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: initialData?.name || "",
@@ -41,7 +43,7 @@ const EmployeeForm = ({ onSuccess, initialData }: EmployeeFormProps) => {
     },
   });
   
-  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+  const onSubmit = async (values: FormValues) => {
     setIsSubmitting(true);
     
     try {
@@ -64,7 +66,11 @@ const EmployeeForm = ({ onSuccess, initialData }: EmployeeFormProps) => {
         }
       } else {
         // Création d'un nouvel employé
-        const employee = await leaveService.createEmployee(values);
+        const employee = await leaveService.createEmployee({
+          name: values.name,
+          email: values.email,
+          leave_balance: values.leave_balance
+        });
         
         if (employee) {
           toast({

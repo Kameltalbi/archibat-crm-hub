@@ -20,6 +20,10 @@ export interface LeaveRequest {
   status: "pending" | "approved" | "rejected";
   created_at: string;
   updated_at: string;
+  employees?: {
+    name: string;
+    email: string;
+  };
 }
 
 export const leaveService = {
@@ -109,7 +113,7 @@ export const leaveService = {
       return null;
     }
     
-    return data;
+    return data as LeaveRequest;
   },
   
   async getLeaveRequestById(id: string): Promise<LeaveRequest | null> {
@@ -124,7 +128,7 @@ export const leaveService = {
       return null;
     }
     
-    return data;
+    return data as LeaveRequest | null;
   },
   
   async getLeaveRequestsByEmployeeId(employeeId: string): Promise<LeaveRequest[]> {
@@ -139,7 +143,7 @@ export const leaveService = {
       return [];
     }
     
-    return data || [];
+    return data as LeaveRequest[] || [];
   },
   
   async getAllLeaveRequests(): Promise<LeaveRequest[]> {
@@ -153,7 +157,7 @@ export const leaveService = {
       return [];
     }
     
-    return data || [];
+    return data as LeaveRequest[] || [];
   },
   
   async updateLeaveRequestStatus(id: string, status: "approved" | "rejected"): Promise<boolean> {
