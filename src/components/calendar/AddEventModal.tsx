@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,21 +12,32 @@ import { CalendarIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
-import { EventType } from "@/pages/Calendar";
+import { EventType, Event } from "@/pages/Calendar";
 
 interface AddEventModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSave: (eventData: any) => void;
   eventTypes: EventType[];
+  initialData?: Event | null;
 }
 
-const AddEventModal = ({ isOpen, onClose, onSave, eventTypes }: AddEventModalProps) => {
+const AddEventModal = ({ isOpen, onClose, onSave, eventTypes, initialData }: AddEventModalProps) => {
   const [title, setTitle] = useState("");
   const [date, setDate] = useState<Date | undefined>(new Date());
   const [eventType, setEventType] = useState("");
   const [notes, setNotes] = useState("");
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
+  
+  // Initialize form with event data when editing
+  useEffect(() => {
+    if (initialData) {
+      setTitle(initialData.title);
+      setDate(new Date(initialData.date));
+      setEventType(initialData.eventType);
+      setNotes(initialData.notes || "");
+    }
+  }, [initialData]);
   
   const handleSubmit = () => {
     // Validate form
@@ -78,7 +89,7 @@ const AddEventModal = ({ isOpen, onClose, onSave, eventTypes }: AddEventModalPro
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
-          <DialogTitle>Ajouter un événement</DialogTitle>
+          <DialogTitle>{initialData ? "Modifier l'événement" : "Ajouter un événement"}</DialogTitle>
         </DialogHeader>
         <div className="grid gap-4 py-4">
           <div className="grid gap-2">
@@ -156,7 +167,9 @@ const AddEventModal = ({ isOpen, onClose, onSave, eventTypes }: AddEventModalPro
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={handleClose}>Annuler</Button>
-          <Button onClick={handleSubmit}>Enregistrer l'événement</Button>
+          <Button onClick={handleSubmit}>
+            {initialData ? "Mettre à jour" : "Enregistrer l'événement"}
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

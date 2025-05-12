@@ -47,16 +47,6 @@ const CalendarView = ({
           onSelect={onSelectDate}
           className="rounded-md border shadow-sm p-3 pointer-events-auto w-full max-w-[600px]"
           showOutsideDays
-          modifiers={{
-            // Highlight days with events
-            hasEvent: events => {
-              return events.some(event => 
-                event.getDate() === selectedDate?.getDate() &&
-                event.getMonth() === selectedDate?.getMonth() &&
-                event.getFullYear() === selectedDate?.getFullYear()
-              );
-            },
-          }}
         />
       </div>
       
