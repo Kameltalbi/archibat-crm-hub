@@ -92,8 +92,10 @@ const Projects = () => {
     }
   };
 
+  // Fix the navigation to project details by ensuring we're working with the correct ID type
   const handleRowClick = (project: ProjectWithClient) => {
-    navigate(`/projects/${project.id}`);
+    console.log(`Navigating to project with ID: ${project.id}`);
+    navigate(`/dashboard/projects/${project.id}`);
   };
   
   const getStatusClass = (status: string | null) => {

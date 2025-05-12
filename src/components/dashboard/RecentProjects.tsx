@@ -70,7 +70,7 @@ const RecentProjects = () => {
               {projects.map((project) => (
                 <TableRow key={project.id}>
                   <TableCell className="font-medium">
-                    <Link to={`/projects/${project.id}`} className="hover:underline text-blue-600">
+                    <Link to={`/dashboard/projects/${project.id}`} className="hover:underline text-blue-600">
                       {project.name}
                     </Link>
                   </TableCell>
