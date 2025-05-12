@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
@@ -13,6 +12,7 @@ const modules = [
   { id: "projects", name: "Projets" },
   { id: "products", name: "Produits" },
   { id: "calendar", name: "Calendrier" },
+  { id: "leaves", name: "Congés" }, // Ajout du module congés
   { id: "settings", name: "Paramètres" },
 ];
 
@@ -30,7 +30,7 @@ const RolePermissionsMatrix = () => {
     lecture_seule: [],
   });
   const [isLoading, setIsLoading] = useState(true);
-  const [isUpdating, setIsUpdating] = useState<{role: string, module: string} | null>(null);
+  const [isUpdating, setIsUpdating<{role: string, module: string} | null>(null);
   const { toast } = useToast();
 
   // Fetch permissions from Supabase
@@ -137,7 +137,6 @@ const RolePermissionsMatrix = () => {
                   ) : (
                     <Checkbox 
                       checked={hasPermission(role.id, module.id)}
-                      // Supprimer la désactivation pour le rôle admin
                       onCheckedChange={(checked) => {
                         handlePermissionChange(role.id, module.id, checked === true);
                       }}

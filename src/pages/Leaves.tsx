@@ -16,6 +16,7 @@ const Leaves = () => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [currentEmployee, setCurrentEmployee] = useState<Employee | null>(null);
+  const [hasPermission, setHasPermission] = useState<boolean>(false);
   const { toast } = useToast();
   
   useEffect(() => {
@@ -27,12 +28,29 @@ const Leaves = () => {
         if (session) {
           const permissions = await userService.getRolePermissions();
           
-          if (permissions && permissions.admin && permissions.admin.length > 0) {
+          if (permissions) {
+            // Vérifier si l'utilisateur a la permission d'accéder au module congé
             const userId = session.user.id;
             const userWithRole = await userService.getUserWithRole(userId);
             
-            if (userWithRole && userWithRole.role === "admin") {
-              setIsAdmin(true);
+            if (userWithRole && userWithRole.role) {
+              // Vérifier si l'utilisateur a accès au module congé basé sur son rôle
+              if (permissions[userWithRole.role] && 
+                  permissions[userWithRole.role].includes('leaves')) {
+                setHasPermission(true);
+                
+                // Vérifier si l'utilisateur est admin
+                if (userWithRole.role === "admin") {
+                  setIsAdmin(true);
+                }
+              } else {
+                // Rediriger ou afficher un message d'erreur si l'utilisateur n'a pas la permission
+                toast({
+                  title: "Accès refusé",
+                  description: "Vous n'avez pas la permission d'accéder à cette page.",
+                  variant: "destructive",
+                });
+              }
             }
           }
           
@@ -49,7 +67,7 @@ const Leaves = () => {
     };
     
     checkAdminRole();
-  }, []);
+  }, [toast]);
   
   const handleOpenModal = () => {
     if (!currentEmployee) {
@@ -77,6 +95,15 @@ const Leaves = () => {
   
   if (isLoading) {
     return <div className="flex justify-center py-8">Chargement...</div>;
+  }
+  
+  if (!hasPermission) {
+    return (
+      <div className="flex flex-col items-center justify-center py-10">
+        <h2 className="text-xl font-semibold mb-2">Accès refusé</h2>
+        <p className="text-muted-foreground">Vous n'avez pas la permission d'accéder à cette page.</p>
+      </div>
+    );
   }
   
   return (
