@@ -2,7 +2,7 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Event, EventType, Project } from "@/pages/Calendar";
+import { Event, EventType } from "@/pages/Calendar";
 import { CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
@@ -12,21 +12,15 @@ interface EventDetailsModalProps {
   onClose: () => void;
   event: Event;
   eventTypes: EventType[];
-  projects: Project[];
+  projects?: { id: number; name: string }[];
 }
 
-const EventDetailsModal = ({ isOpen, onClose, event, eventTypes, projects }: EventDetailsModalProps) => {
+const EventDetailsModal = ({ isOpen, onClose, event, eventTypes }: EventDetailsModalProps) => {
   const getEventType = (typeId: string) => {
     return eventTypes.find(type => type.id === typeId) || { id: "", name: "Inconnu", color: "bg-gray-400" };
   };
   
-  const getProject = (projectId?: number) => {
-    if (!projectId) return null;
-    return projects.find(p => p.id === projectId);
-  };
-  
   const eventType = getEventType(event.eventType);
-  const project = getProject(event.projectId);
   
   // Format date
   const formatDate = (date: Date): string => {
@@ -48,13 +42,6 @@ const EventDetailsModal = ({ isOpen, onClose, event, eventTypes, projects }: Eve
             <CalendarIcon className="h-5 w-5 text-muted-foreground" />
             <span>{formatDate(new Date(event.date))}</span>
           </div>
-          
-          {project && (
-            <div>
-              <h4 className="text-sm font-medium mb-1 text-muted-foreground">Projet associé</h4>
-              <p>{project.name}</p>
-            </div>
-          )}
           
           {event.notes && (
             <div>

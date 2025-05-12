@@ -19,10 +19,9 @@ interface EventNotificationsProps {
   events: Event[];
   eventTypes: EventType[];
   onEventClick: (event: Event) => void;
-  projects?: { id: number; name: string }[];
 }
 
-const EventNotifications = ({ events, eventTypes, onEventClick, projects = [] }: EventNotificationsProps) => {
+const EventNotifications = ({ events, eventTypes, onEventClick }: EventNotificationsProps) => {
   const [upcomingEvents, setUpcomingEvents] = useState<Event[]>([]);
   const { toast } = useToast();
   
@@ -64,12 +63,6 @@ const EventNotifications = ({ events, eventTypes, onEventClick, projects = [] }:
     return eventTypes.find(type => type.id === typeId) || { id: "", name: "Inconnu", color: "bg-gray-400" };
   };
   
-  const getProjectName = (projectId?: number) => {
-    if (!projectId) return "";
-    const project = projects.find(p => p.id === projectId);
-    return project ? project.name : "";
-  };
-  
   // Format date for display
   const formatDate = (date: Date): string => {
     return format(date, "d MMM HH:mm", { locale: fr });
@@ -105,9 +98,6 @@ const EventNotifications = ({ events, eventTypes, onEventClick, projects = [] }:
                       </div>
                       <div className="text-xs text-muted-foreground mt-1">
                         {formatDate(new Date(event.date))}
-                        {event.projectId && (
-                          <span> - {getProjectName(event.projectId)}</span>
-                        )}
                       </div>
                     </div>
                   </DropdownMenuItem>
