@@ -38,14 +38,18 @@ const EditClientModal = ({ client, onClientUpdated }: EditClientModalProps) => {
     // Close modal
     setOpen(false);
   };
+  
+  const handleOpenModal = (e: React.MouseEvent) => {
+    // Empêcher la propagation de l'événement pour éviter la navigation
+    e.preventDefault();
+    e.stopPropagation();
+    setOpen(true);
+  };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild onClick={(e) => {
-        e.preventDefault();
-        e.stopPropagation();
-      }}>
-        <Button variant="ghost" size="icon">
+      <DialogTrigger asChild>
+        <Button variant="ghost" size="icon" onClick={handleOpenModal}>
           <Edit className="h-4 w-4" />
         </Button>
       </DialogTrigger>
