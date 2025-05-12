@@ -1,14 +1,11 @@
+
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Calendar as CalendarIcon, Plus, Edit, Trash2 } from "lucide-react";
-import { Calendar } from "@/components/ui/calendar";
-import { Alert, AlertDescription } from "@/components/ui/alert";
 import AddEventModal from "@/components/calendar/AddEventModal";
 import EventDetailsModal from "@/components/calendar/EventDetailsModal";
-import { Badge } from "@/components/ui/badge";
-import { format } from "date-fns";
-import { fr } from "date-fns/locale";
+import CalendarHeader from "@/components/calendar/CalendarHeader";
+import CalendarView from "@/components/calendar/CalendarView";
+import UpcomingEvents from "@/components/calendar/UpcomingEvents";
 
 // Types d'événements avec couleurs
 export const eventTypes = [
@@ -91,177 +88,54 @@ const CalendarPage = () => {
     setSelectedEvent(event);
     setShowDetailsModal(true);
   };
-  
-  const getEventTypeColor = (typeId: string): string => {
-    const eventType = eventTypes.find(type => type.id === typeId);
-    return eventType?.color || "bg-light-gray";
-  };
-
-  // Helper function to format date
-  const formatDate = (date: Date): string => {
-    return format(date, "d MMMM yyyy", { locale: fr });
-  };
 
   return (
     <div className="space-y-8">
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-semibold mb-2">Calendrier</h1>
-          <p className="text-muted-foreground">
-            Gestion des événements et rendez-vous
-          </p>
-        </div>
-        <div className="flex gap-3">
-          <Button
-            variant={selectedView === "month" ? "default" : "outline"}
-            onClick={() => setSelectedView("month")}
-            className="text-charcoal"
-          >
-            Mensuel
-          </Button>
-          <Button
-            variant={selectedView === "week" ? "default" : "outline"}
-            onClick={() => setSelectedView("week")}
-            className="text-charcoal"
-          >
-            Hebdomadaire
-          </Button>
-          <Button onClick={() => {
-            setEventToEdit(null);
-            setShowAddModal(true);
-          }}>
-            <Plus className="mr-2 h-4 w-4" /> Ajouter un événement
-          </Button>
-        </div>
-      </div>
+      <CalendarHeader 
+        selectedView={selectedView}
+        onViewChange={setSelectedView}
+        onAddEvent={() => {
+          setEventToEdit(null);
+          setShowAddModal(true);
+        }}
+      />
       
       <div className="grid gap-6 md:grid-cols-[1fr_300px]">
         <Card className="animate-fade-in">
           <CardHeader>
             <CardTitle className="flex justify-between items-center">
               <span>Calendrier</span>
-              <CalendarIcon className="h-5 w-5 text-muted-foreground" />
+              <CalendarView 
+                selectedDate={selectedDate}
+                onSelectDate={setSelectedDate}
+                eventsForSelectedDate={eventsForSelectedDate}
+                eventTypes={eventTypes}
+                onEventClick={handleEventClick}
+                onEditEvent={handleEditEvent}
+                onDeleteEvent={handleDeleteEvent}
+              />
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="flex justify-center">
-              <Calendar
-                mode="single"
-                selected={selectedDate}
-                onSelect={setSelectedDate}
-                className="rounded-md border shadow-sm p-3 pointer-events-auto"
-                showOutsideDays
-              />
-            </div>
-            
-            <div className="mt-8">
-              <h3 className="text-lg font-medium mb-4">
-                Événements du {selectedDate ? formatDate(selectedDate) : "jour"}
-              </h3>
-              
-              {eventsForSelectedDate.length > 0 ? (
-                <div className="space-y-3">
-                  {eventsForSelectedDate.map((event) => (
-                    <div
-                      key={event.id}
-                      onClick={() => handleEventClick(event)}
-                      className="p-3 border rounded-md cursor-pointer hover:bg-accent transition-colors"
-                    >
-                      <div className="flex items-center justify-between">
-                        <h4 className="font-medium">{event.title}</h4>
-                        <div className="flex items-center gap-2">
-                          <Badge className={getEventTypeColor(event.eventType)}>
-                            {eventTypes.find(type => type.id === event.eventType)?.name}
-                          </Badge>
-                          <Button 
-                            variant="ghost" 
-                            size="icon"
-                            onClick={(e) => handleEditEvent(event, e)}
-                            className="h-6 w-6"
-                          >
-                            <Edit className="h-3 w-3" />
-                          </Button>
-                          <Button 
-                            variant="ghost" 
-                            size="icon"
-                            onClick={(e) => handleDeleteEvent(event.id, e)}
-                            className="h-6 w-6 text-destructive hover:text-destructive/80"
-                          >
-                            <Trash2 className="h-3 w-3" />
-                          </Button>
-                        </div>
-                      </div>
-                      <p className="text-sm text-muted-foreground mt-1">
-                        {formatDate(event.date)}
-                      </p>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <Alert variant="default" className="bg-beige border-terracotta/20">
-                  <AlertDescription>
-                    Aucun événement prévu pour cette journée
-                  </AlertDescription>
-                </Alert>
-              )}
-            </div>
+            <CalendarView 
+              selectedDate={selectedDate}
+              onSelectDate={setSelectedDate}
+              eventsForSelectedDate={eventsForSelectedDate}
+              eventTypes={eventTypes}
+              onEventClick={handleEventClick}
+              onEditEvent={handleEditEvent}
+              onDeleteEvent={handleDeleteEvent}
+            />
           </CardContent>
         </Card>
         
-        <Card className="h-fit animate-fade-in">
-          <CardHeader>
-            <CardTitle>Prochains événements</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              {events
-                .filter(event => new Date(event.date) >= new Date())
-                .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
-                .slice(0, 5)
-                .map((event) => (
-                  <div
-                    key={event.id}
-                    onClick={() => handleEventClick(event)}
-                    className="p-2 cursor-pointer hover:bg-accent rounded-md transition-colors"
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <div className={`w-2 h-2 rounded-full ${getEventTypeColor(event.eventType)}`} />
-                        <div>
-                          <p className="font-medium text-sm">{event.title}</p>
-                          <p className="text-xs text-muted-foreground">
-                            {formatDate(event.date)}
-                          </p>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <Button 
-                          variant="ghost" 
-                          size="icon"
-                          onClick={(e) => handleEditEvent(event, e)}
-                          className="h-6 w-6"
-                        >
-                          <Edit className="h-3 w-3" />
-                        </Button>
-                        <Button 
-                          variant="ghost" 
-                          size="icon"
-                          onClick={(e) => handleDeleteEvent(event.id, e)}
-                          className="h-6 w-6 text-destructive hover:text-destructive/80"
-                        >
-                          <Trash2 className="h-3 w-3" />
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-
-              {events.filter(event => new Date(event.date) >= new Date()).length === 0 && (
-                <p className="text-sm text-muted-foreground">Aucun événement à venir</p>
-              )}
-            </div>
-          </CardContent>
-        </Card>
+        <UpcomingEvents
+          events={events}
+          eventTypes={eventTypes}
+          onEventClick={handleEventClick}
+          onEditEvent={handleEditEvent}
+          onDeleteEvent={handleDeleteEvent}
+        />
       </div>
       
       {/* Modals */}
