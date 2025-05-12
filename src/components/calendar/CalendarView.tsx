@@ -39,18 +39,28 @@ const CalendarView = ({
   };
   
   return (
-    <div>
+    <div className="grid gap-8 grid-cols-1 lg:grid-cols-[2fr_1fr]">
       <div className="flex justify-center">
         <Calendar
           mode="single"
           selected={selectedDate}
           onSelect={onSelectDate}
-          className="rounded-md border shadow-sm p-3 pointer-events-auto"
+          className="rounded-md border shadow-sm p-3 pointer-events-auto w-full max-w-[600px]"
           showOutsideDays
+          modifiers={{
+            // Highlight days with events
+            hasEvent: events => {
+              return events.some(event => 
+                event.getDate() === selectedDate?.getDate() &&
+                event.getMonth() === selectedDate?.getMonth() &&
+                event.getFullYear() === selectedDate?.getFullYear()
+              );
+            },
+          }}
         />
       </div>
       
-      <div className="mt-8">
+      <div>
         <h3 className="text-lg font-medium mb-4">
           Événements du {selectedDate ? formatDate(selectedDate) : "jour"}
         </h3>
@@ -76,6 +86,7 @@ const CalendarView = ({
                       className="h-6 w-6"
                     >
                       <Edit className="h-3 w-3" />
+                      <span className="sr-only">Modifier</span>
                     </Button>
                     <Button 
                       variant="ghost" 
@@ -84,6 +95,7 @@ const CalendarView = ({
                       className="h-6 w-6 text-destructive hover:text-destructive/80"
                     >
                       <Trash2 className="h-3 w-3" />
+                      <span className="sr-only">Supprimer</span>
                     </Button>
                   </div>
                 </div>

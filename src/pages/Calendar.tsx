@@ -6,6 +6,7 @@ import EventDetailsModal from "@/components/calendar/EventDetailsModal";
 import CalendarHeader from "@/components/calendar/CalendarHeader";
 import CalendarView from "@/components/calendar/CalendarView";
 import UpcomingEvents from "@/components/calendar/UpcomingEvents";
+import { Edit, Trash2 } from "lucide-react";
 
 // Types d'événements avec couleurs
 export const eventTypes = [
@@ -103,18 +104,7 @@ const CalendarPage = () => {
       <div className="grid gap-6 md:grid-cols-[1fr_300px]">
         <Card className="animate-fade-in">
           <CardHeader>
-            <CardTitle className="flex justify-between items-center">
-              <span>Calendrier</span>
-              <CalendarView 
-                selectedDate={selectedDate}
-                onSelectDate={setSelectedDate}
-                eventsForSelectedDate={eventsForSelectedDate}
-                eventTypes={eventTypes}
-                onEventClick={handleEventClick}
-                onEditEvent={handleEditEvent}
-                onDeleteEvent={handleDeleteEvent}
-              />
-            </CardTitle>
+            <CardTitle>Calendrier</CardTitle>
           </CardHeader>
           <CardContent>
             <CalendarView 
@@ -147,6 +137,7 @@ const CalendarPage = () => {
         }}
         onSave={handleSaveEvent}
         eventTypes={eventTypes}
+        initialData={eventToEdit}
       />
       
       {selectedEvent && (
