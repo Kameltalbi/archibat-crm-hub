@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Calendar as CalendarIcon, Plus } from "lucide-react";
+import { Calendar as CalendarIcon, Plus, Edit, Trash2 } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import AddEventModal from "@/components/calendar/AddEventModal";
@@ -26,7 +26,6 @@ export type Event = {
   title: string;
   date: Date;
   eventType: string;
-  projectId?: number;
   notes?: string;
 };
 
@@ -41,9 +40,6 @@ export type Project = {
   name: string;
 };
 
-// Projets disponibles (à remplacer par de vraies données ultérieurement)
-const mockProjects: Project[] = [];
-
 const CalendarPage = () => {
   const [events, setEvents] = useState<Event[]>([]);
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
@@ -51,15 +47,36 @@ const CalendarPage = () => {
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
   const [showAddModal, setShowAddModal] = useState(false);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
+  const [eventToEdit, setEventToEdit] = useState<Event | null>(null);
   
   const handleSaveEvent = (eventData: Omit<Event, "id">) => {
-    const newEvent = {
-      ...eventData,
-      id: events.length + 1
-    };
-    
-    setEvents([...events, newEvent]);
+    // Si nous sommes en train d'éditer un événement existant
+    if (eventToEdit) {
+      const updatedEvents = events.map(event => 
+        event.id === eventToEdit.id ? { ...eventData, id: event.id } : event
+      );
+      setEvents(updatedEvents);
+      setEventToEdit(null);
+    } else {
+      // Sinon, créer un nouvel événement
+      const newEvent = {
+        ...eventData,
+        id: events.length + 1
+      };
+      setEvents([...events, newEvent]);
+    }
     setShowAddModal(false);
+  };
+  
+  const handleEditEvent = (event: Event, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setEventToEdit(event);
+    setShowAddModal(true);
+  };
+  
+  const handleDeleteEvent = (eventId: number, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setEvents(events.filter(event => event.id !== eventId));
   };
   
   const eventsForSelectedDate = events.filter(event => {
@@ -79,12 +96,6 @@ const CalendarPage = () => {
   const getEventTypeColor = (typeId: string): string => {
     const eventType = eventTypes.find(type => type.id === typeId);
     return eventType?.color || "bg-light-gray";
-  };
-  
-  const getProjectName = (projectId?: number): string => {
-    if (!projectId) return "Aucun projet lié";
-    const project = mockProjects.find(p => p.id === projectId);
-    return project?.name || "Projet inconnu";
   };
 
   // Helper function to format date
@@ -116,7 +127,10 @@ const CalendarPage = () => {
           >
             Hebdomadaire
           </Button>
-          <Button onClick={() => setShowAddModal(true)}>
+          <Button onClick={() => {
+            setEventToEdit(null);
+            setShowAddModal(true);
+          }}>
             <Plus className="mr-2 h-4 w-4" /> Ajouter un événement
           </Button>
         </div>
@@ -156,12 +170,30 @@ const CalendarPage = () => {
                     >
                       <div className="flex items-center justify-between">
                         <h4 className="font-medium">{event.title}</h4>
-                        <Badge className={getEventTypeColor(event.eventType)}>
-                          {eventTypes.find(type => type.id === event.eventType)?.name}
-                        </Badge>
+                        <div className="flex items-center gap-2">
+                          <Badge className={getEventTypeColor(event.eventType)}>
+                            {eventTypes.find(type => type.id === event.eventType)?.name}
+                          </Badge>
+                          <Button 
+                            variant="ghost" 
+                            size="icon"
+                            onClick={(e) => handleEditEvent(event, e)}
+                            className="h-6 w-6"
+                          >
+                            <Edit className="h-3 w-3" />
+                          </Button>
+                          <Button 
+                            variant="ghost" 
+                            size="icon"
+                            onClick={(e) => handleDeleteEvent(event.id, e)}
+                            className="h-6 w-6 text-destructive hover:text-destructive/80"
+                          >
+                            <Trash2 className="h-3 w-3" />
+                          </Button>
+                        </div>
                       </div>
                       <p className="text-sm text-muted-foreground mt-1">
-                        {formatDate(event.date)} - {getProjectName(event.projectId)}
+                        {formatDate(event.date)}
                       </p>
                     </div>
                   ))}
@@ -193,13 +225,33 @@ const CalendarPage = () => {
                     onClick={() => handleEventClick(event)}
                     className="p-2 cursor-pointer hover:bg-accent rounded-md transition-colors"
                   >
-                    <div className="flex items-center gap-2">
-                      <div className={`w-2 h-2 rounded-full ${getEventTypeColor(event.eventType)}`} />
-                      <div>
-                        <p className="font-medium text-sm">{event.title}</p>
-                        <p className="text-xs text-muted-foreground">
-                          {formatDate(event.date)}
-                        </p>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <div className={`w-2 h-2 rounded-full ${getEventTypeColor(event.eventType)}`} />
+                        <div>
+                          <p className="font-medium text-sm">{event.title}</p>
+                          <p className="text-xs text-muted-foreground">
+                            {formatDate(event.date)}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <Button 
+                          variant="ghost" 
+                          size="icon"
+                          onClick={(e) => handleEditEvent(event, e)}
+                          className="h-6 w-6"
+                        >
+                          <Edit className="h-3 w-3" />
+                        </Button>
+                        <Button 
+                          variant="ghost" 
+                          size="icon"
+                          onClick={(e) => handleDeleteEvent(event.id, e)}
+                          className="h-6 w-6 text-destructive hover:text-destructive/80"
+                        >
+                          <Trash2 className="h-3 w-3" />
+                        </Button>
                       </div>
                     </div>
                   </div>
@@ -216,10 +268,12 @@ const CalendarPage = () => {
       {/* Modals */}
       <AddEventModal
         isOpen={showAddModal}
-        onClose={() => setShowAddModal(false)}
+        onClose={() => {
+          setShowAddModal(false);
+          setEventToEdit(null);
+        }}
         onSave={handleSaveEvent}
         eventTypes={eventTypes}
-        projects={mockProjects}
       />
       
       {selectedEvent && (
@@ -228,7 +282,6 @@ const CalendarPage = () => {
           onClose={() => setShowDetailsModal(false)}
           event={selectedEvent}
           eventTypes={eventTypes}
-          projects={mockProjects}
         />
       )}
     </div>

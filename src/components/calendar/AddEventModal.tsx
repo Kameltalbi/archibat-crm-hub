@@ -12,21 +12,19 @@ import { CalendarIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
-import { EventType, Project } from "@/pages/Calendar";
+import { EventType } from "@/pages/Calendar";
 
 interface AddEventModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSave: (eventData: any) => void;
   eventTypes: EventType[];
-  projects: Project[];
 }
 
-const AddEventModal = ({ isOpen, onClose, onSave, eventTypes, projects }: AddEventModalProps) => {
+const AddEventModal = ({ isOpen, onClose, onSave, eventTypes }: AddEventModalProps) => {
   const [title, setTitle] = useState("");
   const [date, setDate] = useState<Date | undefined>(new Date());
   const [eventType, setEventType] = useState("");
-  const [projectId, setProjectId] = useState<number | undefined>(undefined);
   const [notes, setNotes] = useState("");
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   
@@ -56,7 +54,6 @@ const AddEventModal = ({ isOpen, onClose, onSave, eventTypes, projects }: AddEve
       title,
       date,
       eventType,
-      projectId: projectId || undefined,
       notes: notes || undefined
     });
     
@@ -68,7 +65,6 @@ const AddEventModal = ({ isOpen, onClose, onSave, eventTypes, projects }: AddEve
     setTitle("");
     setDate(new Date());
     setEventType("");
-    setProjectId(undefined);
     setNotes("");
     setErrors({});
   };
@@ -144,26 +140,6 @@ const AddEventModal = ({ isOpen, onClose, onSave, eventTypes, projects }: AddEve
               </SelectContent>
             </Select>
             {errors.eventType && <p className="text-sm text-destructive">{errors.eventType}</p>}
-          </div>
-          
-          <div className="grid gap-2">
-            <Label htmlFor="project">Projet associé (optionnel)</Label>
-            <Select 
-              value={projectId?.toString() || undefined} 
-              onValueChange={(value) => setProjectId(value ? parseInt(value) : undefined)}
-            >
-              <SelectTrigger id="project">
-                <SelectValue placeholder="Sélectionner un projet (optionnel)" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="no-project" className="cursor-pointer">Aucun projet</SelectItem>
-                {projects.map((project) => (
-                  <SelectItem key={project.id} value={project.id.toString()} className="cursor-pointer">
-                    {project.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
           </div>
           
           <div className="grid gap-2">
