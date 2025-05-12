@@ -11,6 +11,7 @@ import Products from "./pages/Products";
 import Categories from "./pages/Categories";
 import NotFound from "./pages/NotFound";
 import Calendar from "./pages/Calendar";
+import Leaves from "./pages/Leaves";
 import Settings from "./pages/Settings";
 import Documentation from "./pages/Documentation";
 import { Toaster } from "./components/ui/toaster";
@@ -61,6 +62,7 @@ const App = () => {
             <Route path="products" element={<Products />} />
             <Route path="categories" element={<Categories />} />
             <Route path="calendar" element={<Calendar />} />
+            <Route path="leaves" element={<Leaves />} />
             <Route path="settings" element={<Settings />} />
             <Route path="documentation" element={<Documentation />} />
           </Route>

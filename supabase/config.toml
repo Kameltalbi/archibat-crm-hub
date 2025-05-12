@@ -1,5 +1,32 @@
 
 project_id = "wcpeseyhecsbydcmdmjj"
 
-[functions.manage-users]
+[api]
+# Port d'écoute du serveur d'API
+port = 54321
+schemas = ["public", "storage", "graphql_public"]
+extra_schemas = ["public", "extensions"]
+
+[db]
+# Port d'écoute du serveur de la base de données
+port = 54322
+
+[studio]
+# Port d'écoute de Studio
+port = 54323
+
+[inbucket]
+# Port d'écoute du serveur SMTP
+port = 54324
+# Port d'écoute du serveur d'interface utilisateur web
+web_port = 54325
+
+[auth]
+# URL pour confirmer l'inscription par email
+site_url = "http://localhost:5173"
+# URL supplémentaire autorisée à envoyer des requêtes au service auth
+additional_redirect_urls = ["https://localhost:5173"]
+
+[functions]
+[functions.notify-leave-request]
 verify_jwt = true

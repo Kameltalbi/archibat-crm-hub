@@ -63,6 +63,77 @@ export type Database = {
         }
         Relationships: []
       }
+      employees: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          leave_balance: number
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          leave_balance?: number
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          leave_balance?: number
+          name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      leave_requests: {
+        Row: {
+          created_at: string
+          days_requested: number
+          employee_id: string
+          end_date: string
+          id: string
+          reason: string | null
+          start_date: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          days_requested: number
+          employee_id: string
+          end_date: string
+          id?: string
+          reason?: string | null
+          start_date: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          days_requested?: number
+          employee_id?: string
+          end_date?: string
+          id?: string
+          reason?: string | null
+          start_date?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "leave_requests_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       products: {
         Row: {
           category_id: string | null

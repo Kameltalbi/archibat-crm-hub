@@ -1,3 +1,4 @@
+
 import {
   Sidebar,
   SidebarContent,
@@ -8,7 +9,7 @@ import {
   SidebarMenuButton,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
-import { Home, Users, Briefcase, Calendar, Settings, LogOut, Grid, List } from "lucide-react";
+import { Home, Users, Briefcase, Calendar, Settings, LogOut, Grid, List, Clock } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/lib/supabase";
@@ -44,6 +45,11 @@ const menuItems = [
     title: "Calendrier",
     icon: Calendar,
     path: "/dashboard/calendar",
+  },
+  {
+    title: "Congés",
+    icon: Clock,
+    path: "/dashboard/leaves",
   },
   {
     title: "Paramètres",
