@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -66,11 +65,6 @@ const Clients = () => {
         description: "Impossible de supprimer le client. Veuillez réessayer."
       });
     }
-  };
-  
-  const handleEditClient = (client: Client, event: React.MouseEvent) => {
-    // Empêcher la propagation de l'événement pour éviter la navigation
-    event.stopPropagation();
   };
   
   const handleRowClick = (id: string) => {
@@ -159,17 +153,11 @@ const Clients = () => {
                       <TableCell>{client.email || '-'}</TableCell>
                       <TableCell className="hidden md:table-cell">{client.phone || '-'}</TableCell>
                       <TableCell className="hidden md:table-cell">{client.address || '-'}</TableCell>
-                      <TableCell>
+                      <TableCell onClick={(e) => e.stopPropagation()}>
                         <div className="flex items-center gap-2">
                           <EditClientModal 
                             client={client} 
-                            onClientUpdated={fetchClients} 
-                            onOpenChange={(open) => {
-                              if (open) {
-                                // Pour empêcher l'événement de clic de se propager à la ligne
-                                return;
-                              }
-                            }}
+                            onClientUpdated={fetchClients}
                           />
                           <Button 
                             variant="ghost" 
