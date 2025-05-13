@@ -1,108 +1,56 @@
 
-import React, { useState } from "react";
+import React from "react";
+import { Bell, Moon, Sun } from "lucide-react";
+import { useTheme } from "next-themes";
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Bell, HelpCircle } from "lucide-react";
-import { Calendar, Clock, User } from "lucide-react";
-import EventNotifications from "@/components/calendar/EventNotifications";
-import { eventTypes } from "@/pages/Calendar";
-import EventDetailsModal from "@/components/calendar/EventDetailsModal";
-import { format } from "date-fns";
-import { Link } from "react-router-dom";
-
-// Since mockEvents was removed, we should remove any dependencies on it
-// Here, I'm creating a minimal type setup based on existing types
-type Event = {
-  id: number;
-  title: string;
-  date: Date;
-  eventType: string;
-  projectId?: number;
-  notes?: string;
-};
+import MobileNavigation from "./MobileNavigation";
+import { 
+  NavigationMenu,
+  NavigationMenuContent,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  NavigationMenuTrigger,
+} from "@/components/ui/navigation-menu";
 
 const Header = () => {
-  const [showNotifications, setShowNotifications] = useState(false);
-  const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
-  const [showEventDetails, setShowEventDetails] = useState(false);
-  
-  // Since we don't have mockEvents anymore, we'll use an empty array
-  const upcomingEvents: Event[] = [];
-  
-  const handleEventClick = (event: Event) => {
-    setSelectedEvent(event);
-    setShowEventDetails(true);
-    setShowNotifications(false);
-  };
-  
-  // Replace with your actual user info
-  const userName = "Utilisateur";
-  const userInitial = userName.charAt(0);
+  const { theme, setTheme } = useTheme();
 
   return (
-    <header className="border-b bg-background sticky top-0 z-10 py-3 px-4 md:px-6 flex items-center justify-between">
-      <div className="flex-1">
-        <img 
-          src="/lovable-uploads/6e406553-32da-493a-87fe-c175bc00e795.png" 
-          alt="Archibat Logo" 
-          className="h-8 w-auto object-contain"
-        />
+    <header className="bg-background border-b h-16 sticky top-0 z-10 flex items-center px-4">
+      <div className="flex items-center justify-between w-full">
+        <div className="flex items-center">
+          <MobileNavigation />
+        </div>
+        <div className="flex items-center space-x-2">
+          <NavigationMenu>
+            <NavigationMenuList>
+              <NavigationMenuItem>
+                <NavigationMenuTrigger>
+                  <Bell className="h-5 w-5" />
+                </NavigationMenuTrigger>
+                <NavigationMenuContent>
+                  <div className="p-4 w-[300px]">
+                    <p className="text-sm font-medium mb-2">Notifications</p>
+                    <p className="text-sm text-muted-foreground">Aucune notification</p>
+                  </div>
+                </NavigationMenuContent>
+              </NavigationMenuItem>
+            </NavigationMenuList>
+          </NavigationMenu>
+          <Button 
+            variant="ghost" 
+            size="icon"
+            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+          >
+            {theme === "dark" ? (
+              <Sun className="h-5 w-5" />
+            ) : (
+              <Moon className="h-5 w-5" />
+            )}
+          </Button>
+        </div>
       </div>
-      
-      <div className="flex items-center space-x-3">
-        <Button
-          variant="outline"
-          size="sm"
-          asChild
-          className="hidden md:flex items-center gap-1 text-muted-foreground hover:text-foreground"
-        >
-          <Link to="/documentation">
-            <HelpCircle className="h-4 w-4" />
-            <span>Aide</span>
-          </Link>
-        </Button>
-        
-        <Popover open={showNotifications} onOpenChange={setShowNotifications}>
-          <PopoverTrigger asChild>
-            <Button 
-              variant="ghost" 
-              size="icon"
-              className="relative"
-            >
-              <Bell className="h-[1.2rem] w-[1.2rem]" />
-              {upcomingEvents.length > 0 && (
-                <span className="absolute top-1 right-1 flex h-2 w-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-terracotta opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-terracotta"></span>
-                </span>
-              )}
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-80 p-0">
-            <EventNotifications 
-              events={upcomingEvents}
-              onEventClick={handleEventClick}
-              eventTypes={eventTypes}
-            />
-          </PopoverContent>
-        </Popover>
-
-        <Avatar className="cursor-pointer">
-          <AvatarImage src="" />
-          <AvatarFallback className="bg-terracotta text-white">{userInitial}</AvatarFallback>
-        </Avatar>
-      </div>
-
-      {selectedEvent && (
-        <EventDetailsModal
-          isOpen={showEventDetails}
-          onClose={() => setShowEventDetails(false)}
-          event={selectedEvent}
-          eventTypes={eventTypes}
-          projects={[]}  // Since mockProjects was also removed
-        />
-      )}
     </header>
   );
 };

@@ -136,7 +136,7 @@ const AppSidebar = () => {
           <p>v1.0.0</p>
         </div>
       </SidebarFooter>
-      <SidebarTrigger className="absolute top-3 right-3 lg:hidden text-white" />
+      <SidebarTrigger className="absolute top-3 right-3 hidden md:flex lg:hidden text-white" />
     </Sidebar>
   );
 };
