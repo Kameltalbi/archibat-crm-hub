@@ -12,8 +12,8 @@ const Layout = () => {
       <AppSidebar />
       <div className="flex-1 flex flex-col w-full overflow-hidden">
         <Header />
-        <main className="flex-1 p-3 md:p-6 overflow-y-auto animate-fade-in">
-          <div className="container mx-auto max-w-7xl">
+        <main className="flex-1 p-3 md:p-6 overflow-y-auto animate-fade-in w-full">
+          <div className="w-full max-w-[1920px] mx-auto">
             <Outlet />
           </div>
         </main>

@@ -2,12 +2,14 @@
 /* Base styles */
 #root {
   max-width: 100%;
+  width: 100%;
   margin: 0 auto;
   text-align: left;
 }
 
 body {
   overflow-x: hidden;
+  width: 100%;
 }
 
 /* Animation keyframes */
@@ -47,6 +49,7 @@ body {
   width: 100%;
   padding-right: 1rem;
   padding-left: 1rem;
+  max-width: 100%;
 }
 
 @media (min-width: 640px) {

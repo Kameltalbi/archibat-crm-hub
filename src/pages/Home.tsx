@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -73,10 +74,10 @@ const Home = () => {
   const toggleShowPassword = () => setShowPassword(!showPassword);
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col w-full">
       {/* Header */}
-      <header className="bg-white dark:bg-matte-black border-b border-border sticky top-0 z-10">
-        <div className="container mx-auto px-4 py-3 flex items-center justify-between">
+      <header className="bg-white dark:bg-matte-black border-b border-border sticky top-0 z-10 w-full">
+        <div className="w-full px-4 py-3 flex items-center justify-between">
           <div className="flex items-center space-x-2">
             <img 
               src="/lovable-uploads/6e406553-32da-493a-87fe-c175bc00e795.png" 
@@ -109,9 +110,9 @@ const Home = () => {
       </header>
       
       {/* Hero Section */}
-      <section className="bg-gradient-to-br from-beige to-light-gray dark:from-dark-gray dark:to-matte-black py-16 md:py-24">
-        <div className="container mx-auto px-4 md:flex items-center justify-between">
-          <div className="md:w-1/2 mb-10 md:mb-0">
+      <section className="bg-gradient-to-br from-beige to-light-gray dark:from-dark-gray dark:to-matte-black py-16 md:py-24 w-full">
+        <div className="w-full px-4 md:px-8 max-w-[1920px] mx-auto md:flex items-center justify-between">
+          <div className="md:w-1/2 md:pr-8 mb-10 md:mb-0">
             <h1 className="text-4xl md:text-5xl font-bold mb-6">
               Gérer vos projets de vente et faites vos prévisions annuelles avec simplicité
             </h1>
@@ -208,8 +209,8 @@ const Home = () => {
       </section>
       
       {/* Features Section (placeholder) */}
-      <section id="features" className="py-16 bg-background">
-        <div className="container mx-auto px-4 text-center">
+      <section id="features" className="py-16 bg-background w-full">
+        <div className="w-full px-4 md:px-8 max-w-[1920px] mx-auto text-center">
           <h2 className="text-3xl font-bold mb-12">Fonctionnalités principales</h2>
           <div className="grid md:grid-cols-3 gap-8">
             <div className="p-6 border rounded-lg">
@@ -247,7 +248,7 @@ const Home = () => {
             <div className="flex flex-col items-center space-y-2">
               <div className="flex items-center space-x-2 text-lg">
                 <Phone className="h-5 w-5 text-terracotta" />
-                <span className="font-medium">55 053 505</span>
+                <span className="font-medium">Contact administrateur</span>
               </div>
             </div>
           </div>
