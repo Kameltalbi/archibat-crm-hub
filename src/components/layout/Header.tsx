@@ -17,7 +17,7 @@ const Header = () => {
   const { theme, setTheme } = useTheme();
 
   return (
-    <header className="bg-background border-b h-16 sticky top-0 z-10 flex items-center px-4">
+    <header className="bg-background border-b h-16 sticky top-0 z-30 flex items-center px-4">
       <div className="flex items-center justify-between w-full">
         <div className="flex items-center">
           <MobileNavigation />
