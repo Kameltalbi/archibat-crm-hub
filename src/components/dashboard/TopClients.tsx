@@ -105,7 +105,7 @@ const TopClients = () => {
               {clients.map((client) => (
                 <TableRow key={client.id}>
                   <TableCell className="font-medium">
-                    <Link to={`/clients/${client.id}`} className="hover:underline text-blue-600">
+                    <Link to={`/dashboard/clients/${client.id}`} className="hover:underline text-blue-600">
                       {client.name}
                     </Link>
                   </TableCell>

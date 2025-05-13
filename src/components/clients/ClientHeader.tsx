@@ -13,7 +13,7 @@ export const ClientHeader = ({ client }: ClientHeaderProps) => {
     <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:justify-between">
       <div>
         <Button variant="outline" asChild>
-          <Link to="/clients" className="flex items-center gap-1">
+          <Link to="/dashboard/clients" className="flex items-center gap-1">
             <ArrowLeft className="h-4 w-4" />
             Retour aux clients
           </Link>

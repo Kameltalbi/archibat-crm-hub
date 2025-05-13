@@ -1,10 +1,12 @@
 
-import { useParams } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
+import { Button } from "@/components/ui/button";
 import { ClientHeader } from "@/components/clients/ClientHeader";
 import { ClientInfo } from "@/components/clients/ClientInfo";
 import { ClientContacts } from "@/components/clients/ClientContacts";
 import { ClientRevenue } from "@/components/clients/ClientRevenue";
 import { useClientDetails } from "@/hooks/useClientDetails";
+import { ArrowLeft } from "lucide-react";
 
 const ClientDetails = () => {
   const { id } = useParams<{ id: string }>();
@@ -21,7 +23,16 @@ const ClientDetails = () => {
   if (!client) {
     return (
       <div className="space-y-4">
-        <ClientHeader client={null} />
+        <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:justify-between">
+          <div>
+            <Button variant="outline" asChild>
+              <Link to="/dashboard/clients" className="flex items-center gap-1">
+                <ArrowLeft className="h-4 w-4" />
+                Retour aux clients
+              </Link>
+            </Button>
+          </div>
+        </div>
         <div className="pt-6">
           <p>Client non trouvé.</p>
         </div>
