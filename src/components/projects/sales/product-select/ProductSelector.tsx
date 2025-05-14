@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
@@ -12,14 +12,12 @@ interface ProductSelectorProps {
   products: Product[];
   selectedProductIds: string[];
   onSelectProduct: (product: Product) => void;
-  projectCategory?: string;
 }
 
 const ProductSelector = ({ 
   products,
   selectedProductIds,
-  onSelectProduct,
-  projectCategory 
+  onSelectProduct 
 }: ProductSelectorProps) => {
   const [open, setOpen] = useState(false);
   
@@ -40,9 +38,7 @@ const ProductSelector = ({
           {selectedProductIds.length > 0 
             ? `${selectedProductIds.length} produit${selectedProductIds.length > 1 ? 's' : ''} sélectionné${selectedProductIds.length > 1 ? 's' : ''}`
             : products.length > 0 
-              ? projectCategory 
-                ? `Sélectionner des produits (${products.length} dans la catégorie ${projectCategory})` 
-                : "Sélectionner des produits"
+              ? "Sélectionner des produits" 
               : "Aucun produit disponible"}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
@@ -76,9 +72,7 @@ const ProductSelector = ({
                 ))
               ) : (
                 <CommandItem disabled className="italic text-muted-foreground">
-                  {projectCategory 
-                    ? `Aucun produit disponible pour la catégorie "${projectCategory}".`
-                    : "Aucun produit disponible."}
+                  Aucun produit disponible.
                 </CommandItem>
               )}
             </CommandGroup>

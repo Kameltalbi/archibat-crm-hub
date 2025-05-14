@@ -4,8 +4,7 @@ import { Label } from "@/components/ui/label";
 import { Product, SelectedProduct } from "./types";
 import SelectedProducts from "./SelectedProducts";
 import ProductSelector from "./ProductSelector";
-import { filterAvailableProducts, filterProductsByProjectCategory, mapCategoryNames } from "./utils";
-import { toast } from "@/components/ui/use-toast";
+import { filterAvailableProducts, mapCategoryNames } from "./utils";
 
 interface MultiProductSelectContainerProps {
   products: Product[];
@@ -28,41 +27,14 @@ const MultiProductSelectContainer = ({
     const selectedProductIds = selectedProducts.map(p => p.id);
     let availableProducts = filterAvailableProducts(products, selectedProductIds);
     
-    // Strict filtering by project category
-    if (projectCategory) {
-      // First try exact match
-      const exactMatchProducts = filterProductsByProjectCategory(availableProducts, projectCategory);
-      
-      if (exactMatchProducts.length > 0) {
-        setFilteredProducts(exactMatchProducts);
-        console.log(`Filtered ${exactMatchProducts.length} products with exact match on category: ${projectCategory}`);
-        return;
-      }
-      
-      // If no exact matches, try with category mapping
-      const relatedCategories = mapCategoryNames(projectCategory);
-      const categoryFilteredProducts = availableProducts.filter(product => {
-        const productCategory = product.category || product.categories?.name || null;
-        return productCategory && relatedCategories.includes(productCategory);
-      });
-      
-      if (categoryFilteredProducts.length > 0) {
-        setFilteredProducts(categoryFilteredProducts);
-        console.log(`Filtered ${categoryFilteredProducts.length} products with related categories: ${relatedCategories.join(', ')}`);
-        return;
-      }
-      
-      // If still no matches, show a toast notification and display all products
-      toast({
-        title: "Aucun produit correspondant",
-        description: `Aucun produit ne correspond à la catégorie "${projectCategory}". Tous les produits sont affichés.`,
-        variant: "default"
-      });
-    }
+    // Utiliser le mappage de catégories pour améliorer la correspondance
+    const relatedCategories = mapCategoryNames(projectCategory);
+    console.log(`Total available products: ${availableProducts.length}`, availableProducts);
+    console.log(`Project category: ${projectCategory}`);
+    console.log(`Related categories: ${relatedCategories.join(", ")}`);
     
-    // If no project category or no matches found, show all available products
+    // Set filtered products
     setFilteredProducts(availableProducts);
-    console.log(`Affichage de tous les produits disponibles (${availableProducts.length})`);
   }, [products, selectedProducts, projectCategory]);
   
   const handleSelectProduct = (product: Product) => {
@@ -104,7 +76,6 @@ const MultiProductSelectContainer = ({
         products={filteredProducts}
         selectedProductIds={selectedProducts.map(p => p.id)}
         onSelectProduct={handleSelectProduct}
-        projectCategory={projectCategory}
       />
     </div>
   );
