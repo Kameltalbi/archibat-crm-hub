@@ -50,9 +50,9 @@ const ClientSelect = ({
         <SelectTrigger id="client_id" className="border-input">
           <SelectValue placeholder={placeholder} />
         </SelectTrigger>
-        <SelectContent>
+        <SelectContent className="max-h-72 overflow-y-auto">
           {withSearch && (
-            <div className="flex items-center border-b px-3 py-2 sticky top-0 bg-background">
+            <div className="flex items-center border-b px-3 py-2 sticky top-0 bg-background z-10">
               <Search className="h-4 w-4 mr-2 opacity-50" />
               <Input
                 placeholder="Rechercher un client..."
@@ -62,20 +62,23 @@ const ClientSelect = ({
               />
             </div>
           )}
-          {filteredClients.length > 0 ? (
-            filteredClients.map((client) => (
-              <SelectItem 
-                key={client.id} 
-                value={client.id.toString()}
-              >
-                {client.name}
-              </SelectItem>
-            ))
-          ) : (
-            <div className="text-center py-2 text-muted-foreground">
-              {searchQuery ? "Aucun client trouvé" : "Aucun client disponible"}
-            </div>
-          )}
+          <div className="max-h-60 overflow-y-auto">
+            {filteredClients.length > 0 ? (
+              filteredClients.map((client) => (
+                <SelectItem 
+                  key={client.id} 
+                  value={client.id.toString()}
+                  className="py-2 px-3"
+                >
+                  {client.name}
+                </SelectItem>
+              ))
+            ) : (
+              <div className="text-center py-2 text-muted-foreground">
+                {searchQuery ? "Aucun client trouvé" : "Aucun client disponible"}
+              </div>
+            )}
+          </div>
         </SelectContent>
       </Select>
     </div>

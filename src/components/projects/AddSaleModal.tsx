@@ -4,8 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Plus } from "lucide-react";
 import ProjectSalesForm from "@/components/projects/ProjectSalesForm";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Label } from "@/components/ui/label";
+import ClientSelect from "@/components/projects/form/ClientSelect";
 
 interface ClientMinimal {
   id: string;
@@ -28,8 +27,6 @@ const AddSaleModal = ({ projectClients, projectName, projectCategory }: AddSaleM
     setOpen(false);
   };
 
-  const selectedClientName = projectClients.find(client => client.id === selectedClientId)?.name || '';
-
   console.log("Rendering AddSaleModal with clients:", projectClients);
 
   return (
@@ -46,31 +43,17 @@ const AddSaleModal = ({ projectClients, projectName, projectCategory }: AddSaleM
           </DialogTitle>
         </DialogHeader>
         
-        {/* Sélecteur de client - obligatoire */}
+        {/* Sélecteur de client avec recherche */}
         <div className="mb-4">
-          <Label htmlFor="client-select" className="block text-sm font-medium mb-1">Sélectionner un client *</Label>
-          <Select
-            value={selectedClientId}
+          <ClientSelect
+            value={selectedClientId || ""}
             onValueChange={setSelectedClientId}
+            clients={projectClients as any[]}
             disabled={projectClients.length === 0}
-          >
-            <SelectTrigger id="client-select" className="w-full">
-              <SelectValue placeholder="Sélectionner un client" />
-            </SelectTrigger>
-            <SelectContent>
-              {projectClients.length > 0 ? (
-                projectClients.map((client) => (
-                  <SelectItem key={client.id} value={client.id}>
-                    {client.name}
-                  </SelectItem>
-                ))
-              ) : (
-                <SelectItem value="no-client" disabled>
-                  Aucun client disponible
-                </SelectItem>
-              )}
-            </SelectContent>
-          </Select>
+            label="Sélectionner un client *"
+            placeholder="Sélectionner un client"
+            withSearch={true}
+          />
         </div>
 
         <ProjectSalesForm 

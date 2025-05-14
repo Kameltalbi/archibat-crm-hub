@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
@@ -245,28 +244,6 @@ const ProjectSalesForm = ({
       )}
       
       <div className="grid gap-4">
-        {/* Client */}
-        <div>
-          <Label htmlFor="client">Client *</Label>
-          <Select
-            value={formData.clientId}
-            onValueChange={(value) => handleChange("clientId", value)}
-          >
-            <SelectTrigger id="client" className="mt-1">
-              <SelectValue placeholder="Sélectionner un client" />
-            </SelectTrigger>
-            <SelectContent>
-              {clients && clients.length > 0 ? (
-                clients.map(client => (
-                  <SelectItem key={client.id} value={client.id}>{client.name}</SelectItem>
-                ))
-              ) : (
-                <SelectItem value="no-client" disabled>Aucun client</SelectItem>
-              )}
-            </SelectContent>
-          </Select>
-        </div>
-
         {/* Libellé */}
         <div>
           <Label htmlFor="label">Libellé *</Label>
@@ -298,12 +275,12 @@ const ProjectSalesForm = ({
             <SelectTrigger id="product" className="mt-1">
               <SelectValue placeholder={isLoading ? "Chargement..." : "Sélectionner un produit"} />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="max-h-60 overflow-y-auto">
               {isLoading ? (
                 <SelectItem value="loading" disabled>Chargement des produits...</SelectItem>
               ) : availableProducts.length > 0 ? (
                 availableProducts.map((product) => (
-                  <SelectItem key={product.id} value={product.id}>
+                  <SelectItem key={product.id} value={product.id} className="py-2">
                     {product.name} - {product.price} DT
                     {product.categories && ` (${product.categories.name})`}
                   </SelectItem>
