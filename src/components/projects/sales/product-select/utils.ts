@@ -25,6 +25,24 @@ export const filterAvailableProducts = (products: any[], selectedProductIds: str
 };
 
 /**
+ * Strictly filters products by project category
+ * @param products - All available products
+ * @param projectCategory - The project category name
+ * @returns Filtered list of products matching the project category
+ */
+export const filterProductsByProjectCategory = (products: any[], projectCategory: string | undefined) => {
+  if (!projectCategory) return products;
+  
+  // Filter products that match the exact project category
+  const filteredProducts = products.filter(product => {
+    const productCategory = product.category || product.categories?.name || null;
+    return productCategory === projectCategory;
+  });
+  
+  return filteredProducts;
+};
+
+/**
  * Maps category names between project categories and product categories
  * for improved product filtering
  * @param projectCategory - The project category name
