@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -11,6 +10,7 @@ import PriceField from "@/components/projects/sales/PriceField";
 import DatePickerField from "@/components/projects/sales/DatePickerField";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { mapCategoryNames } from "./product-select/utils";
 
 interface Client {
   id: string;
@@ -110,14 +110,12 @@ const AddSaleDialog = ({
       try {
         console.log(`Chargement des produits pour la catégorie: ${projectCategory || "toutes catégories"}`);
         
-        // Si une catégorie est spécifiée, essayer de trouver les produits correspondants
-        const categoryFilter = projectCategory 
-          ? await fetchCategoryId(projectCategory)
-          : null;
-          
-        console.log("ID de catégorie trouvé:", categoryFilter);
+        // Utiliser le mappage de catégories pour trouver des catégories associées
+        const relatedCategories = mapCategoryNames(projectCategory);
+        console.log("Recherche de produits dans ces catégories:", relatedCategories);
         
-        let query = supabase
+        // Récupérer tous les produits avec leurs catégories
+        const { data, error } = await supabase
           .from('products')
           .select(`
             id, 
@@ -126,19 +124,29 @@ const AddSaleDialog = ({
             categories:category_id (id, name)
           `)
           .order('name');
-          
-        // Filtrer par catégorie si nous avons un ID
-        if (categoryFilter) {
-          query = query.eq('category_id', categoryFilter);
-        }
-        
-        const { data, error } = await query;
         
         if (error) throw error;
         
-        console.log(`${data?.length || 0} produits trouvés:`, data);
+        // Si nous avons des catégories associées, filtrer les produits
+        let filteredProducts = data || [];
+        if (relatedCategories.length > 0) {
+          filteredProducts = filteredProducts.filter(product => 
+            product.categories && relatedCategories.includes(product.categories.name)
+          );
+          
+          console.log(`${filteredProducts.length} produits trouvés dans les catégories associées`);
+        }
         
-        const formattedProducts = (data || []).map(product => ({
+        // Si aucun produit n'est trouvé dans les catégories associées, utiliser tous les produits
+        if (filteredProducts.length === 0) {
+          console.log("Aucun produit trouvé dans les catégories associées, utilisation de tous les produits");
+          filteredProducts = data || [];
+        }
+        
+        console.log(`${filteredProducts.length} produits trouvés au total`);
+        
+        // Formater les produits pour l'interface
+        const formattedProducts = filteredProducts.map(product => ({
           id: product.id,
           name: product.name,
           price: product.price,
@@ -146,26 +154,9 @@ const AddSaleDialog = ({
         }));
         
         setProducts(formattedProducts);
-        console.log("Produits formattés:", formattedProducts);
+        console.log("Produits disponibles pour la sélection:", formattedProducts.length);
       } catch (error) {
         console.error('Erreur lors du chargement des produits:', error);
-      }
-    };
-    
-    // Fonction pour récupérer l'ID de catégorie à partir du nom
-    const fetchCategoryId = async (categoryName: string): Promise<string | null> => {
-      try {
-        const { data, error } = await supabase
-          .from('categories')
-          .select('id')
-          .ilike('name', categoryName)
-          .maybeSingle();
-          
-        if (error) throw error;
-        return data?.id || null;
-      } catch (error) {
-        console.error(`Erreur lors de la récupération de l'ID de catégorie ${categoryName}:`, error);
-        return null;
       }
     };
     

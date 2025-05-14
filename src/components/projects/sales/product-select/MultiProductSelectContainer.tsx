@@ -4,7 +4,7 @@ import { Label } from "@/components/ui/label";
 import { Product, SelectedProduct } from "./types";
 import SelectedProducts from "./SelectedProducts";
 import ProductSelector from "./ProductSelector";
-import { filterAvailableProducts } from "./utils";
+import { filterAvailableProducts, mapCategoryNames } from "./utils";
 
 interface MultiProductSelectContainerProps {
   products: Product[];
@@ -27,9 +27,11 @@ const MultiProductSelectContainer = ({
     const selectedProductIds = selectedProducts.map(p => p.id);
     let availableProducts = filterAvailableProducts(products, selectedProductIds);
     
-    // Log for debugging
+    // Utiliser le mappage de catégories pour améliorer la correspondance
+    const relatedCategories = mapCategoryNames(projectCategory);
     console.log(`Total available products: ${availableProducts.length}`, availableProducts);
     console.log(`Project category: ${projectCategory}`);
+    console.log(`Related categories: ${relatedCategories.join(", ")}`);
     
     // Set filtered products
     setFilteredProducts(availableProducts);
