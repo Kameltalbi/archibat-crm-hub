@@ -340,11 +340,13 @@ export type Database = {
           client_name: string | null
           created_at: string
           date: string
+          expected_date: string | null
           id: string
           label: string
           product_name: string | null
           project_id: string
           remarks: string | null
+          status: string | null
           updated_at: string
         }
         Insert: {
@@ -353,11 +355,13 @@ export type Database = {
           client_name?: string | null
           created_at?: string
           date?: string
+          expected_date?: string | null
           id?: string
           label: string
           product_name?: string | null
           project_id: string
           remarks?: string | null
+          status?: string | null
           updated_at?: string
         }
         Update: {
@@ -366,11 +370,13 @@ export type Database = {
           client_name?: string | null
           created_at?: string
           date?: string
+          expected_date?: string | null
           id?: string
           label?: string
           product_name?: string | null
           project_id?: string
           remarks?: string | null
+          status?: string | null
           updated_at?: string
         }
         Relationships: [

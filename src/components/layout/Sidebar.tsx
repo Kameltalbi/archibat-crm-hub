@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import {
   Sheet,
@@ -21,6 +20,7 @@ import {
   LineChart,
   Wallet,
   ChevronRight, // Keep the chevron icon for dropdown
+  BarChart3,
 } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { NavLink, useLocation } from "react-router-dom";
@@ -74,10 +74,11 @@ const Sidebar = () => {
     { id: 4, title: "Produits", icon: <Package size={18} />, path: "/dashboard/products" },
     { id: 5, title: "Plan de trésorerie", icon: <LineChart size={18} />, path: "/dashboard/treasury-plan" },
     { id: 6, title: "Dépenses", icon: <Wallet size={18} />, path: "/dashboard/expenses" },
-    { id: 7, title: "Calendrier", icon: <CalendarIcon size={18} />, path: "/dashboard/calendar" },
-    { id: 8, title: "Congés", icon: <Briefcase size={18} />, path: "/dashboard/leaves" },
-    { id: 9, title: "Paramètres", icon: <SettingsIcon size={18} />, path: "/dashboard/settings" },
-    { id: 10, title: "Documentation", icon: <Book size={18} />, path: "/dashboard/documentation" },
+    { id: 7, title: "Prévisions des ventes", icon: <BarChart3 size={18} />, path: "/dashboard/sales-forecast" },
+    { id: 8, title: "Calendrier", icon: <CalendarIcon size={18} />, path: "/dashboard/calendar" },
+    { id: 9, title: "Congés", icon: <Briefcase size={18} />, path: "/dashboard/leaves" },
+    { id: 10, title: "Paramètres", icon: <SettingsIcon size={18} />, path: "/dashboard/settings" },
+    { id: 11, title: "Documentation", icon: <Book size={18} />, path: "/dashboard/documentation" },
   ];
 
   // Render a menu item or submenu

@@ -15,6 +15,7 @@ import Settings from "./pages/Settings";
 import Documentation from "./pages/Documentation";
 import TreasuryPlan from "./pages/TreasuryPlan";
 import Expenses from "./pages/Expenses";
+import SalesForecastPage from "./pages/SalesForecastPage";
 import { Toaster } from "./components/ui/toaster";
 import { SidebarProvider } from "./components/ui/sidebar";
 import { useState, useEffect } from "react";
@@ -65,6 +66,7 @@ const App = () => {
             <Route path="leaves" element={<Leaves />} />
             <Route path="treasury-plan" element={<TreasuryPlan />} />
             <Route path="expenses" element={<Expenses />} />
+            <Route path="sales-forecast" element={<SalesForecastPage />} />
             <Route path="settings" element={<Settings />} />
             <Route path="documentation" element={<Documentation />} />
           </Route>
