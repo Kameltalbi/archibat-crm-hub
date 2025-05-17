@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import {
   Sheet,
@@ -30,6 +31,16 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 
+// Define a proper type for menu items
+interface MenuItem {
+  id: number;
+  title: string;
+  icon: React.ReactNode;
+  path: string;
+  hasSubItems?: boolean;
+  subItems?: MenuItem[];
+}
+
 const Sidebar = () => {
   const location = useLocation();
   const { open, setOpen, openMobile, setOpenMobile } = useSidebar();
@@ -56,7 +67,7 @@ const Sidebar = () => {
     setOpenMobile(false); // Ferme la sidebar après avoir cliqué sur un élément (sur mobile)
   };
 
-  const menuItems = [
+  const menuItems: MenuItem[] = [
     { id: 1, title: "Tableau de bord", icon: <Home size={18} />, path: "/dashboard" },
     { id: 2, title: "Clients", icon: <Users size={18} />, path: "/dashboard/clients" },
     { id: 3, title: "Projets", icon: <Briefcase size={18} />, path: "/dashboard/projects" },
@@ -70,7 +81,7 @@ const Sidebar = () => {
   ];
 
   // Render a menu item or submenu
-  const renderMenuItem = (item: any) => {
+  const renderMenuItem = (item: MenuItem) => {
     if (item.hasSubItems) {
       return (
         <li key={item.id} className="group/menu-item relative">
@@ -91,7 +102,7 @@ const Sidebar = () => {
               </button>
             </CollapsibleTrigger>
             <CollapsibleContent>
-              {isHovered && item.subItems?.map((subItem: any) => (
+              {isHovered && item.subItems?.map((subItem: MenuItem) => (
                 <NavLink
                   key={subItem.id}
                   to={subItem.path}
