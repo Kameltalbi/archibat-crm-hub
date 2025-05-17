@@ -1,111 +1,140 @@
+
 import { useEffect, useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { supabase } from "@/lib/supabase";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line } from 'recharts';
-import { Briefcase, CircleDollarSign, TrendingUp } from "lucide-react";
+import { 
+  BarChart, 
+  Bar, 
+  XAxis, 
+  YAxis, 
+  CartesianGrid, 
+  Tooltip, 
+  ResponsiveContainer, 
+  PieChart, 
+  Pie, 
+  Cell, 
+  LineChart, 
+  Line,
+  Legend 
+} from 'recharts';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import DashboardSummary from "@/components/dashboard/DashboardSummary";
+import RecentProjects from "@/components/dashboard/RecentProjects";
+import { expenseService } from "@/services/expenseService";
+import { salesForecastService } from "@/services/salesForecastService";
 
 const Dashboard = () => {
   const [currentYear, setCurrentYear] = useState<number>(new Date().getFullYear());
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [stats, setStats] = useState({
-    totalProjects: 0,
-    activeProjects: 0,
-    totalSales: 0,
-    totalObjectives: 0
-  });
-  const [projectsByCategory, setProjectsByCategory] = useState<any[]>([]);
-  const [monthlyObjectives, setMonthlyObjectives] = useState<any[]>([]);
-  const [monthlySalesVsObjectives, setMonthlySalesVsObjectives] = useState<any[]>([]);
+  const [monthlySales, setMonthlySales] = useState<any[]>([]);
+  const [monthlyExpenses, setMonthlyExpenses] = useState<any[]>([]);
+  const [projectProfitability, setProjectProfitability] = useState<any[]>([]);
+  const [expensesByCategory, setExpensesByCategory] = useState<any[]>([]);
 
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
         setIsLoading(true);
         
-        // Récupérer tous les projets
+        // 1. Monthly Sales Forecast data (bar chart)
+        const salesData = await salesForecastService.getAllMonthlyForecasts(currentYear);
+        const monthNames = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil', 'Août', 'Sept', 'Oct', 'Nov', 'Déc'];
+        
+        const formattedSalesData = salesData.map(item => ({
+          name: monthNames[item.month - 1],
+          amount: item.totalAmount
+        }));
+        
+        setMonthlySales(formattedSalesData);
+        
+        // 2. Monthly Expenses data (line chart)
+        const { data: expensesData, error: expensesError } = await supabase
+          .from('expenses')
+          .select('amount, date')
+          .gte('date', `${currentYear}-01-01`)
+          .lte('date', `${currentYear}-12-31`);
+          
+        if (expensesError) throw expensesError;
+        
+        // Group expenses by month
+        const expensesByMonth = Array(12).fill(0).map((_, i) => ({
+          name: monthNames[i],
+          amount: 0
+        }));
+        
+        (expensesData || []).forEach(expense => {
+          const date = new Date(expense.date);
+          const month = date.getMonth();
+          expensesByMonth[month].amount += Number(expense.amount);
+        });
+        
+        setMonthlyExpenses(expensesByMonth);
+        
+        // 3. Project Profitability data (bar chart)
         const { data: projectsData, error: projectsError } = await supabase
           .from('projects')
-          .select('*');
-        
+          .select('id, name, target_revenue')
+          .limit(6); // Limit to keep the chart readable
+          
         if (projectsError) throw projectsError;
         
-        // Calculer les statistiques
-        const totalProjects = projectsData?.length || 0;
-        const activeProjects = projectsData?.filter(p => p.status === 'En cours').length || 0;
-        const totalObjectives = projectsData?.reduce((sum, proj) => sum + (proj.target_revenue || 0), 0) || 0;
+        // For each project, get sales and expenses
+        const profitabilityData = [];
         
-        // Récupérer les ventes
-        const { data: salesData, error: salesError } = await supabase
-          .from('project_sales')
-          .select('*');
+        for (const project of projectsData || []) {
+          // Get sales for this project
+          const { data: projectSales, error: salesError } = await supabase
+            .from('project_sales')
+            .select('amount')
+            .eq('project_id', project.id);
+            
+          if (salesError) throw salesError;
           
-        if (salesError) throw salesError;
+          const totalSales = (projectSales || []).reduce((sum, sale) => sum + Number(sale.amount), 0);
+          
+          // We don't have direct project expenses in the schema,
+          // So we'll use the target_revenue as a proxy for cost+profit
+          // and calculate a simulated profitability
+          const simulatedCost = project.target_revenue ? project.target_revenue * 0.7 : 0; // Assume 70% cost
+          const profit = totalSales - simulatedCost;
+          
+          profitabilityData.push({
+            name: project.name,
+            profit: profit,
+            sales: totalSales,
+            costs: simulatedCost
+          });
+        }
         
-        const totalSales = salesData?.reduce((sum, sale) => sum + (sale.amount || 0), 0) || 0;
+        setProjectProfitability(profitabilityData);
         
-        setStats({
-          totalProjects,
-          activeProjects,
-          totalSales,
-          totalObjectives
+        // 4. Expenses by Category (pie chart)
+        const { data: categorizedExpenses, error: catError } = await supabase
+          .from('expenses')
+          .select(`
+            amount,
+            expense_categories(name)
+          `);
+          
+        if (catError) throw catError;
+        
+        // Group expenses by category
+        const expenseCategories = new Map();
+        
+        (categorizedExpenses || []).forEach(expense => {
+          const categoryName = expense.expense_categories?.name || 'Non catégorisé';
+          const currentAmount = expenseCategories.get(categoryName) || 0;
+          expenseCategories.set(categoryName, currentAmount + Number(expense.amount));
         });
         
-        // Préparer les données pour le graphique par catégorie
-        const categoriesMap = new Map();
-        projectsData?.forEach(project => {
-          if (project.category) {
-            const currentCount = categoriesMap.get(project.category) || 0;
-            categoriesMap.set(project.category, currentCount + 1);
-          }
-        });
-        
-        const categoryData = Array.from(categoriesMap).map(([name, count]) => ({ 
-          name, 
-          value: count 
+        const categoryData = Array.from(expenseCategories.entries()).map(([name, value]) => ({
+          name,
+          value
         }));
-        setProjectsByCategory(categoryData);
         
-        // Préparer les données pour les objectifs mensuels
-        const monthNames = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil', 'Août', 'Sept', 'Oct', 'Nov', 'Déc'];
-        const objectivesByMonth = monthNames.map(name => ({ name, objectives: 0 }));
+        setExpensesByCategory(categoryData);
         
-        projectsData?.forEach(project => {
-          if (project.start_date && project.target_revenue) {
-            const startDate = new Date(project.start_date);
-            const month = startDate.getMonth();
-            objectivesByMonth[month].objectives += project.target_revenue;
-          }
-        });
-        setMonthlyObjectives(objectivesByMonth);
-        
-        // Préparer les données pour le graphique de progression ventes vs objectifs par mois
-        const monthlyData = monthNames.map(name => ({ 
-          name, 
-          objectives: 0,
-          sales: 0
-        }));
-
-        // Ajouter les objectifs par mois
-        projectsData?.forEach(project => {
-          if (project.start_date && project.target_revenue) {
-            const startDate = new Date(project.start_date);
-            const month = startDate.getMonth();
-            monthlyData[month].objectives += project.target_revenue;
-          }
-        });
-
-        // Ajouter les ventes par mois
-        salesData?.forEach(sale => {
-          if (sale.date) {
-            const saleDate = new Date(sale.date);
-            const month = saleDate.getMonth();
-            monthlyData[month].sales += sale.amount;
-          }
-        });
-
-        setMonthlySalesVsObjectives(monthlyData);
       } catch (err) {
         console.error("Erreur lors du chargement des données du dashboard:", err);
       } finally {
@@ -114,10 +143,10 @@ const Dashboard = () => {
     };
 
     fetchDashboardData();
-  }, []);
+  }, [currentYear]);
 
-  // Nouvelles couleurs inspirées de l'image
-  const COLORS = ['#764AF1', '#2CE5A7', '#FF6B6B', '#FFB347', '#50C4ED'];
+  // Modern color palette with updated colors
+  const CHART_COLORS = ['#3D8BFF', '#00B88D', '#FFC107', '#F44336', '#764AF1', '#50C4ED'];
 
   return (
     <div className="space-y-8">
@@ -126,7 +155,7 @@ const Dashboard = () => {
         <p className="text-muted-foreground">Vue d'ensemble de votre activité pour {currentYear}</p>
       </div>
       
-      {/* Ajout du DashboardSummary en haut avec les KPIs */}
+      {/* KPI Summary Cards */}
       <DashboardSummary isLoading={isLoading} />
       
       {isLoading ? (
@@ -135,104 +164,139 @@ const Dashboard = () => {
         </div>
       ) : (
         <>
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {/* Graphique 1: Répartition projets par catégorie */}
-            <Card className="col-span-1">
-              <CardHeader>
-                <CardTitle>Projets par catégorie</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="h-[300px]">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <PieChart>
-                      <Pie
-                        data={projectsByCategory}
-                        cx="50%"
-                        cy="50%"
-                        labelLine={false}
-                        outerRadius={80}
-                        fill="#8884d8"
-                        dataKey="value"
-                        label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
-                      >
-                        {projectsByCategory.map((entry, index) => (
-                          <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                        ))}
-                      </Pie>
-                      <Tooltip formatter={(value) => [`${value} projets`]} />
-                    </PieChart>
-                  </ResponsiveContainer>
+          <div className="grid gap-6 md:grid-cols-2">
+            {/* Chart 1: Monthly Sales Forecast (Bar Chart) */}
+            <Card className="col-span-1 md:col-span-2">
+              <CardHeader className="flex flex-row justify-between items-center">
+                <div>
+                  <CardTitle>Ventes prévues par mois</CardTitle>
+                  <CardDescription>Prévisions du CA mensuel pour {currentYear}</CardDescription>
                 </div>
-              </CardContent>
-            </Card>
-
-            {/* Graphique 2: Objectifs CA par mois */}
-            <Card className="col-span-1 lg:col-span-2">
-              <CardHeader>
-                <CardTitle>Objectifs CA par mois</CardTitle>
+                <Button variant="outline" size="sm" asChild>
+                  <a href="/dashboard/sales-forecast">Voir détails</a>
+                </Button>
               </CardHeader>
               <CardContent>
-                <div className="h-[300px]">
+                <div className="h-80">
                   <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={monthlyObjectives}>
+                    <BarChart data={monthlySales}>
                       <CartesianGrid strokeDasharray="3 3" />
                       <XAxis dataKey="name" />
                       <YAxis tickFormatter={(value) => `${value / 1000}k`} />
-                      <Tooltip formatter={(value) => [`${value.toLocaleString()} TND`, 'Objectif CA']} />
-                      <Bar dataKey="objectives" fill="#2CE5A7" />
+                      <Tooltip formatter={(value) => [`${Number(value).toLocaleString()} TND`, 'CA prévu']} />
+                      <Bar dataKey="amount" fill="#3D8BFF" name="CA prévu" />
                     </BarChart>
                   </ResponsiveContainer>
                 </div>
               </CardContent>
             </Card>
 
-            {/* Graphique 3: Courbe Ventes vs Objectifs par mois */}
-            <Card className="col-span-1 lg:col-span-3">
-              <CardHeader>
-                <CardTitle>Ventes vs Objectifs par mois</CardTitle>
+            {/* Chart 2: Monthly Expenses (Line Chart) */}
+            <Card>
+              <CardHeader className="flex flex-row justify-between items-center">
+                <div>
+                  <CardTitle>Dépenses prévues par mois</CardTitle>
+                  <CardDescription>Evolution des charges mensuelles</CardDescription>
+                </div>
+                <Button variant="outline" size="sm" asChild>
+                  <a href="/dashboard/expenses">Voir détails</a>
+                </Button>
               </CardHeader>
               <CardContent>
-                <div className="h-[300px]">
-                  <ChartContainer
-                    config={{
-                      objectives: { color: "#FF6B6B" },
-                      sales: { color: "#2CE5A7" }
-                    }}
-                  >
-                    <LineChart data={monthlySalesVsObjectives}>
+                <div className="h-72">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <LineChart data={monthlyExpenses}>
                       <CartesianGrid strokeDasharray="3 3" />
                       <XAxis dataKey="name" />
                       <YAxis tickFormatter={(value) => `${value / 1000}k`} />
-                      <ChartTooltip
-                        content={
-                          <ChartTooltipContent
-                            formatter={(value: any) => 
-                              `${parseInt(value).toLocaleString()} TND`
-                            }
-                          />
-                        }
-                      />
+                      <Tooltip formatter={(value) => [`${Number(value).toLocaleString()} TND`, 'Dépenses']} />
                       <Line 
                         type="monotone" 
-                        dataKey="objectives" 
-                        name="Objectifs" 
-                        stroke="#FF6B6B" 
-                        strokeWidth={2}
-                      />
-                      <Line 
-                        type="monotone" 
-                        dataKey="sales" 
-                        name="Ventes" 
-                        stroke="#2CE5A7" 
-                        strokeWidth={2}
-                        activeDot={{ r: 8 }}
+                        dataKey="amount" 
+                        stroke="#F44336" 
+                        strokeWidth={2} 
+                        name="Dépenses"
+                        activeDot={{ r: 8 }} 
                       />
                     </LineChart>
-                  </ChartContainer>
+                  </ResponsiveContainer>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Chart 3: Expense Categories (Pie Chart) */}
+            <Card>
+              <CardHeader className="flex flex-row justify-between items-center">
+                <div>
+                  <CardTitle>Dépenses par catégorie</CardTitle>
+                  <CardDescription>Répartition des charges par type</CardDescription>
+                </div>
+                <Button variant="outline" size="sm" asChild>
+                  <a href="/dashboard/expense-categories">Voir détails</a>
+                </Button>
+              </CardHeader>
+              <CardContent>
+                <div className="h-72">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie
+                        data={expensesByCategory}
+                        cx="50%"
+                        cy="50%"
+                        labelLine={false}
+                        outerRadius={80}
+                        fill="#8884d8"
+                        dataKey="value"
+                        nameKey="name"
+                        label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                      >
+                        {expensesByCategory.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={CHART_COLORS[index % CHART_COLORS.length]} />
+                        ))}
+                      </Pie>
+                      <Tooltip formatter={(value) => [`${Number(value).toLocaleString()} TND`]} />
+                      <Legend />
+                    </PieChart>
+                  </ResponsiveContainer>
                 </div>
               </CardContent>
             </Card>
           </div>
+
+          {/* Chart 4: Project Profitability (Bar Chart) */}
+          <Card>
+            <CardHeader className="flex flex-row justify-between items-center">
+              <div>
+                <CardTitle>Rentabilité par projet</CardTitle>
+                <CardDescription>CA vs coûts par projet</CardDescription>
+              </div>
+              <Button variant="outline" size="sm" asChild>
+                <a href="/dashboard/projects">Voir tous les projets</a>
+              </Button>
+            </CardHeader>
+            <CardContent>
+              <div className="h-80">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart 
+                    data={projectProfitability}
+                    margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="name" />
+                    <YAxis tickFormatter={(value) => `${value / 1000}k`} />
+                    <Tooltip formatter={(value) => [`${Number(value).toLocaleString()} TND`]} />
+                    <Legend />
+                    <Bar dataKey="sales" fill="#3D8BFF" name="Ventes" />
+                    <Bar dataKey="costs" fill="#F44336" name="Coûts" />
+                    <Bar dataKey="profit" fill="#00B88D" name="Profit" />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Recent Projects Section */}
+          <RecentProjects />
         </>
       )}
     </div>

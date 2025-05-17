@@ -17,6 +17,9 @@ const Layout = () => {
             <Outlet />
           </div>
         </main>
+        <div className="py-2 px-4 text-xs text-center text-muted-foreground bg-background dark:bg-bluegray-deep border-t border-border">
+          abc-crmv1 © {new Date().getFullYear()} — Tableau de bord professionnel
+        </div>
       </div>
     </div>
   );
