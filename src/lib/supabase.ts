@@ -49,15 +49,7 @@ export interface Product {
   updated_at: string;
 }
 
-export type ProjectStatus = 'planned' | 'in_progress' | 'completed' | 'cancelled';
-
-// Extended type to include etape_pipeline for UI purposes
-export interface ProjectWithProgress extends Project {
-  etape_pipeline?: string;
-  client_name?: string;
-  objectif_ca?: number;
-  montant_realise?: number;
-}
+export type ProjectStatus = 'En cours' | 'Planifié' | 'Terminé' | 'Suspendu';
 
 export interface Project {
   id: string;
@@ -71,11 +63,6 @@ export interface Project {
   created_at: string;
   updated_at: string;
   target_revenue: number | null; // Ajout du champ objectif CA
-  // Add the clients property to match what's returned from the join query
-  clients?: {
-    name: string | null;
-    id?: string;
-  };
 }
 
 export interface ProjectProduct {
