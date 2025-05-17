@@ -134,8 +134,8 @@ export const expenseService = {
       .from('expenses')
       .select(`
         *,
-        expense_categories!expense_categories (name),
-        expense_subcategories!expense_subcategories (name)
+        expense_categories(name),
+        expense_subcategories(name)
       `)
       .order('date', { ascending: false });
     
@@ -158,8 +158,8 @@ export const expenseService = {
       .from('expenses')
       .select(`
         *,
-        expense_categories!expense_categories (name),
-        expense_subcategories!expense_subcategories (name)
+        expense_categories(name),
+        expense_subcategories(name)
       `)
       .gte('date', startDate)
       .lte('date', endDate)
@@ -176,5 +176,47 @@ export const expenseService = {
       category_name: item.expense_categories?.name,
       subcategory_name: item.expense_subcategories?.name
     }));
+  },
+
+  // Nouvelles méthodes pour les KPI du dashboard
+  
+  // Obtenir le total des dépenses pour le mois en cours
+  async getCurrentMonthExpenses(): Promise<number> {
+    const today = new Date();
+    const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1).toISOString().split('T')[0];
+    const lastDayOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0).toISOString().split('T')[0];
+    
+    const { data, error } = await supabase
+      .from('expenses')
+      .select('amount')
+      .gte('date', firstDayOfMonth)
+      .lte('date', lastDayOfMonth);
+    
+    if (error) {
+      console.error('Erreur lors de la récupération des dépenses du mois:', error);
+      throw error;
+    }
+    
+    return (data || []).reduce((sum, expense) => sum + expense.amount, 0);
+  },
+  
+  // Obtenir le total des dépenses pour le mois précédent
+  async getPreviousMonthExpenses(): Promise<number> {
+    const today = new Date();
+    const firstDayOfPrevMonth = new Date(today.getFullYear(), today.getMonth() - 1, 1).toISOString().split('T')[0];
+    const lastDayOfPrevMonth = new Date(today.getFullYear(), today.getMonth(), 0).toISOString().split('T')[0];
+    
+    const { data, error } = await supabase
+      .from('expenses')
+      .select('amount')
+      .gte('date', firstDayOfPrevMonth)
+      .lte('date', lastDayOfPrevMonth);
+    
+    if (error) {
+      console.error('Erreur lors de la récupération des dépenses du mois précédent:', error);
+      throw error;
+    }
+    
+    return (data || []).reduce((sum, expense) => sum + expense.amount, 0);
   }
 };
