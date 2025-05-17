@@ -8,7 +8,7 @@ const Layout = () => {
   const isMobile = useIsMobile();
   
   return (
-    <div className="min-h-screen w-full flex flex-col md:flex-row bg-beige dark:bg-matte-black">
+    <div className="min-h-screen w-full flex flex-col md:flex-row bg-light-bg dark:bg-bluegray-deep">
       <AppSidebar />
       <div className="flex-1 flex flex-col w-full overflow-hidden">
         <Header />

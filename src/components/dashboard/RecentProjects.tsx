@@ -41,9 +41,9 @@ const RecentProjects = () => {
   }, []);
 
   const statusColors = {
-    "En cours": "bg-terracotta text-white",
-    "Planifié": "bg-ocre text-white",
-    "Terminé": "bg-light-gray text-dark-gray",
+    "En cours": "bg-blue-accent text-white",
+    "Planifié": "bg-gold-yellow text-title-dark",
+    "Terminé": "bg-mint-green text-white",
     "Suspendu": "bg-gray-500 text-white",
   };
 
@@ -70,7 +70,7 @@ const RecentProjects = () => {
               {projects.map((project) => (
                 <TableRow key={project.id}>
                   <TableCell className="font-medium">
-                    <Link to={`/dashboard/projects/${project.id}`} className="hover:underline text-blue-600">
+                    <Link to={`/dashboard/projects/${project.id}`} className="hover:underline text-blue-accent">
                       {project.name}
                     </Link>
                   </TableCell>

@@ -5,83 +5,83 @@
 
 @layer base {
   :root {
-    --background: 42 40% 93%; /* Beige #F5F0E6 */
-    --foreground: 0 0% 18%; /* Charcoal #2D2D2D */
+    --background: 210 30% 97%; /* Light BG #F4F6F8 */
+    --foreground: 210 35% 18%; /* Title Dark #1E2A3A */
 
     --card: 0 0% 100%;
-    --card-foreground: 0 0% 18%;
+    --card-foreground: 210 35% 18%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 18%;
+    --popover-foreground: 210 35% 18%;
 
-    --primary: 10 72% 62%; /* Terracotta #E26D5A */
+    --primary: 217 100% 62%; /* Blue Accent #3D8BFF */
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 22 46% 45%; /* Ocre #A65F3D */
+    --secondary: 217 100% 40%; /* Darker Blue for secondary */
     --secondary-foreground: 0 0% 100%;
 
-    --muted: 0 0% 88%;
+    --muted: 210 30% 97%;
     --muted-foreground: 0 0% 40%;
 
-    --accent: 0 0% 88%;
-    --accent-foreground: 0 0% 18%;
+    --accent: 217 100% 62%;
+    --accent-foreground: 0 0% 100%;
 
-    --destructive: 0 84% 60%;
+    --destructive: 4 89% 58%; /* Alert Red #F44336 */
     --destructive-foreground: 0 0% 100%;
 
-    --border: 0 0% 88%; /* Light Gray #E0E0E0 */
-    --input: 0 0% 88%;
-    --ring: 10 72% 62%;
+    --border: 210 30% 90%; /* Light Gray for borders */
+    --input: 210 30% 90%;
+    --ring: 217 100% 62%;
 
     --radius: 0.375rem;
     
-    --sidebar-background: 200 9% 41%; /* Menu background #5C6B74 */
-    --sidebar-foreground: 0 0% 88%; /* Light Gray #E0E0E0 */
-    --sidebar-primary: 10 72% 62%; /* Terracotta #E26D5A */
+    --sidebar-background: 220 33% 27%; /* BlueGray Deep #2E3A59 */
+    --sidebar-foreground: 0 0% 100%; /* White */
+    --sidebar-primary: 217 100% 62%; /* Blue Accent #3D8BFF */
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 22 46% 45%; /* Ocre #A65F3D */
+    --sidebar-accent: 217 100% 62%; /* Blue Accent #3D8BFF */
     --sidebar-accent-foreground: 0 0% 100%;
-    --sidebar-border: 0 0% 18%; /* Charcoal #2D2D2D */
-    --sidebar-ring: 10 72% 62%;
+    --sidebar-border: 220 33% 22%; /* Darker BlueGray for borders */
+    --sidebar-ring: 217 100% 62%;
   }
 
   .dark {
-    --background: 0 0% 11%; /* Matte Black #1C1C1C */
+    --background: 220 33% 12%; /* Darker version of BlueGray for BG */
     --foreground: 0 0% 88%; /* Light Gray #E0E0E0 */
 
-    --card: 0 0% 24%; /* Dark Gray #3C3C3C */
+    --card: 220 33% 17%; /* Slightly lighter than background */
     --card-foreground: 0 0% 88%;
 
-    --popover: 0 0% 24%;
+    --popover: 220 33% 17%;
     --popover-foreground: 0 0% 88%;
 
-    --primary: 10 72% 62%; /* Terracotta #E26D5A */
+    --primary: 217 100% 62%; /* Blue Accent #3D8BFF */
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 22 46% 45%; /* Ocre #A65F3D */
+    --secondary: 217 100% 40%; /* Darker Blue for secondary */
     --secondary-foreground: 0 0% 100%;
 
-    --muted: 0 0% 24%;
+    --muted: 220 33% 17%;
     --muted-foreground: 0 0% 63%;
 
-    --accent: 0 0% 24%;
+    --accent: 217 100% 62%;
     --accent-foreground: 0 0% 88%;
 
-    --destructive: 0 62% 30%;
+    --destructive: 4 89% 38%; /* Darker Alert Red */
     --destructive-foreground: 0 0% 88%;
 
-    --border: 0 0% 24%;
-    --input: 0 0% 24%;
-    --ring: 10 72% 62%;
+    --border: 220 33% 17%;
+    --input: 220 33% 17%;
+    --ring: 217 100% 62%;
     
-    --sidebar-background: 200 9% 41%; /* Menu background #5C6B74 */
+    --sidebar-background: 220 33% 27%; /* BlueGray Deep #2E3A59 */
     --sidebar-foreground: 0 0% 88%; /* Light Gray #E0E0E0 */
-    --sidebar-primary: 10 72% 62%; /* Terracotta #E26D5A */
+    --sidebar-primary: 217 100% 62%; /* Blue Accent #3D8BFF */
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 22 46% 45%; /* Ocre #A65F3D */
+    --sidebar-accent: 217 100% 62%; /* Blue Accent #3D8BFF */
     --sidebar-accent-foreground: 0 0% 100%;
-    --sidebar-border: 0 0% 11%; /* Matte Black #1C1C1C */
-    --sidebar-ring: 10 72% 62%;
+    --sidebar-border: 220 33% 20%; /* Darker BlueGray for borders */
+    --sidebar-ring: 217 100% 62%;
   }
 }
 
@@ -96,7 +96,7 @@
   }
   
   h1, h2, h3, h4, h5, h6 {
-    @apply font-medium text-charcoal dark:text-light-gray;
+    @apply font-medium text-title-dark dark:text-light-gray;
   }
   
   h1 {

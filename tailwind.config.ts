@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -71,6 +72,16 @@ export default {
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
 				},
+				// Nouvelles couleurs basées sur la palette moderne
+				'bluegray-deep': '#2E3A59',
+				'blue-accent': '#3D8BFF',
+				'mint-green': '#00B88D',
+				'alert-red': '#F44336',
+				'gold-yellow': '#FFC107',
+				'light-bg': '#F4F6F8',
+				'title-dark': '#1E2A3A',
+				'text-gray': '#4A4A4A',
+				// Garder les couleurs précédentes pour la rétrocompatibilité
 				charcoal: '#2D2D2D',
 				'dark-gray': '#3C3C3C',
 				beige: '#F5F0E6',
@@ -78,8 +89,8 @@ export default {
 				ocre: '#A65F3D',
 				'light-gray': '#E0E0E0',
 				'matte-black': '#1C1C1C',
-				'menu-bg': '#5C6B74', 
-				'menu-highlight': '#E1B097'
+				'menu-bg': '#2E3A59', // Mise à jour pour correspondre à la nouvelle palette 
+				'menu-highlight': '#3D8BFF' // Mise à jour pour correspondre à la nouvelle palette
 			},
 			borderRadius: {
 				lg: 'var(--radius)',

@@ -154,8 +154,8 @@ const Sidebar = () => {
           >
             <CollapsibleTrigger asChild>
               <button
-                className={`flex w-full items-center justify-between rounded-md p-2 text-sm font-medium hover:bg-sidebar-accent text-white ${
-                  activeItem === item.id ? "bg-sidebar-accent text-white font-semibold" : "text-white"
+                className={`flex w-full items-center justify-between rounded-md p-2 text-sm font-medium hover:bg-blue-accent text-white ${
+                  activeItem === item.id ? "bg-blue-accent text-white font-semibold" : "text-white"
                 }`}
               >
                 <div className="flex items-center">
@@ -170,8 +170,8 @@ const Sidebar = () => {
                 <NavLink
                   key={subItem.id}
                   to={subItem.path}
-                  className={({ isActive }) => `flex items-center pl-8 py-2 text-sm font-medium hover:bg-sidebar-accent ${
-                    isActive ? "bg-sidebar-accent/50 text-white font-semibold" : "text-white"
+                  className={({ isActive }) => `flex items-center pl-8 py-2 text-sm font-medium hover:bg-blue-accent ${
+                    isActive ? "bg-blue-accent/50 text-white font-semibold" : "text-white"
                   }`}
                   onClick={() => handleItemClick(subItem.id)}
                 >
@@ -187,9 +187,9 @@ const Sidebar = () => {
         <NavLink
           key={item.id}
           to={item.path}
-          className={`flex items-center ${isHovered ? 'justify-start' : 'justify-center'} rounded-md p-2 text-sm font-medium hover:bg-sidebar-accent ${
+          className={`flex items-center ${isHovered ? 'justify-start' : 'justify-center'} rounded-md p-2 text-sm font-medium hover:bg-blue-accent ${
             activeItem === item.id
-              ? "bg-sidebar-accent text-white font-semibold"
+              ? "bg-blue-accent text-white font-semibold"
               : "text-white"
           } transition-all duration-300`}
           onClick={() => handleItemClick(item.id)}
@@ -232,7 +232,7 @@ const Sidebar = () => {
             <Menu className="h-5 w-5" />
           </Button>
         </SheetTrigger>
-        <SheetContent side="left" className="w-3/4 border-r md:hidden bg-sidebar">
+        <SheetContent side="left" className="w-3/4 border-r md:hidden bg-bluegray-deep">
           <SheetHeader className="text-left">
             <SheetTitle className="text-white">Menu</SheetTitle>
             <SheetDescription className="text-gray-400">
@@ -251,9 +251,9 @@ const Sidebar = () => {
                     <NavLink
                       key={item.id}
                       to={item.path}
-                      className={`flex items-center space-x-2 rounded-md p-2 text-sm font-medium hover:bg-sidebar-accent text-white ${
+                      className={`flex items-center space-x-2 rounded-md p-2 text-sm font-medium hover:bg-blue-accent text-white ${
                         activeItem === item.id
-                          ? "bg-sidebar-accent text-white font-semibold"
+                          ? "bg-blue-accent text-white font-semibold"
                           : "text-white"
                       }`}
                       onClick={() => handleItemClick(item.id)}
@@ -274,7 +274,7 @@ const Sidebar = () => {
               </div>
               <Button
                 variant="ghost"
-                className="w-full flex items-center justify-start space-x-2 rounded-md p-2 text-sm font-medium hover:bg-sidebar-accent text-white"
+                className="w-full flex items-center justify-start space-x-2 rounded-md p-2 text-sm font-medium hover:bg-blue-accent text-white"
                 onClick={handleLogout}
               >
                 <LogOut size={18} />
@@ -287,7 +287,7 @@ const Sidebar = () => {
 
       {/* Desktop menu */}
       <div 
-        className="hidden border-r bg-sidebar h-full md:block transition-all duration-300 ease-in-out"
+        className="hidden border-r bg-bluegray-deep h-full md:block transition-all duration-300 ease-in-out"
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
@@ -304,7 +304,7 @@ const Sidebar = () => {
               </div>
             )}
             <button
-              className={`flex items-center ${isHovered ? 'justify-start' : 'justify-center'} w-full rounded-md p-2 text-sm font-medium hover:bg-sidebar-accent text-white transition-all duration-300`}
+              className={`flex items-center ${isHovered ? 'justify-start' : 'justify-center'} w-full rounded-md p-2 text-sm font-medium hover:bg-blue-accent text-white transition-all duration-300`}
               onClick={handleLogout}
             >
               <LogOut size={18} />

@@ -108,7 +108,7 @@ const MobileNavigation = () => {
           <span className="sr-only">Menu</span>
         </Button>
       </SheetTrigger>
-      <SheetContent side="left" className="w-[85%] sm:w-[350px] bg-menu-bg text-white">
+      <SheetContent side="left" className="w-[85%] sm:w-[350px] bg-bluegray-deep text-white">
         <SheetHeader>
           <SheetTitle className="text-white flex items-center justify-center border-b border-sidebar-border pb-4">
             <img 
@@ -124,7 +124,7 @@ const MobileNavigation = () => {
               <SheetClose key={item.path} asChild>
                 <Button 
                   variant="ghost" 
-                  className="justify-start hover:bg-menu-highlight/30 py-6 text-white"
+                  className="justify-start hover:bg-blue-accent/30 py-6 text-white"
                   onClick={() => handleNavigation(item.path)}
                 >
                   <item.icon className="mr-3 h-5 w-5" />
@@ -139,7 +139,7 @@ const MobileNavigation = () => {
             </div>
             <Button 
               variant="ghost" 
-              className="justify-start hover:bg-menu-highlight/30 py-6 w-full text-white"
+              className="justify-start hover:bg-blue-accent/30 py-6 w-full text-white"
               onClick={handleLogout}
             >
               <LogOut className="mr-3 h-5 w-5" />
