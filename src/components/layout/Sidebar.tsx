@@ -23,7 +23,6 @@ import {
   UserCog,
   ChevronRight,
   LogOut,
-  ListTodo,
 } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
@@ -122,17 +121,7 @@ const Sidebar = () => {
       title: "Gestion des activités",
       items: [
         { id: 2, title: "Clients", icon: <Users size={18} />, path: "/dashboard/clients" },
-        { 
-          id: 3, 
-          title: "Actions commerciales", 
-          icon: <Folder size={18} />, 
-          path: "/dashboard/projects",
-          hasSubItems: true,
-          subItems: [
-            { id: 31, title: "Liste des projets", icon: <Folder size={18} />, path: "/dashboard/projects" },
-            { id: 32, title: "Suivi des actions", icon: <ListTodo size={18} />, path: "/dashboard/projects/suivi" }
-          ] 
-        },
+        { id: 3, title: "Actions commerciales", icon: <Folder size={18} />, path: "/dashboard/projects" },
         { id: 4, title: "Produits/Services", icon: <Package size={18} />, path: "/dashboard/products" },
         { id: 6, title: "Charges & Dépenses", icon: <Wallet size={18} />, path: "/dashboard/expenses" },
         { id: 8, title: "Calendrier", icon: <Calendar size={18} />, path: "/dashboard/calendar" }
@@ -258,49 +247,21 @@ const Sidebar = () => {
                   <div className="px-3 py-1 text-xs font-medium text-gray-400 uppercase tracking-wider">
                     {section.title}
                   </div>
-                  {section.items.map((item) => {
-                    if (item.hasSubItems) {
-                      return (
-                        <div key={item.id}>
-                          <div className="flex items-center space-x-2 rounded-md p-2 text-sm font-medium text-white">
-                            {item.icon}
-                            <span>{item.title}</span>
-                          </div>
-                          <div className="ml-6 border-l border-gray-700 pl-2">
-                            {item.subItems?.map(subItem => (
-                              <NavLink
-                                key={subItem.id}
-                                to={subItem.path}
-                                className={({ isActive }) => `flex items-center space-x-2 rounded-md p-2 text-sm font-medium hover:bg-blue-accent ${
-                                  isActive ? "bg-blue-accent text-white font-semibold" : "text-white"
-                                }`}
-                                onClick={() => handleItemClick(subItem.id)}
-                              >
-                                {subItem.icon}
-                                <span>{subItem.title}</span>
-                              </NavLink>
-                            ))}
-                          </div>
-                        </div>
-                      );
-                    } else {
-                      return (
-                        <NavLink
-                          key={item.id}
-                          to={item.path}
-                          className={({ isActive }) => `flex items-center space-x-2 rounded-md p-2 text-sm font-medium hover:bg-blue-accent text-white ${
-                            isActive
-                              ? "bg-blue-accent text-white font-semibold"
-                              : "text-white"
-                          }`}
-                          onClick={() => handleItemClick(item.id)}
-                        >
-                          {item.icon}
-                          <span>{item.title}</span>
-                        </NavLink>
-                      );
-                    }
-                  })}
+                  {section.items.map((item) => (
+                    <NavLink
+                      key={item.id}
+                      to={item.path}
+                      className={`flex items-center space-x-2 rounded-md p-2 text-sm font-medium hover:bg-blue-accent text-white ${
+                        activeItem === item.id
+                          ? "bg-blue-accent text-white font-semibold"
+                          : "text-white"
+                      }`}
+                      onClick={() => handleItemClick(item.id)}
+                    >
+                      {item.icon}
+                      <span>{item.title}</span>
+                    </NavLink>
+                  ))}
                   <Separator className="my-2 bg-gray-700" />
                 </div>
               ))}

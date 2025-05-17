@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabase";
@@ -16,22 +15,6 @@ const columnsConfig = {
   "en_cours": { title: "En cours", color: "bg-amber-100" },
   "en_suivi": { title: "En suivi", color: "bg-green-100" },
   "archivée": { title: "Archivée", color: "bg-gray-100" }
-};
-
-// Map UI column types to database status values
-const columnToStatusMap: Record<ColumnType, ProjectStatus> = {
-  "planifiée": "planned",
-  "en_cours": "in_progress",
-  "en_suivi": "completed",
-  "archivée": "cancelled"
-};
-
-// Map database status values to UI column types
-const statusToColumnMap: Record<string, ColumnType> = {
-  "planned": "planifiée",
-  "in_progress": "en_cours",
-  "completed": "en_suivi",
-  "cancelled": "archivée"
 };
 
 const SuiviActions = () => {
@@ -63,7 +46,7 @@ const SuiviActions = () => {
         client_name: project.clients?.name,
         objectif_ca: project.target_revenue || 0,
         montant_realise: project.achieved_amount || 0,
-        etape_pipeline: statusToColumnMap[project.status] || 'planifiée'
+        etape_pipeline: project.status || 'planned'
       })) as ProjectWithProgress[];
     }
   });
@@ -72,7 +55,7 @@ const SuiviActions = () => {
     if (projects) {
       // Group projects by status
       const grouped = projects.reduce((acc, project) => {
-        const status = statusToColumnMap[project.status as string] || 'planifiée';
+        const status = mapStatusToColumn(project.status || 'planned');
         if (!acc[status]) acc[status] = [];
         acc[status].push(project);
         return acc;
@@ -87,24 +70,31 @@ const SuiviActions = () => {
     }
   }, [projects]);
 
-  // Handle drag start - Fixed to correctly save the etape_pipeline as the currentStatus
+  // Map our status values to column types
+  const mapStatusToColumn = (status: ProjectStatus | string): ColumnType => {
+    const statusMap: Record<string, ColumnType> = {
+      'planned': 'planifiée',
+      'in_progress': 'en_cours',
+      'completed': 'en_suivi',
+      'cancelled': 'archivée'
+    };
+    
+    return statusMap[status] || 'planifiée';
+  };
+
+  // Handle drag start
   const handleDragStart = (e: React.DragEvent, projectId: string, currentStatus: string) => {
-    console.log("Drag start:", projectId, currentStatus);
     e.dataTransfer.setData("projectId", projectId);
     e.dataTransfer.setData("currentStatus", currentStatus);
   };
 
-  // Handle dropping projects between columns - Fixed to use the correct status mappings
-  const handleDrop = async (e: React.DragEvent, targetStatus: ColumnType) => {
+  // Handle dropping projects between columns
+  const handleDrop = async (e: React.DragEvent, targetStatus: string) => {
     e.preventDefault();
     const projectId = e.dataTransfer.getData("projectId");
     const currentStatus = e.dataTransfer.getData("currentStatus");
     
-    console.log("Drop:", projectId, "from", currentStatus, "to", targetStatus);
     if (currentStatus === targetStatus) return;
-    
-    // Get the corresponding database status value
-    const newDatabaseStatus = columnToStatusMap[targetStatus];
     
     // Update the project in the UI first (optimistic update)
     const updatedColumns = { ...projectsByColumn };
@@ -112,7 +102,7 @@ const SuiviActions = () => {
     
     if (projectIndex !== -1) {
       const [movedProject] = updatedColumns[currentStatus].splice(projectIndex, 1);
-      movedProject.status = newDatabaseStatus;
+      movedProject.status = reverseMapStatus(targetStatus) as ProjectStatus;
       movedProject.etape_pipeline = targetStatus;
       updatedColumns[targetStatus].push(movedProject);
       setProjectsByColumn(updatedColumns);
@@ -120,10 +110,9 @@ const SuiviActions = () => {
     
     // Then update in Supabase
     try {
-      console.log("Updating project in Supabase:", projectId, "status:", newDatabaseStatus);
       const { error } = await supabase
         .from('projects')
-        .update({ status: newDatabaseStatus })
+        .update({ status: reverseMapStatus(targetStatus) })
         .eq('id', projectId);
         
       if (error) throw error;
@@ -141,6 +130,18 @@ const SuiviActions = () => {
       });
       refetch(); // Refresh data from server to revert UI
     }
+  };
+
+  // Convert column type back to status value
+  const reverseMapStatus = (columnType: string): string => {
+    const reverseMap: Record<string, string> = {
+      'planifiée': 'planned',
+      'en_cours': 'in_progress',
+      'en_suivi': 'completed',
+      'archivée': 'cancelled'
+    };
+    
+    return reverseMap[columnType] || 'planned';
   };
 
   // Allow dropping
@@ -194,7 +195,7 @@ const SuiviActions = () => {
           <div 
             key={columnId}
             className={`rounded-lg p-4 ${config.color} min-h-[500px] min-w-[280px]`}
-            onDrop={(e) => handleDrop(e, columnId as ColumnType)}
+            onDrop={(e) => handleDrop(e, columnId)}
             onDragOver={handleDragOver}
           >
             <div className="flex justify-between items-center mb-4">
