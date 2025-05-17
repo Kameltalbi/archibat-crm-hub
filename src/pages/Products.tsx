@@ -33,7 +33,7 @@ const Products = () => {
       
       <Card className="animate-fade-in">
         <CardHeader>
-          <CardTitle>Catalogue</CardTitle>
+          <CardTitle>Produits/Services</CardTitle>
           <CardDescription>
             {filteredProducts.length} produits et services
           </CardDescription>
