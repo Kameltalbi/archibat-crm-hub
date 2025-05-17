@@ -22,15 +22,18 @@ import {
   Wallet,
   UserCog,
   ChevronRight,
+  LogOut,
 } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
-import { NavLink, useLocation } from "react-router-dom";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { useSidebar } from "@/components/ui/sidebar";
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
+import { supabase } from "@/lib/supabase";
+import { useToast } from "@/hooks/use-toast";
 
 // Define a proper type for menu items
 interface MenuItem {
@@ -51,6 +54,8 @@ interface MenuSection {
 
 const Sidebar = () => {
   const location = useLocation();
+  const navigate = useNavigate();
+  const { toast } = useToast();
   const { open, setOpen, openMobile, setOpenMobile } = useSidebar();
   const [activeItem, setActiveItem] = useState<number | null>(null);
   const [isHovered, setIsHovered] = useState(false);
@@ -73,6 +78,31 @@ const Sidebar = () => {
   const handleItemClick = (id: number) => {
     setActiveItem(id);
     setOpenMobile(false); // Ferme la sidebar après avoir cliqué sur un élément (sur mobile)
+  };
+
+  const handleLogout = async () => {
+    try {
+      // Nettoyer les états d'authentification
+      const { error } = await supabase.auth.signOut({ scope: 'global' });
+      
+      if (error) throw error;
+      
+      // Afficher une notification de déconnexion réussie
+      toast({
+        title: "Déconnexion réussie",
+        description: "Vous avez été déconnecté avec succès.",
+      });
+      
+      // Rediriger vers la page d'accueil
+      navigate("/");
+    } catch (error) {
+      console.error("Erreur lors de la déconnexion:", error);
+      toast({
+        title: "Erreur",
+        description: "Une erreur est survenue lors de la déconnexion.",
+        variant: "destructive",
+      });
+    }
   };
 
   // Define menu sections with items
@@ -210,30 +240,47 @@ const Sidebar = () => {
             </SheetDescription>
           </SheetHeader>
           <Separator className="my-4 bg-gray-700" />
-          <div className="flex flex-col space-y-2.5">
-            {menuSections.map((section) => (
-              <div key={section.id} className="mb-4">
-                <div className="px-3 py-1 text-xs font-medium text-gray-400 uppercase tracking-wider">
-                  {section.title}
+          <div className="flex flex-col space-y-2.5 h-full">
+            <div className="flex-grow">
+              {menuSections.map((section) => (
+                <div key={section.id} className="mb-4">
+                  <div className="px-3 py-1 text-xs font-medium text-gray-400 uppercase tracking-wider">
+                    {section.title}
+                  </div>
+                  {section.items.map((item) => (
+                    <NavLink
+                      key={item.id}
+                      to={item.path}
+                      className={`flex items-center space-x-2 rounded-md p-2 text-sm font-medium hover:bg-sidebar-accent text-white ${
+                        activeItem === item.id
+                          ? "bg-sidebar-accent text-white font-semibold"
+                          : "text-white"
+                      }`}
+                      onClick={() => handleItemClick(item.id)}
+                    >
+                      {item.icon}
+                      <span>{item.title}</span>
+                    </NavLink>
+                  ))}
+                  <Separator className="my-2 bg-gray-700" />
                 </div>
-                {section.items.map((item) => (
-                  <NavLink
-                    key={item.id}
-                    to={item.path}
-                    className={`flex items-center space-x-2 rounded-md p-2 text-sm font-medium hover:bg-sidebar-accent text-white ${
-                      activeItem === item.id
-                        ? "bg-sidebar-accent text-white font-semibold"
-                        : "text-white"
-                    }`}
-                    onClick={() => handleItemClick(item.id)}
-                  >
-                    {item.icon}
-                    <span>{item.title}</span>
-                  </NavLink>
-                ))}
-                <Separator className="my-2 bg-gray-700" />
+              ))}
+            </div>
+            
+            {/* Logout button with app name */}
+            <div className="mt-auto pt-4 border-t border-gray-700">
+              <div className="px-3 py-2 mb-2 text-center text-xs font-medium text-gray-400">
+                abc-crmv1
               </div>
-            ))}
+              <Button
+                variant="ghost"
+                className="w-full flex items-center justify-start space-x-2 rounded-md p-2 text-sm font-medium hover:bg-sidebar-accent text-white"
+                onClick={handleLogout}
+              >
+                <LogOut size={18} />
+                <span>Se déconnecter</span>
+              </Button>
+            </div>
           </div>
         </SheetContent>
       </Sheet>
@@ -245,8 +292,24 @@ const Sidebar = () => {
         onMouseLeave={() => setIsHovered(false)}
       >
         <div className={`flex flex-col space-y-2 h-full ${isHovered ? 'w-64' : 'w-16'} transition-all duration-300 py-4`}>
-          <div className="flex flex-col space-y-1 px-2">
+          <div className="flex-grow flex flex-col space-y-1 px-2">
             {menuSections.map(section => renderSectionItems(section))}
+          </div>
+          
+          {/* Logout button with app name */}
+          <div className="mt-auto pt-4 border-t border-gray-700 px-2">
+            {isHovered && (
+              <div className="text-center py-2 text-xs font-medium text-gray-400">
+                abc-crmv1
+              </div>
+            )}
+            <button
+              className={`flex items-center ${isHovered ? 'justify-start' : 'justify-center'} w-full rounded-md p-2 text-sm font-medium hover:bg-sidebar-accent text-white transition-all duration-300`}
+              onClick={handleLogout}
+            >
+              <LogOut size={18} />
+              {isHovered && <span className="ml-2">Se déconnecter</span>}
+            </button>
           </div>
         </div>
       </div>

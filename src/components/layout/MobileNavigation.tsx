@@ -118,20 +118,25 @@ const MobileNavigation = () => {
             />
           </SheetTitle>
         </SheetHeader>
-        <div className="mt-6 flex flex-col space-y-2">
-          {menuItems.map((item) => (
-            <SheetClose key={item.path} asChild>
-              <Button 
-                variant="ghost" 
-                className="justify-start hover:bg-menu-highlight/30 py-6 text-white"
-                onClick={() => handleNavigation(item.path)}
-              >
-                <item.icon className="mr-3 h-5 w-5" />
-                <span className="text-base font-semibold">{item.title}</span>
-              </Button>
-            </SheetClose>
-          ))}
-          <div className="pt-4 mt-8 border-t border-sidebar-border">
+        <div className="flex flex-col h-full">
+          <div className="mt-6 flex flex-col space-y-2 flex-grow">
+            {menuItems.map((item) => (
+              <SheetClose key={item.path} asChild>
+                <Button 
+                  variant="ghost" 
+                  className="justify-start hover:bg-menu-highlight/30 py-6 text-white"
+                  onClick={() => handleNavigation(item.path)}
+                >
+                  <item.icon className="mr-3 h-5 w-5" />
+                  <span className="text-base font-semibold">{item.title}</span>
+                </Button>
+              </SheetClose>
+            ))}
+          </div>
+          <div className="pt-4 mt-auto border-t border-sidebar-border">
+            <div className="text-center mb-2 text-xs text-gray-400">
+              abc-crmv1
+            </div>
             <Button 
               variant="ghost" 
               className="justify-start hover:bg-menu-highlight/30 py-6 w-full text-white"
