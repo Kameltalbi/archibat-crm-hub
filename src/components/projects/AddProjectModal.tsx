@@ -34,7 +34,7 @@ const AddProjectModal = ({ onProjectAdded }: AddProjectModalProps) => {
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button className="bg-terracotta hover:bg-ocre">
-          <Plus className="mr-2 h-4 w-4" /> Ajouter une action
+          <Plus className="mr-2 h-4 w-4" /> Ajouter une action commerciale
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[500px]">

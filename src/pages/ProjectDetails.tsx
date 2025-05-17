@@ -1,17 +1,15 @@
-
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { ArrowLeft, Pencil, Plus, Trash2, Archive, ArchiveRestore } from "lucide-react";
+import { ArrowLeft, Pencil, Plus, Trash2 } from "lucide-react";
 import { ProjectStatus, supabase } from "@/lib/supabase";
 import { useToast } from "@/hooks/use-toast";
 import AddSaleDialog from "@/components/projects/sales/AddSaleDialog";
 import EditSaleDialog from "@/components/projects/sales/EditSaleDialog";
 import { ProjectHistory } from "@/components/projects/ProjectHistory";
-import { projectService } from "@/services/projectService";
 
 interface ProjectWithClient {
   id: string;
@@ -24,7 +22,6 @@ interface ProjectWithClient {
   target_revenue: number | null;
   client_name?: string;
   clients?: { name: string; id: string };
-  is_archived: boolean;
 }
 
 interface ProjectSale {
@@ -73,10 +70,12 @@ const ProjectDetails = () => {
       if (data) {
         setProject({
           ...data,
+          // Explicitement cast le status à ProjectStatus pour résoudre l'erreur de type
           status: data.status as ProjectStatus,
-          client_name: data.clients ? data.clients.name : 'Pas de client',
-          is_archived: data.is_archived || false
+          client_name: data.clients ? data.clients.name : 'Pas de client'
         });
+        
+        console.log("Catégorie du projet:", data.category); // Debug log pour voir la catégorie
       }
     } catch (error) {
       console.error('Erreur lors du chargement du projet:', error);
@@ -109,62 +108,6 @@ const ProjectDetails = () => {
         variant: "destructive",
         title: "Erreur",
         description: "Impossible de charger les ventes du projet."
-      });
-    }
-  };
-  
-  const handleArchiveProject = async () => {
-    if (!id) return;
-    
-    try {
-      const success = await projectService.archiveProject(id);
-      
-      if (success) {
-        toast({
-          title: "Projet archivé",
-          description: "Le projet a été archivé avec succès."
-        });
-        
-        if (project) {
-          setProject({ ...project, is_archived: true });
-        }
-      } else {
-        throw new Error("Échec de l'archivage");
-      }
-    } catch (error) {
-      console.error('Erreur lors de l\'archivage du projet:', error);
-      toast({
-        variant: "destructive",
-        title: "Erreur",
-        description: "Impossible d'archiver le projet."
-      });
-    }
-  };
-  
-  const handleUnarchiveProject = async () => {
-    if (!id) return;
-    
-    try {
-      const success = await projectService.unarchiveProject(id);
-      
-      if (success) {
-        toast({
-          title: "Projet désarchivé",
-          description: "Le projet a été désarchivé avec succès."
-        });
-        
-        if (project) {
-          setProject({ ...project, is_archived: false });
-        }
-      } else {
-        throw new Error("Échec de la désarchivation");
-      }
-    } catch (error) {
-      console.error('Erreur lors de la désarchivation du projet:', error);
-      toast({
-        variant: "destructive",
-        title: "Erreur",
-        description: "Impossible de désarchiver le projet."
       });
     }
   };
@@ -246,11 +189,13 @@ const ProjectDetails = () => {
 
   // Ouvrir la boîte de dialogue d'ajout de vente
   const openAddSaleDialog = () => {
+    console.log("Ouverture de la boîte de dialogue d'ajout de vente");
     setAddSaleDialogOpen(true);
   };
 
   // Ouvrir la boîte de dialogue de modification de vente
   const openEditSaleDialog = (sale: ProjectSale) => {
+    console.log("Ouverture de la boîte de dialogue de modification de vente", sale);
     setSelectedSale(sale);
     setEditSaleDialogOpen(true);
   };
@@ -287,57 +232,30 @@ const ProjectDetails = () => {
       {/* Header avec bouton d'ajout de vente */}
       <div className="flex items-center justify-between gap-4 mb-6">
         <div className="flex-1">
-          <div className="flex items-center gap-2">
-            <h1 className="text-2xl font-semibold flex items-center gap-3">
-              {project.name}
-              {project.status && (
-                <span 
-                  className={`inline-flex items-center rounded-md px-2.5 py-0.5 text-sm font-medium ${
-                    getStatusClass(project.status)
-                  }`}
-                >
-                  {project.status}
-                </span>
-              )}
-            </h1>
-            {project.is_archived && (
-              <span className="bg-gray-100 text-gray-700 border border-gray-200 rounded-md px-2 py-0.5 text-xs font-medium">
-                Archivé
+          <h1 className="text-2xl font-semibold flex items-center gap-3">
+            {project.name}
+            {project.status && (
+              <span 
+                className={`inline-flex items-center rounded-md px-2.5 py-0.5 text-sm font-medium ${
+                  getStatusClass(project.status)
+                }`}
+              >
+                {project.status}
               </span>
             )}
-          </div>
+          </h1>
           <p className="text-muted-foreground">
             {project.client_name} 
             {project.start_date && ` • Démarré le ${new Date(project.start_date).toLocaleDateString()}`}
             {project.end_date && ` • Fin prévue le ${new Date(project.end_date).toLocaleDateString()}`}
           </p>
         </div>
-        <div className="flex gap-2">
-          {project.status === "Terminé" && !project.is_archived ? (
-            <Button 
-              variant="outline" 
-              className="flex items-center gap-2"
-              onClick={handleArchiveProject}
-            >
-              <Archive className="h-4 w-4" /> Archiver
-            </Button>
-          ) : project.is_archived ? (
-            <Button 
-              variant="outline" 
-              className="flex items-center gap-2"
-              onClick={handleUnarchiveProject}
-            >
-              <ArchiveRestore className="h-4 w-4" /> Désarchiver
-            </Button>
-          ) : null}
-          
-          <Button 
-            onClick={openAddSaleDialog}
-            className="flex items-center gap-2"
-          >
-            <Plus className="h-4 w-4" /> Ajouter une vente
-          </Button>
-        </div>
+        <Button 
+          onClick={openAddSaleDialog}
+          className="flex items-center gap-2"
+        >
+          <Plus className="h-4 w-4" /> Ajouter une vente
+        </Button>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

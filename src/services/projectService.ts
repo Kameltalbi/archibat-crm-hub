@@ -1,42 +1,31 @@
+
 import { supabase, Project, ProjectStatus, ProjectProduct } from "@/lib/supabase";
 
 export const projectService = {
   // Récupérer tous les projets
-  async getAllProjects(includeArchived: boolean = false): Promise<Project[]> {
-    let query = supabase
+  async getAllProjects(): Promise<Project[]> {
+    const { data, error } = await supabase
       .from('projects')
       .select('*')
-      
-    // Si includeArchived est false, filtrer pour n'obtenir que les projets non archivés
-    if (!includeArchived) {
-      query = query.eq('is_archived', false);
-    }
-    
-    const { data, error } = await query.order('created_at', { ascending: false });
+      .order('created_at', { ascending: false });
     
     if (error) {
       console.error('Erreur lors de la récupération des projets:', error);
       return [];
     }
     
-    return (data as Project[]) || [];
+    return data as Project[] || [];
   },
   
   // Récupérer les projets avec les informations du client
-  async getProjectsWithClients(includeArchived: boolean = false): Promise<any[]> {
-    let query = supabase
+  async getProjectsWithClients(): Promise<any[]> {
+    const { data, error } = await supabase
       .from('projects')
       .select(`
         *,
         clients:client_id (id, name)
       `)
-    
-    // Si includeArchived est false, filtrer pour n'obtenir que les projets non archivés
-    if (!includeArchived) {
-      query = query.eq('is_archived', false);
-    }
-    
-    const { data, error } = await query.order('created_at', { ascending: false });
+      .order('created_at', { ascending: false });
     
     if (error) {
       console.error('Erreur lors de la récupération des projets avec clients:', error);
@@ -133,36 +122,6 @@ export const projectService = {
     return data as Project;
   },
   
-  // Archiver un projet
-  async archiveProject(id: string): Promise<boolean> {
-    const { error } = await supabase
-      .from('projects')
-      .update({ is_archived: true })
-      .eq('id', id);
-    
-    if (error) {
-      console.error(`Erreur lors de l'archivage du projet ${id}:`, error);
-      return false;
-    }
-    
-    return true;
-  },
-  
-  // Désarchiver un projet
-  async unarchiveProject(id: string): Promise<boolean> {
-    const { error } = await supabase
-      .from('projects')
-      .update({ is_archived: false })
-      .eq('id', id);
-    
-    if (error) {
-      console.error(`Erreur lors de la désarchivation du projet ${id}:`, error);
-      return false;
-    }
-    
-    return true;
-  },
-  
   // Supprimer un projet
   async deleteProject(id: string): Promise<boolean> {
     const { error } = await supabase
@@ -192,21 +151,5 @@ export const projectService = {
     }
     
     return data as ProjectProduct;
-  },
-
-  // Récupérer tous les projets archivés
-  async getArchivedProjects(): Promise<Project[]> {
-    const { data, error } = await supabase
-      .from('projects')
-      .select('*')
-      .eq('is_archived', true)
-      .order('created_at', { ascending: false });
-    
-    if (error) {
-      console.error('Erreur lors de la récupération des projets archivés:', error);
-      return [];
-    }
-    
-    return data as Project[] || [];
   }
 };

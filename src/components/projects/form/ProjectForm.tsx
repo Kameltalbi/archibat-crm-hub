@@ -63,7 +63,6 @@ const ProjectForm = ({ onSuccess, onCancel, isOpen }: ProjectFormProps) => {
         status: formData.status as any,
         category: formData.category || null,
         target_revenue: formData.targetRevenue || null, // Ajout de l'objectif CA
-        is_archived: false // Ajouté pour résoudre l'erreur
       });
       
       if (newProject) {

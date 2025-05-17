@@ -6,12 +6,21 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { ProjectStatus } from "@/lib/supabase";
 
 interface StatusSelectProps {
   value: string;
   onValueChange: (value: string) => void;
   disabled?: boolean;
 }
+
+// Mapping between status values and their display labels
+const STATUS_OPTIONS: { value: ProjectStatus; label: string }[] = [
+  { value: "in_progress", label: "En cours" },
+  { value: "planned", label: "Planifié" },
+  { value: "completed", label: "Terminé" },
+  { value: "cancelled", label: "Suspendu" },
+];
 
 const StatusSelect = ({ 
   value, 
@@ -32,10 +41,14 @@ const StatusSelect = ({
           <SelectValue placeholder="Sélectionner un statut" />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="En cours">En cours</SelectItem>
-          <SelectItem value="Planifié">Planifié</SelectItem>
-          <SelectItem value="Terminé">Terminé</SelectItem>
-          <SelectItem value="Suspendu">Suspendu</SelectItem>
+          {STATUS_OPTIONS.map((option) => (
+            <SelectItem 
+              key={option.value} 
+              value={option.value}
+            >
+              {option.label}
+            </SelectItem>
+          ))}
         </SelectContent>
       </Select>
     </div>
