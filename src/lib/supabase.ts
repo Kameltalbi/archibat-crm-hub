@@ -63,6 +63,7 @@ export interface Project {
   created_at: string;
   updated_at: string;
   target_revenue: number | null; // Ajout du champ objectif CA
+  is_archived: boolean; // Nouveau champ pour indiquer si le projet est archivé
 }
 
 export interface ProjectProduct {
