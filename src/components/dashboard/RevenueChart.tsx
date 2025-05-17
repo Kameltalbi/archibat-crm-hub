@@ -91,8 +91,8 @@ const RevenueChart = () => {
             >
               <defs>
                 <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#E26D5A" stopOpacity={0.8}/>
-                  <stop offset="95%" stopColor="#E26D5A" stopOpacity={0}/>
+                  <stop offset="5%" stopColor="#764AF1" stopOpacity={0.8}/>
+                  <stop offset="95%" stopColor="#764AF1" stopOpacity={0}/>
                 </linearGradient>
               </defs>
               <CartesianGrid strokeDasharray="3 3" stroke="#E0E0E0" />
@@ -113,7 +113,7 @@ const RevenueChart = () => {
               <Area
                 type="monotone"
                 dataKey="value"
-                stroke="#E26D5A"
+                stroke="#764AF1"
                 fillOpacity={1}
                 fill="url(#colorValue)"
               />

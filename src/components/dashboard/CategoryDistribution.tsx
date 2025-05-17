@@ -4,7 +4,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
 import { supabase } from "@/lib/supabase";
 
-const COLORS = ['#E26D5A', '#A65F3D', '#3C3C3C', '#2D2D2D', '#584D39'];
+// Nouvelles couleurs inspirées de l'image
+const COLORS = ['#764AF1', '#2CE5A7', '#FF6B6B', '#FFB347', '#50C4ED'];
 
 const CategoryDistribution = () => {
   const [categoryData, setCategoryData] = useState([]);

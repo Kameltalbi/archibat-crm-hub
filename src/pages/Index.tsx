@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { supabase } from "@/lib/supabase";
@@ -117,7 +116,8 @@ const Dashboard = () => {
     fetchDashboardData();
   }, []);
 
-  const COLORS = ['#E26D5A', '#A65F3D', '#3C3C3C', '#2D2D2D', '#584D39', '#7D7463', '#8B7E6A'];
+  // Nouvelles couleurs inspirées de l'image
+  const COLORS = ['#764AF1', '#2CE5A7', '#FF6B6B', '#FFB347', '#50C4ED'];
 
   return (
     <div className="space-y-8">
@@ -179,7 +179,7 @@ const Dashboard = () => {
                       <XAxis dataKey="name" />
                       <YAxis tickFormatter={(value) => `${value / 1000}k`} />
                       <Tooltip formatter={(value) => [`${value.toLocaleString()} TND`, 'Objectif CA']} />
-                      <Bar dataKey="objectives" fill="#E26D5A" />
+                      <Bar dataKey="objectives" fill="#2CE5A7" />
                     </BarChart>
                   </ResponsiveContainer>
                 </div>
@@ -195,8 +195,8 @@ const Dashboard = () => {
                 <div className="h-[300px]">
                   <ChartContainer
                     config={{
-                      objectives: { color: "#A65F3D" },
-                      sales: { color: "#9b87f5" }
+                      objectives: { color: "#FF6B6B" },
+                      sales: { color: "#2CE5A7" }
                     }}
                   >
                     <LineChart data={monthlySalesVsObjectives}>
@@ -216,14 +216,14 @@ const Dashboard = () => {
                         type="monotone" 
                         dataKey="objectives" 
                         name="Objectifs" 
-                        stroke="#A65F3D" 
+                        stroke="#FF6B6B" 
                         strokeWidth={2}
                       />
                       <Line 
                         type="monotone" 
                         dataKey="sales" 
                         name="Ventes" 
-                        stroke="#9b87f5" 
+                        stroke="#2CE5A7" 
                         strokeWidth={2}
                         activeDot={{ r: 8 }}
                       />
