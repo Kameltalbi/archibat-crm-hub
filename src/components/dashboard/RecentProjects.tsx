@@ -5,14 +5,28 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { supabase } from "@/lib/supabase";
+import { ProjectStatus } from "@/lib/supabase";
 
 interface ProjectWithClient {
   id: string;
   name: string;
   clients: { id: string; name: string } | null;
-  status: string;
+  status: ProjectStatus;
   target_revenue?: number | null;
 }
+
+// Mapping between status values and their display labels
+const STATUS_OPTIONS: { value: ProjectStatus; label: string }[] = [
+  { value: "in_progress", label: "En cours" },
+  { value: "planned", label: "Planifié" },
+  { value: "completed", label: "Terminé" },
+  { value: "cancelled", label: "Suspendu" },
+];
+
+// Helper function to get the display label for a status value
+const getStatusLabel = (status: ProjectStatus): string => {
+  return STATUS_OPTIONS.find(opt => opt.value === status)?.label || status;
+};
 
 const RecentProjects = () => {
   const [projects, setProjects] = useState<ProjectWithClient[]>([]);
@@ -41,10 +55,10 @@ const RecentProjects = () => {
   }, []);
 
   const statusColors = {
-    "En cours": "bg-blue-accent text-white",
-    "Planifié": "bg-gold-yellow text-title-dark",
-    "Terminé": "bg-mint-green text-white",
-    "Suspendu": "bg-gray-500 text-white",
+    "in_progress": "bg-blue-accent text-white",
+    "planned": "bg-gold-yellow text-title-dark",
+    "completed": "bg-mint-green text-white",
+    "cancelled": "bg-gray-500 text-white",
   };
 
   return (
@@ -79,7 +93,7 @@ const RecentProjects = () => {
                     <Badge className={
                       statusColors[project.status as keyof typeof statusColors] || "bg-gray-200 text-gray-800"
                     }>
-                      {project.status}
+                      {getStatusLabel(project.status)}
                     </Badge>
                   </TableCell>
                   <TableCell className="text-right">
