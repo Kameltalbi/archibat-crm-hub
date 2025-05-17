@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import {
   Sheet,
@@ -10,17 +11,17 @@ import {
 import { Button } from "@/components/ui/button";
 import { Menu } from "lucide-react";
 import {
-  Home,
+  LayoutDashboard,
   Users,
-  Briefcase,
+  Folder,
   Package,
-  Calendar as CalendarIcon,
-  Settings as SettingsIcon,
+  Calendar,
+  Settings,
   Book,
-  LineChart,
-  Wallet,
-  ChevronRight, // Keep the chevron icon for dropdown
   BarChart3,
+  Wallet,
+  UserCog,
+  ChevronRight,
 } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { NavLink, useLocation } from "react-router-dom";
@@ -39,6 +40,13 @@ interface MenuItem {
   path: string;
   hasSubItems?: boolean;
   subItems?: MenuItem[];
+  section?: string;
+}
+
+interface MenuSection {
+  id: string;
+  title: string;
+  items: MenuItem[];
 }
 
 const Sidebar = () => {
@@ -50,7 +58,7 @@ const Sidebar = () => {
   useEffect(() => {
     // Déterminer l'élément de menu actif en fonction de l'URL
     const path = location.pathname;
-    const menuItem = menuItems.find(item => 
+    const menuItem = menuSections.flatMap(section => section.items).find(item => 
       (item.path && (item.path === path || path.startsWith(item.path + '/'))) ||
       (item.subItems && item.subItems.some(subItem => 
         subItem.path === path || path.startsWith(subItem.path + '/')
@@ -67,18 +75,43 @@ const Sidebar = () => {
     setOpenMobile(false); // Ferme la sidebar après avoir cliqué sur un élément (sur mobile)
   };
 
-  const menuItems: MenuItem[] = [
-    { id: 1, title: "Tableau de bord", icon: <Home size={18} />, path: "/dashboard" },
-    { id: 2, title: "Clients", icon: <Users size={18} />, path: "/dashboard/clients" },
-    { id: 3, title: "Projets", icon: <Briefcase size={18} />, path: "/dashboard/projects" },
-    { id: 4, title: "Produits", icon: <Package size={18} />, path: "/dashboard/products" },
-    { id: 5, title: "Plan de trésorerie", icon: <LineChart size={18} />, path: "/dashboard/treasury-plan" },
-    { id: 6, title: "Dépenses", icon: <Wallet size={18} />, path: "/dashboard/expenses" },
-    { id: 7, title: "Prévisions des ventes", icon: <BarChart3 size={18} />, path: "/dashboard/sales-forecast" },
-    { id: 8, title: "Calendrier", icon: <CalendarIcon size={18} />, path: "/dashboard/calendar" },
-    { id: 9, title: "Congés", icon: <Briefcase size={18} />, path: "/dashboard/leaves" },
-    { id: 10, title: "Paramètres", icon: <SettingsIcon size={18} />, path: "/dashboard/settings" },
-    { id: 11, title: "Documentation", icon: <Book size={18} />, path: "/dashboard/documentation" },
+  // Define menu sections with items
+  const menuSections: MenuSection[] = [
+    {
+      id: "overview",
+      title: "Vue globale",
+      items: [
+        { id: 1, title: "Tableau de bord", icon: <LayoutDashboard size={18} />, path: "/dashboard" },
+        { id: 7, title: "Prévisions des ventes", icon: <BarChart3 size={18} />, path: "/dashboard/sales-forecast" },
+        { id: 5, title: "Plan de trésorerie", icon: <Wallet size={18} />, path: "/dashboard/treasury-plan" }
+      ]
+    },
+    {
+      id: "activities",
+      title: "Gestion des activités",
+      items: [
+        { id: 2, title: "Clients", icon: <Users size={18} />, path: "/dashboard/clients" },
+        { id: 3, title: "Projets", icon: <Folder size={18} />, path: "/dashboard/projects" },
+        { id: 4, title: "Produits", icon: <Package size={18} />, path: "/dashboard/products" },
+        { id: 6, title: "Dépenses", icon: <Wallet size={18} />, path: "/dashboard/expenses" },
+        { id: 8, title: "Calendrier", icon: <Calendar size={18} />, path: "/dashboard/calendar" }
+      ]
+    },
+    {
+      id: "hr",
+      title: "Ressources humaines",
+      items: [
+        { id: 9, title: "Congés", icon: <UserCog size={18} />, path: "/dashboard/leaves" }
+      ]
+    },
+    {
+      id: "settings",
+      title: "Réglages & support",
+      items: [
+        { id: 10, title: "Paramètres", icon: <Settings size={18} />, path: "/dashboard/settings" },
+        { id: 11, title: "Documentation", icon: <Book size={18} />, path: "/dashboard/documentation" }
+      ]
+    }
   ];
 
   // Render a menu item or submenu
@@ -140,6 +173,22 @@ const Sidebar = () => {
     }
   };
 
+  const renderSectionItems = (section: MenuSection) => {
+    return (
+      <div key={section.id} className="mb-4">
+        {isHovered && (
+          <div className="px-3 py-1 text-xs font-medium text-gray-400 uppercase tracking-wider">
+            {section.title}
+          </div>
+        )}
+        <div className="flex flex-col space-y-1">
+          {section.items.map(item => renderMenuItem(item))}
+        </div>
+        {isHovered && <Separator className="my-2 bg-gray-700" />}
+      </div>
+    );
+  };
+
   return (
     <>
       {/* Mobile menu */}
@@ -153,26 +202,27 @@ const Sidebar = () => {
             <Menu className="h-5 w-5" />
           </Button>
         </SheetTrigger>
-        <SheetContent side="left" className="w-3/4 border-r md:hidden">
+        <SheetContent side="left" className="w-3/4 border-r md:hidden bg-sidebar">
           <SheetHeader className="text-left">
-            <SheetTitle>Menu</SheetTitle>
-            <SheetDescription>
+            <SheetTitle className="text-white">Menu</SheetTitle>
+            <SheetDescription className="text-gray-400">
               Naviguez à travers les différentes sections de l'application.
             </SheetDescription>
           </SheetHeader>
-          <Separator className="my-4" />
+          <Separator className="my-4 bg-gray-700" />
           <div className="flex flex-col space-y-2.5">
-            {menuItems.map((item) => {
-              if (item.hasSubItems) {
-                return null;
-              } else {
-                return (
+            {menuSections.map((section) => (
+              <div key={section.id} className="mb-4">
+                <div className="px-3 py-1 text-xs font-medium text-gray-400 uppercase tracking-wider">
+                  {section.title}
+                </div>
+                {section.items.map((item) => (
                   <NavLink
                     key={item.id}
                     to={item.path}
-                    className={`flex items-center space-x-2 rounded-md p-2 text-sm font-medium hover:underline text-white ${
+                    className={`flex items-center space-x-2 rounded-md p-2 text-sm font-medium hover:bg-sidebar-accent text-white ${
                       activeItem === item.id
-                        ? "font-bold text-primary underline underline-offset-4"
+                        ? "bg-sidebar-accent text-white font-semibold"
                         : "text-white"
                     }`}
                     onClick={() => handleItemClick(item.id)}
@@ -180,9 +230,10 @@ const Sidebar = () => {
                     {item.icon}
                     <span>{item.title}</span>
                   </NavLink>
-                );
-              }
-            })}
+                ))}
+                <Separator className="my-2 bg-gray-700" />
+              </div>
+            ))}
           </div>
         </SheetContent>
       </Sheet>
@@ -193,10 +244,9 @@ const Sidebar = () => {
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
-        <div className={`flex flex-col space-y-2 h-full ${isHovered ? 'w-64' : 'w-16'} transition-all duration-300`}>
-          <Separator className="my-4" />
-          <div className="flex flex-col space-y-1">
-            {menuItems.map((item) => renderMenuItem(item))}
+        <div className={`flex flex-col space-y-2 h-full ${isHovered ? 'w-64' : 'w-16'} transition-all duration-300 py-4`}>
+          <div className="flex flex-col space-y-1 px-2">
+            {menuSections.map(section => renderSectionItems(section))}
           </div>
         </div>
       </div>
