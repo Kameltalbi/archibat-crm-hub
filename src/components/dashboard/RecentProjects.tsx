@@ -43,7 +43,14 @@ const RecentProjects = () => {
           .limit(5);
         
         if (error) throw error;
-        setProjects(data);
+        
+        // Cast the status to ProjectStatus type
+        const typedProjects = data.map(project => ({
+          ...project,
+          status: project.status as ProjectStatus
+        })) as ProjectWithClient[];
+        
+        setProjects(typedProjects);
       } catch (error) {
         console.error("Erreur lors de la récupération des projets récents:", error);
       } finally {
