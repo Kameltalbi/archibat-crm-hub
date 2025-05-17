@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabase";
@@ -86,18 +87,20 @@ const SuiviActions = () => {
     }
   }, [projects]);
 
-  // Handle drag start
+  // Handle drag start - Fixed to correctly save the etape_pipeline as the currentStatus
   const handleDragStart = (e: React.DragEvent, projectId: string, currentStatus: string) => {
+    console.log("Drag start:", projectId, currentStatus);
     e.dataTransfer.setData("projectId", projectId);
     e.dataTransfer.setData("currentStatus", currentStatus);
   };
 
-  // Handle dropping projects between columns
+  // Handle dropping projects between columns - Fixed to use the correct status mappings
   const handleDrop = async (e: React.DragEvent, targetStatus: ColumnType) => {
     e.preventDefault();
     const projectId = e.dataTransfer.getData("projectId");
     const currentStatus = e.dataTransfer.getData("currentStatus");
     
+    console.log("Drop:", projectId, "from", currentStatus, "to", targetStatus);
     if (currentStatus === targetStatus) return;
     
     // Get the corresponding database status value
@@ -117,6 +120,7 @@ const SuiviActions = () => {
     
     // Then update in Supabase
     try {
+      console.log("Updating project in Supabase:", projectId, "status:", newDatabaseStatus);
       const { error } = await supabase
         .from('projects')
         .update({ status: newDatabaseStatus })

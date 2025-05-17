@@ -122,6 +122,21 @@ export const projectService = {
     return data as Project;
   },
   
+  // Mettre à jour le statut d'un projet
+  async updateProjectStatus(id: string, status: ProjectStatus): Promise<boolean> {
+    const { error } = await supabase
+      .from('projects')
+      .update({ status })
+      .eq('id', id);
+    
+    if (error) {
+      console.error(`Erreur lors de la mise à jour du statut du projet ${id}:`, error);
+      return false;
+    }
+    
+    return true;
+  },
+  
   // Supprimer un projet
   async deleteProject(id: string): Promise<boolean> {
     const { error } = await supabase
