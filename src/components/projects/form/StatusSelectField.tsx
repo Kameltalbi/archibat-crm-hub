@@ -15,13 +15,7 @@ interface StatusSelectFieldProps {
   disabled?: boolean;
 }
 
-// Mapping between status values and their display labels
-const STATUS_OPTIONS: { value: ProjectStatus; label: string }[] = [
-  { value: "in_progress", label: "En cours" },
-  { value: "planned", label: "Planifié" },
-  { value: "completed", label: "Terminé" },
-  { value: "cancelled", label: "Suspendu" },
-];
+const PROJECT_STATUSES: ProjectStatus[] = ['En cours', 'Planifié', 'Terminé', 'Suspendu'];
 
 const StatusSelectField = ({ 
   value, 
@@ -40,23 +34,18 @@ const StatusSelectField = ({
           <SelectValue placeholder="Sélectionnez un statut" />
         </SelectTrigger>
         <SelectContent>
-          {STATUS_OPTIONS.map((option) => (
+          {PROJECT_STATUSES.map((status) => (
             <SelectItem 
-              key={option.value} 
-              value={option.value}
+              key={status} 
+              value={status}
             >
-              {option.label}
+              {status}
             </SelectItem>
           ))}
         </SelectContent>
       </Select>
     </div>
   );
-};
-
-// Helper function to get the display label for a status value
-export const getStatusLabel = (status: ProjectStatus): string => {
-  return STATUS_OPTIONS.find(opt => opt.value === status)?.label || status;
 };
 
 export default StatusSelectField;
