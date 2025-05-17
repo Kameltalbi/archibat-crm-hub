@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import {
   Sheet,
@@ -28,7 +29,7 @@ import { useEffect } from "react";
 
 const Sidebar = () => {
   const location = useLocation();
-  const { isOpen, setIsOpen } = useSidebar();
+  const { open, setOpen, openMobile, setOpenMobile } = useSidebar();
   const [activeItem, setActiveItem] = useState<number | null>(null);
 
   useEffect(() => {
@@ -40,7 +41,7 @@ const Sidebar = () => {
 
   const handleItemClick = (id: number) => {
     setActiveItem(id);
-    setIsOpen(false); // Ferme la sidebar après avoir cliqué sur un élément (sur mobile)
+    setOpenMobile(false); // Ferme la sidebar après avoir cliqué sur un élément (sur mobile)
   };
 
   const menuItems = [
@@ -60,7 +61,7 @@ const Sidebar = () => {
   return (
     <>
       {/* Mobile menu */}
-      <Sheet open={isOpen} onOpenChange={setIsOpen}>
+      <Sheet open={openMobile} onOpenChange={setOpenMobile}>
         <SheetTrigger asChild>
           <Button
             variant="ghost"
