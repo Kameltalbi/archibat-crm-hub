@@ -1,4 +1,3 @@
-
 import { supabase } from "@/lib/supabase";
 
 export interface ExpenseCategory {
@@ -177,7 +176,7 @@ export const expenseService = {
       subcategory_name: item.expense_subcategories?.name
     }));
   },
-
+  
   // Nouvelles méthodes pour les KPI du dashboard
   
   // Obtenir le total des dépenses pour le mois en cours

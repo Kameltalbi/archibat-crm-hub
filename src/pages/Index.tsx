@@ -5,6 +5,7 @@ import { supabase } from "@/lib/supabase";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line } from 'recharts';
 import { Briefcase, CircleDollarSign, TrendingUp } from "lucide-react";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
+import DashboardSummary from "@/components/dashboard/DashboardSummary";
 
 const Dashboard = () => {
   const [currentYear, setCurrentYear] = useState<number>(new Date().getFullYear());
@@ -125,68 +126,15 @@ const Dashboard = () => {
         <p className="text-muted-foreground">Vue d'ensemble de votre activité pour {currentYear}</p>
       </div>
       
+      {/* Ajout du DashboardSummary en haut avec les KPIs */}
+      <DashboardSummary isLoading={isLoading} />
+      
       {isLoading ? (
         <div className="flex items-center justify-center h-[60vh]">
           <p className="text-xl text-muted-foreground">Chargement des données...</p>
         </div>
       ) : (
         <>
-          <div className="grid gap-4 md:grid-cols-3">
-            {/* Carte 1: Objectifs CA */}
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">
-                  Objectifs CA
-                </CardTitle>
-                <CircleDollarSign className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">
-                  {stats.totalObjectives.toLocaleString()} TND
-                </div>
-                <p className="text-xs text-muted-foreground mt-1">
-                  Objectifs cumulés de tous les projets
-                </p>
-              </CardContent>
-            </Card>
-
-            {/* Carte 2: Nombre de projets */}
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">
-                  Projets
-                </CardTitle>
-                <Briefcase className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">
-                  {stats.totalProjects}
-                </div>
-                <p className="text-xs text-muted-foreground mt-1">
-                  {stats.activeProjects} projets actifs
-                </p>
-              </CardContent>
-            </Card>
-
-            {/* Carte 3: Progression des ventes */}
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">
-                  Ventes / Objectifs
-                </CardTitle>
-                <TrendingUp className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">
-                  {Math.round((stats.totalSales / stats.totalObjectives) * 100)}%
-                </div>
-                <p className="text-xs text-muted-foreground mt-1">
-                  {stats.totalSales.toLocaleString()} TND réalisés
-                </p>
-              </CardContent>
-            </Card>
-          </div>
-
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {/* Graphique 1: Répartition projets par catégorie */}
             <Card className="col-span-1">
