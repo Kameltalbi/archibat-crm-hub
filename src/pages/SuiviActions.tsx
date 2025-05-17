@@ -1,19 +1,11 @@
-
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabase";
-import { Project } from "@/lib/supabase";
+import { Project, ProjectStatus, ProjectWithProgress } from "@/lib/supabase";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Calendar, BarChart3 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-
-// Define the extended Project type with additional fields
-interface ProjectWithProgress extends Project {
-  client_name?: string;
-  objectif_ca?: number;
-  montant_realise?: number;
-}
 
 // Define the column types
 type ColumnType = "planifiée" | "en_cours" | "en_suivi" | "archivée";
@@ -52,9 +44,9 @@ const SuiviActions = () => {
       return data.map((project: any) => ({
         ...project,
         client_name: project.clients?.name,
-        objectif_ca: project.target_amount || 0,
+        objectif_ca: project.target_revenue || 0,
         montant_realise: project.achieved_amount || 0,
-        etape_pipeline: project.status || 'planifiée'
+        etape_pipeline: project.status || 'planned'
       })) as ProjectWithProgress[];
     }
   });
@@ -63,7 +55,7 @@ const SuiviActions = () => {
     if (projects) {
       // Group projects by status
       const grouped = projects.reduce((acc, project) => {
-        const status = mapStatusToColumn(project.status || 'planifiée');
+        const status = mapStatusToColumn(project.status || 'planned');
         if (!acc[status]) acc[status] = [];
         acc[status].push(project);
         return acc;
@@ -79,7 +71,7 @@ const SuiviActions = () => {
   }, [projects]);
 
   // Map our status values to column types
-  const mapStatusToColumn = (status: string): ColumnType => {
+  const mapStatusToColumn = (status: ProjectStatus | string): ColumnType => {
     const statusMap: Record<string, ColumnType> = {
       'planned': 'planifiée',
       'in_progress': 'en_cours',
@@ -110,7 +102,7 @@ const SuiviActions = () => {
     
     if (projectIndex !== -1) {
       const [movedProject] = updatedColumns[currentStatus].splice(projectIndex, 1);
-      movedProject.status = reverseMapStatus(targetStatus);
+      movedProject.status = reverseMapStatus(targetStatus) as ProjectStatus;
       movedProject.etape_pipeline = targetStatus;
       updatedColumns[targetStatus].push(movedProject);
       setProjectsByColumn(updatedColumns);
