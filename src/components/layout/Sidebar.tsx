@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Sheet,
   SheetContent,
@@ -25,19 +25,22 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { NavLink, useLocation } from "react-router-dom";
 import { useSidebar } from "@/components/ui/sidebar";
-import { useEffect } from "react";
 
 const Sidebar = () => {
   const location = useLocation();
   const { open, setOpen, openMobile, setOpenMobile } = useSidebar();
   const [activeItem, setActiveItem] = useState<number | null>(null);
+  const [isHovered, setIsHovered] = useState(false);
 
   useEffect(() => {
     // Déterminer l'élément de menu actif en fonction de l'URL
     const path = location.pathname;
     const menuItem = menuItems.find(item => item.path === path || path.startsWith(item.path + '/'));
     setActiveItem(menuItem ? menuItem.id : null);
-  }, [location]);
+
+    // Forcer la sidebar en mode replié au chargement
+    setOpen(false);
+  }, [location, setOpen]);
 
   const handleItemClick = (id: number) => {
     setActiveItem(id);
@@ -84,10 +87,10 @@ const Sidebar = () => {
               <NavLink
                 key={item.id}
                 to={item.path}
-                className={`flex items-center space-x-2 rounded-md p-2 text-sm font-medium hover:underline ${
+                className={`flex items-center space-x-2 rounded-md p-2 text-sm font-medium hover:underline text-white ${
                   activeItem === item.id
                     ? "font-bold text-primary underline underline-offset-4"
-                    : "text-muted-foreground"
+                    : "text-white"
                 }`}
                 onClick={() => handleItemClick(item.id)}
               >
@@ -100,23 +103,29 @@ const Sidebar = () => {
       </Sheet>
 
       {/* Desktop menu */}
-      <div className="hidden border-r bg-secondary h-full md:block">
-        <div className="flex flex-col space-y-2 w-full p-3">
+      <div 
+        className="hidden border-r bg-sidebar h-full md:block transition-all duration-300 ease-in-out"
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+      >
+        <div className={`flex flex-col space-y-2 h-full ${isHovered ? 'w-64' : 'w-16'} transition-all duration-300`}>
           <Separator className="my-4" />
           <div className="flex flex-col space-y-1">
             {menuItems.map((item) => (
               <NavLink
                 key={item.id}
                 to={item.path}
-                className={`flex items-center space-x-2 rounded-md p-2 text-sm font-medium hover:bg-accent hover:text-accent-foreground ${
+                className={`flex items-center ${isHovered ? 'justify-start' : 'justify-center'} rounded-md p-2 text-sm font-medium hover:bg-sidebar-accent ${
                   activeItem === item.id
-                    ? "bg-accent text-accent-foreground font-semibold"
-                    : "text-muted-foreground"
-                }`}
+                    ? "bg-sidebar-accent text-white font-semibold"
+                    : "text-white"
+                } transition-all duration-300`}
                 onClick={() => handleItemClick(item.id)}
               >
-                {item.icon}
-                <span>{item.title}</span>
+                <div className="flex items-center">
+                  <div className="text-white">{item.icon}</div>
+                  {isHovered && <span className="ml-2 text-white">{item.title}</span>}
+                </div>
               </NavLink>
             ))}
           </div>
