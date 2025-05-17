@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import {
   Sheet,
@@ -15,14 +14,12 @@ import {
   Users,
   Briefcase,
   Package,
-  ListFilter,
   Calendar as CalendarIcon,
   Settings as SettingsIcon,
   Book,
   LineChart,
   Wallet,
-  Archive,
-  ChevronRight, // Add the chevron icon for dropdown
+  ChevronRight, // Keep the chevron icon for dropdown
 } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { NavLink, useLocation } from "react-router-dom";
@@ -38,7 +35,6 @@ const Sidebar = () => {
   const { open, setOpen, openMobile, setOpenMobile } = useSidebar();
   const [activeItem, setActiveItem] = useState<number | null>(null);
   const [isHovered, setIsHovered] = useState(false);
-  const [openCategories, setOpenCategories] = useState(false);
 
   useEffect(() => {
     // Déterminer l'élément de menu actif en fonction de l'URL
@@ -50,11 +46,6 @@ const Sidebar = () => {
       ))
     );
     setActiveItem(menuItem ? menuItem.id : null);
-
-    // Check if a subcategory is active to open the categories dropdown
-    if (path.includes("/dashboard/categories") || path.includes("/dashboard/expense-categories")) {
-      setOpenCategories(true);
-    }
 
     // Forcer la sidebar en mode replié au chargement
     setOpen(false);
@@ -70,22 +61,12 @@ const Sidebar = () => {
     { id: 2, title: "Clients", icon: <Users size={18} />, path: "/dashboard/clients" },
     { id: 3, title: "Projets", icon: <Briefcase size={18} />, path: "/dashboard/projects" },
     { id: 4, title: "Produits", icon: <Package size={18} />, path: "/dashboard/products" },
-    { 
-      id: 5, 
-      title: "Catégories", 
-      icon: <ListFilter size={18} />, 
-      hasSubItems: true,
-      subItems: [
-        { id: 51, title: "Catégories produits", path: "/dashboard/categories" },
-        { id: 52, title: "Catégories dépenses", path: "/dashboard/expense-categories" },
-      ]
-    },
-    { id: 6, title: "Plan de trésorerie", icon: <LineChart size={18} />, path: "/dashboard/treasury-plan" },
-    { id: 7, title: "Dépenses", icon: <Wallet size={18} />, path: "/dashboard/expenses" },
-    { id: 8, title: "Calendrier", icon: <CalendarIcon size={18} />, path: "/dashboard/calendar" },
-    { id: 9, title: "Congés", icon: <Briefcase size={18} />, path: "/dashboard/leaves" },
-    { id: 10, title: "Paramètres", icon: <SettingsIcon size={18} />, path: "/dashboard/settings" },
-    { id: 11, title: "Documentation", icon: <Book size={18} />, path: "/dashboard/documentation" },
+    { id: 5, title: "Plan de trésorerie", icon: <LineChart size={18} />, path: "/dashboard/treasury-plan" },
+    { id: 6, title: "Dépenses", icon: <Wallet size={18} />, path: "/dashboard/expenses" },
+    { id: 7, title: "Calendrier", icon: <CalendarIcon size={18} />, path: "/dashboard/calendar" },
+    { id: 8, title: "Congés", icon: <Briefcase size={18} />, path: "/dashboard/leaves" },
+    { id: 9, title: "Paramètres", icon: <SettingsIcon size={18} />, path: "/dashboard/settings" },
+    { id: 10, title: "Documentation", icon: <Book size={18} />, path: "/dashboard/documentation" },
   ];
 
   // Render a menu item or submenu
@@ -94,8 +75,6 @@ const Sidebar = () => {
       return (
         <li key={item.id} className="group/menu-item relative">
           <Collapsible
-            open={openCategories}
-            onOpenChange={setOpenCategories}
             className="w-full"
           >
             <CollapsibleTrigger asChild>
@@ -108,7 +87,7 @@ const Sidebar = () => {
                   {item.icon}
                   {isHovered && <span className="ml-2 text-white">{item.title}</span>}
                 </div>
-                {isHovered && <ChevronRight className={`h-4 w-4 transform transition-transform ${openCategories ? 'rotate-90' : ''}`} />}
+                {isHovered && <ChevronRight className={`h-4 w-4 transform transition-transform ${false ? 'rotate-90' : ''}`} />}
               </button>
             </CollapsibleTrigger>
             <CollapsibleContent>
@@ -173,39 +152,7 @@ const Sidebar = () => {
           <div className="flex flex-col space-y-2.5">
             {menuItems.map((item) => {
               if (item.hasSubItems) {
-                return (
-                  <Collapsible key={item.id} className="w-full">
-                    <CollapsibleTrigger asChild>
-                      <button
-                        className={`flex w-full items-center justify-between rounded-md p-2 text-sm font-medium hover:underline ${
-                          activeItem === item.id ? "font-bold text-primary underline underline-offset-4" : "text-white"
-                        }`}
-                      >
-                        <div className="flex items-center space-x-2">
-                          {item.icon}
-                          <span>{item.title}</span>
-                        </div>
-                        <ChevronRight className={`h-4 w-4 transform transition-transform ${openCategories ? 'rotate-90' : ''}`} />
-                      </button>
-                    </CollapsibleTrigger>
-                    <CollapsibleContent>
-                      <div className="pl-6 pt-1">
-                        {item.subItems?.map((subItem: any) => (
-                          <NavLink
-                            key={subItem.id}
-                            to={subItem.path}
-                            className={({ isActive }) => `flex items-center space-x-2 rounded-md p-2 text-sm font-medium hover:underline ${
-                              isActive ? "font-bold text-primary underline underline-offset-4" : "text-white"
-                            }`}
-                            onClick={() => handleItemClick(subItem.id)}
-                          >
-                            <span>{subItem.title}</span>
-                          </NavLink>
-                        ))}
-                      </div>
-                    </CollapsibleContent>
-                  </Collapsible>
-                );
+                return null;
               } else {
                 return (
                   <NavLink

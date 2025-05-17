@@ -3,6 +3,8 @@ import React from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import UsersPage from "@/components/settings/UsersPage";
 import { Shield } from "lucide-react";
+import Categories from "./Categories";
+import ExpenseCategories from "./ExpenseCategories";
 
 const Settings = () => {
   return (
@@ -15,12 +17,22 @@ const Settings = () => {
       <Tabs defaultValue="users" className="w-full">
         <TabsList className="mb-4">
           <TabsTrigger value="users">Utilisateurs & Permissions</TabsTrigger>
+          <TabsTrigger value="productCategories">Catégories produits</TabsTrigger>
+          <TabsTrigger value="expenseCategories">Catégories dépenses</TabsTrigger>
           <TabsTrigger value="general">Général</TabsTrigger>
           <TabsTrigger value="billing">Facturation</TabsTrigger>
         </TabsList>
         
         <TabsContent value="users" className="space-y-4">
           <UsersPage />
+        </TabsContent>
+
+        <TabsContent value="productCategories">
+          <Categories />
+        </TabsContent>
+        
+        <TabsContent value="expenseCategories">
+          <ExpenseCategories />
         </TabsContent>
         
         <TabsContent value="general">
