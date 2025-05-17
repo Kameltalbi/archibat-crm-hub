@@ -2,6 +2,9 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useState, useEffect } from "react";
 import { HistoryItem, HistoryTimeline } from "../history/HistoryTimeline";
+import { Button } from "@/components/ui/button";
+import { Plus } from "lucide-react";
+import { AddHistoryItemModal, AddHistoryItemFormData } from "../history/AddHistoryItemModal";
 
 interface ProjectHistoryProps {
   projectId: string;
@@ -11,6 +14,7 @@ interface ProjectHistoryProps {
 export const ProjectHistory = ({ projectId, projectName }: ProjectHistoryProps) => {
   const [historyItems, setHistoryItems] = useState<HistoryItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     const fetchProjectHistory = async () => {
@@ -65,13 +69,41 @@ export const ProjectHistory = ({ projectId, projectName }: ProjectHistoryProps) 
     }
   }, [projectId]);
 
+  // Fonction pour gérer l'ajout d'un nouvel élément d'historique
+  const handleAddHistoryItem = async (formData: AddHistoryItemFormData) => {
+    // Dans une application réelle, vous enregistreriez cet élément dans la base de données
+    // Pour l'instant, nous l'ajoutons simplement à l'état local
+    const newItem: HistoryItem = {
+      id: `temp-${Date.now()}`, // ID temporaire jusqu'à l'implémentation de la base de données
+      type: formData.type,
+      date: new Date().toISOString(),
+      title: formData.title,
+      description: formData.description,
+      user: "Utilisateur actuel" // Dans une vraie application, cela viendrait de l'utilisateur connecté
+    };
+
+    // Ajouter le nouvel élément au début de l'historique
+    setHistoryItems([newItem, ...historyItems]);
+  };
+
   return (
     <Card>
-      <CardHeader>
-        <CardTitle>Historique</CardTitle>
-        <CardDescription>
-          Historique des actions pour le projet {projectName}
-        </CardDescription>
+      <CardHeader className="flex flex-row items-center justify-between">
+        <div>
+          <CardTitle>Historique</CardTitle>
+          <CardDescription>
+            Historique des actions pour le projet {projectName}
+          </CardDescription>
+        </div>
+        <Button 
+          variant="outline" 
+          size="sm" 
+          className="flex items-center gap-1"
+          onClick={() => setIsModalOpen(true)}
+        >
+          <Plus className="h-4 w-4" />
+          Ajouter
+        </Button>
       </CardHeader>
       <CardContent>
         {isLoading ? (
@@ -85,6 +117,13 @@ export const ProjectHistory = ({ projectId, projectName }: ProjectHistoryProps) 
           />
         )}
       </CardContent>
+
+      <AddHistoryItemModal 
+        open={isModalOpen} 
+        onOpenChange={setIsModalOpen}
+        onSubmit={handleAddHistoryItem}
+        entityType="project"
+      />
     </Card>
   );
 };
