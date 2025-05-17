@@ -1,11 +1,9 @@
-
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
-import { Search, Edit, Trash } from "lucide-react";
+import { Search, Edit, Trash, Plus, ChevronRight, ChevronDown } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -17,7 +15,8 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import AddExpenseCategoryModal from "@/components/expenses/AddExpenseCategoryModal";
-import { expenseService, ExpenseCategory } from "@/services/expenseService";
+import { expenseService, ExpenseCategory, ExpenseSubcategory } from "@/services/expenseService";
+import AddSubcategoryModal from "@/components/expenses/AddSubcategoryModal";
 
 const ExpenseCategories = () => {
   const [categories, setCategories] = useState<ExpenseCategory[]>([]);
@@ -25,11 +24,22 @@ const ExpenseCategories = () => {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [editingCategory, setEditingCategory] = useState<ExpenseCategory | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
+  const [subcategories, setSubcategories] = useState<ExpenseSubcategory[]>([]);
+  const [isSubcategoryLoading, setIsSubcategoryLoading] = useState(false);
+  const [isAddSubcategoryModalOpen, setIsAddSubcategoryModalOpen] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
     fetchCategories();
   }, []);
+
+  // Fetch subcategories when a category is selected
+  useEffect(() => {
+    if (selectedCategoryId) {
+      fetchSubcategories(selectedCategoryId);
+    }
+  }, [selectedCategoryId]);
 
   const fetchCategories = async () => {
     setIsLoading(true);
@@ -45,6 +55,24 @@ const ExpenseCategories = () => {
       });
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const fetchSubcategories = async (categoryId: string) => {
+    setIsSubcategoryLoading(true);
+    try {
+      const subcats = await expenseService.getSubcategoriesByCategory(categoryId);
+      setSubcategories(subcats);
+    } catch (error) {
+      console.error('Erreur lors du chargement des sous-catégories:', error);
+      toast({
+        variant: "destructive",
+        title: "Erreur",
+        description: "Impossible de charger les sous-catégories. Veuillez réessayer."
+      });
+      setSubcategories([]);
+    } finally {
+      setIsSubcategoryLoading(false);
     }
   };
 
@@ -91,6 +119,11 @@ const ExpenseCategories = () => {
       if (error) throw error;
       
       setCategories(categories.filter(category => category.id !== id));
+      if (selectedCategoryId === id) {
+        setSelectedCategoryId(null);
+        setSubcategories([]);
+      }
+      
       toast({
         title: "Catégorie supprimée",
         description: "La catégorie de dépense a été supprimée avec succès."
@@ -108,6 +141,47 @@ const ExpenseCategories = () => {
   const handleEditClick = (category: ExpenseCategory) => {
     setEditingCategory(category);
     setIsEditDialogOpen(true);
+  };
+
+  const handleDeleteSubcategory = async (id: string) => {
+    try {
+      const { error } = await expenseService.deleteExpenseSubcategory(id);
+      
+      if (error) throw error;
+      
+      setSubcategories(subcategories.filter(subcategory => subcategory.id !== id));
+      
+      toast({
+        title: "Sous-catégorie supprimée",
+        description: "La sous-catégorie a été supprimée avec succès."
+      });
+    } catch (error) {
+      console.error('Erreur lors de la suppression de la sous-catégorie:', error);
+      toast({
+        variant: "destructive",
+        title: "Erreur",
+        description: "Impossible de supprimer la sous-catégorie. Veuillez réessayer."
+      });
+    }
+  };
+
+  const handleCategoryClick = (categoryId: string) => {
+    if (selectedCategoryId === categoryId) {
+      // If clicking on the already selected category, close it
+      setSelectedCategoryId(null);
+      setSubcategories([]);
+    } else {
+      // Otherwise, select this category and fetch its subcategories
+      setSelectedCategoryId(categoryId);
+    }
+  };
+
+  const handleAddSubcategorySuccess = () => {
+    // Refresh subcategories list after adding a new one
+    if (selectedCategoryId) {
+      fetchSubcategories(selectedCategoryId);
+    }
+    setIsAddSubcategoryModalOpen(false);
   };
 
   const filteredCategories = categories.filter(category =>
@@ -195,6 +269,17 @@ const ExpenseCategories = () => {
             </DialogFooter>
           </DialogContent>
         </Dialog>
+        
+        {/* Modal pour ajouter une sous-catégorie */}
+        {selectedCategoryId && (
+          <AddSubcategoryModal 
+            isOpen={isAddSubcategoryModalOpen}
+            onOpenChange={setIsAddSubcategoryModalOpen}
+            categoryId={selectedCategoryId}
+            onSuccess={handleAddSubcategorySuccess}
+            categoryName={categories.find(c => c.id === selectedCategoryId)?.name || ''}
+          />
+        )}
       </div>
       
       <Card className="animate-fade-in">
@@ -241,29 +326,117 @@ const ExpenseCategories = () => {
                   </TableRow>
                 ) : (
                   filteredCategories.map((category) => (
-                    <TableRow key={category.id}>
-                      <TableCell className="font-medium">{category.name}</TableCell>
-                      <TableCell className="hidden md:table-cell">{category.description || '-'}</TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-2">
-                          <Button 
-                            variant="ghost" 
-                            size="icon"
-                            onClick={() => handleEditClick(category)}
-                          >
-                            <Edit className="h-4 w-4" />
-                          </Button>
-                          <Button 
-                            variant="ghost" 
-                            size="icon" 
-                            className="text-destructive"
-                            onClick={() => handleDeleteCategory(category.id)}
-                          >
-                            <Trash className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
+                    <React.Fragment key={category.id}>
+                      <TableRow 
+                        className="cursor-pointer hover:bg-muted"
+                        onClick={() => handleCategoryClick(category.id)}
+                      >
+                        <TableCell className="font-medium flex items-center">
+                          {selectedCategoryId === category.id ? (
+                            <ChevronDown className="h-4 w-4 mr-2" />
+                          ) : (
+                            <ChevronRight className="h-4 w-4 mr-2" />
+                          )}
+                          {category.name}
+                        </TableCell>
+                        <TableCell className="hidden md:table-cell">{category.description || '-'}</TableCell>
+                        <TableCell>
+                          <div className="flex items-center gap-2">
+                            <Button 
+                              variant="ghost" 
+                              size="icon"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleEditClick(category);
+                              }}
+                            >
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                            <Button 
+                              variant="ghost" 
+                              size="icon" 
+                              className="text-destructive"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleDeleteCategory(category.id);
+                              }}
+                            >
+                              <Trash className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                      
+                      {/* Sous-catégories */}
+                      {selectedCategoryId === category.id && (
+                        <TableRow>
+                          <TableCell colSpan={3} className="p-0 bg-muted/30">
+                            <div className="pl-8 pr-4 py-2 space-y-2">
+                              <div className="flex justify-between items-center mb-2">
+                                <h4 className="font-medium">Sous-catégories</h4>
+                                <Button 
+                                  size="sm" 
+                                  variant="outline"
+                                  className="h-7 gap-1 text-xs"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setIsAddSubcategoryModalOpen(true);
+                                  }}
+                                >
+                                  <Plus className="h-3 w-3" />
+                                  Ajouter
+                                </Button>
+                              </div>
+                              
+                              {isSubcategoryLoading ? (
+                                <div className="py-2 text-sm text-muted-foreground">
+                                  Chargement des sous-catégories...
+                                </div>
+                              ) : subcategories.length === 0 ? (
+                                <div className="py-2 text-sm text-muted-foreground">
+                                  Aucune sous-catégorie trouvée
+                                </div>
+                              ) : (
+                                <div className="rounded border bg-background">
+                                  <Table>
+                                    <TableHeader>
+                                      <TableRow>
+                                        <TableHead>Nom</TableHead>
+                                        <TableHead className="hidden md:table-cell">Description</TableHead>
+                                        <TableHead>Actions</TableHead>
+                                      </TableRow>
+                                    </TableHeader>
+                                    <TableBody>
+                                      {subcategories.map((subcategory) => (
+                                        <TableRow key={subcategory.id}>
+                                          <TableCell>{subcategory.name}</TableCell>
+                                          <TableCell className="hidden md:table-cell">
+                                            {subcategory.description || '-'}
+                                          </TableCell>
+                                          <TableCell>
+                                            <Button 
+                                              variant="ghost" 
+                                              size="icon" 
+                                              className="text-destructive"
+                                              onClick={(e) => {
+                                                e.stopPropagation();
+                                                handleDeleteSubcategory(subcategory.id);
+                                              }}
+                                            >
+                                              <Trash className="h-4 w-4" />
+                                            </Button>
+                                          </TableCell>
+                                        </TableRow>
+                                      ))}
+                                    </TableBody>
+                                  </Table>
+                                </div>
+                              )}
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      )}
+                    </React.Fragment>
                   ))
                 )}
               </TableBody>

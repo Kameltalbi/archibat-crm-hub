@@ -92,6 +92,26 @@ export const expenseService = {
     return data || [];
   },
 
+  // Créer une nouvelle sous-catégorie
+  async createExpenseSubcategory(subcategory: { 
+    name: string; 
+    description: string | null; 
+    category_id: string 
+  }): Promise<any> {
+    return await supabase
+      .from('expense_subcategories')
+      .insert(subcategory)
+      .select();
+  },
+
+  // Supprimer une sous-catégorie
+  async deleteExpenseSubcategory(id: string): Promise<any> {
+    return await supabase
+      .from('expense_subcategories')
+      .delete()
+      .eq('id', id);
+  },
+
   // Créer une nouvelle dépense
   async createExpense(expense: Omit<Expense, 'id' | 'created_at' | 'updated_at'>): Promise<Expense> {
     const { data, error } = await supabase
