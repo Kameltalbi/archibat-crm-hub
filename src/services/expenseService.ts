@@ -51,6 +51,31 @@ export const expenseService = {
     return data || [];
   },
 
+  // Créer une nouvelle catégorie de dépense
+  async createExpenseCategory(category: { name: string; description: string | null }): Promise<any> {
+    return await supabase
+      .from('expense_categories')
+      .insert(category)
+      .select();
+  },
+
+  // Mettre à jour une catégorie de dépense
+  async updateExpenseCategory(id: string, updates: { name: string; description: string | null }): Promise<any> {
+    return await supabase
+      .from('expense_categories')
+      .update(updates)
+      .eq('id', id)
+      .select();
+  },
+
+  // Supprimer une catégorie de dépense
+  async deleteExpenseCategory(id: string): Promise<any> {
+    return await supabase
+      .from('expense_categories')
+      .delete()
+      .eq('id', id);
+  },
+
   // Récupérer toutes les sous-catégories pour une catégorie donnée
   async getSubcategoriesByCategory(categoryId: string): Promise<ExpenseSubcategory[]> {
     const { data, error } = await supabase

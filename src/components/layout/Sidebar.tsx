@@ -21,6 +21,7 @@ import {
   Book,
   LineChart,
   Wallet,
+  Categories,
 } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { NavLink, useLocation } from "react-router-dom";
@@ -53,6 +54,7 @@ const Sidebar = () => {
     { id: 3, title: "Projets", icon: <Briefcase size={18} />, path: "/dashboard/projects" },
     { id: 4, title: "Produits", icon: <Package size={18} />, path: "/dashboard/products" },
     { id: 5, title: "Catégories", icon: <ListFilter size={18} />, path: "/dashboard/categories" },
+    { id: 12, title: "Catégories dépenses", icon: <Categories size={18} />, path: "/dashboard/expense-categories" },
     { id: 6, title: "Plan de trésorerie", icon: <LineChart size={18} />, path: "/dashboard/treasury-plan" },
     { id: 7, title: "Dépenses", icon: <Wallet size={18} />, path: "/dashboard/expenses" },
     { id: 8, title: "Calendrier", icon: <CalendarIcon size={18} />, path: "/dashboard/calendar" },

@@ -16,6 +16,7 @@ import Settings from "./pages/Settings";
 import Documentation from "./pages/Documentation";
 import TreasuryPlan from "./pages/TreasuryPlan";
 import Expenses from "./pages/Expenses";
+import ExpenseCategories from "./pages/ExpenseCategories";
 import { Toaster } from "./components/ui/toaster";
 import { SidebarProvider } from "./components/ui/sidebar";
 import { useState, useEffect } from "react";
@@ -63,6 +64,7 @@ const App = () => {
             <Route path="projects/:id" element={<ProjectDetails />} />
             <Route path="products" element={<Products />} />
             <Route path="categories" element={<Categories />} />
+            <Route path="expense-categories" element={<ExpenseCategories />} />
             <Route path="calendar" element={<Calendar />} />
             <Route path="leaves" element={<Leaves />} />
             <Route path="treasury-plan" element={<TreasuryPlan />} />
