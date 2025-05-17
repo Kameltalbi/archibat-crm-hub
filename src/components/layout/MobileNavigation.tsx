@@ -28,7 +28,7 @@ const menuItems = [
     path: "/dashboard/clients",
   },
   {
-    title: "Projets",
+    title: "Actions commerciales",
     icon: Briefcase,
     path: "/dashboard/projects",
   },

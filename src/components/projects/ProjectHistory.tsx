@@ -92,7 +92,7 @@ export const ProjectHistory = ({ projectId, projectName }: ProjectHistoryProps) 
         <div>
           <CardTitle>Historique</CardTitle>
           <CardDescription>
-            Historique des actions pour le projet {projectName}
+            Historique des actions pour l'action commerciale {projectName}
           </CardDescription>
         </div>
         <Button 

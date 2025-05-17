@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -135,9 +136,9 @@ const Projects = () => {
     <div className="space-y-8">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-semibold mb-2">Projets</h1>
+          <h1 className="text-3xl font-semibold mb-2">Actions commerciales</h1>
           <p className="text-muted-foreground">
-            Gérez vos projets et leur avancement
+            Gérez vos actions commerciales et leur avancement
           </p>
         </div>
         <AddProjectModal onProjectAdded={fetchProjects} />
@@ -145,9 +146,9 @@ const Projects = () => {
       
       <Card className="animate-fade-in">
         <CardHeader>
-          <CardTitle>Liste des projets</CardTitle>
+          <CardTitle>Liste des actions commerciales</CardTitle>
           <CardDescription>
-            {filteredProjects.length} projets au total
+            {filteredProjects.length} actions commerciales au total
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -155,7 +156,7 @@ const Projects = () => {
             <div className="relative flex-1 max-w-sm">
               <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
               <Input
-                placeholder="Rechercher un projet..."
+                placeholder="Rechercher une action commerciale..."
                 className="pl-8"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}

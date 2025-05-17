@@ -121,7 +121,7 @@ const Sidebar = () => {
       title: "Gestion des activités",
       items: [
         { id: 2, title: "Clients", icon: <Users size={18} />, path: "/dashboard/clients" },
-        { id: 3, title: "Projets", icon: <Folder size={18} />, path: "/dashboard/projects" },
+        { id: 3, title: "Actions commerciales", icon: <Folder size={18} />, path: "/dashboard/projects" },
         { id: 4, title: "Produits/Services", icon: <Package size={18} />, path: "/dashboard/products" },
         { id: 6, title: "Charges & Dépenses", icon: <Wallet size={18} />, path: "/dashboard/expenses" },
         { id: 8, title: "Calendrier", icon: <Calendar size={18} />, path: "/dashboard/calendar" }

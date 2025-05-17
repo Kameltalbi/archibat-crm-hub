@@ -40,10 +40,10 @@ const EditProjectModal = ({ project, onUpdate }: EditProjectModalProps) => {
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
           <DialogTitle className="text-xl text-charcoal dark:text-light-gray">
-            Modifier le projet
+            Modifier l'action commerciale
           </DialogTitle>
           <DialogDescription className="text-muted-foreground">
-            Modifiez les informations du projet
+            Modifiez les informations de l'action commerciale
           </DialogDescription>
         </DialogHeader>
         
