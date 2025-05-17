@@ -1,4 +1,3 @@
-
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import Layout from "./components/layout/Layout";
 import Home from "./pages/Home";
@@ -64,6 +63,7 @@ const App = () => {
             <Route path="projects/:id" element={<ProjectDetails />} />
             <Route path="products" element={<Products />} />
             <Route path="categories" element={<Categories />} />
+            <Route path="expense-categories" element={<ExpenseCategories />} />
             <Route path="expense-categories" element={<ExpenseCategories />} />
             <Route path="calendar" element={<Calendar />} />
             <Route path="leaves" element={<Leaves />} />
