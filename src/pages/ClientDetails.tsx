@@ -5,6 +5,7 @@ import { ClientHeader } from "@/components/clients/ClientHeader";
 import { ClientInfo } from "@/components/clients/ClientInfo";
 import { ClientContacts } from "@/components/clients/ClientContacts";
 import { ClientRevenue } from "@/components/clients/ClientRevenue";
+import { ClientHistory } from "@/components/clients/ClientHistory";
 import { useClientDetails } from "@/hooks/useClientDetails";
 import { ArrowLeft } from "lucide-react";
 
@@ -48,6 +49,7 @@ const ClientDetails = () => {
         <div className="md:col-span-2 space-y-6">
           <ClientInfo client={client} />
           <ClientContacts client={client} />
+          <ClientHistory client={client} />
         </div>
         
         <div>

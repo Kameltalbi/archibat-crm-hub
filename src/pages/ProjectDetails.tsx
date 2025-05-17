@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -10,6 +9,7 @@ import { ProjectStatus, supabase } from "@/lib/supabase";
 import { useToast } from "@/hooks/use-toast";
 import AddSaleDialog from "@/components/projects/sales/AddSaleDialog";
 import EditSaleDialog from "@/components/projects/sales/EditSaleDialog";
+import { ProjectHistory } from "@/components/projects/ProjectHistory";
 
 interface ProjectWithClient {
   id: string;
@@ -321,6 +321,9 @@ const ProjectDetails = () => {
           </CardContent>
         </Card>
       </div>
+
+      {/* Add the history component here */}
+      <ProjectHistory projectId={id!} projectName={project.name} />
 
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
