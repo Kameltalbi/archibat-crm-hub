@@ -69,6 +69,12 @@ const DashboardSummary = ({ isLoading = false, stats }: DashboardSummaryProps) =
   const [isLoadingLocal, setIsLoadingLocal] = useState<boolean>(isLoading);
   const { toast } = useToast();
 
+  // Helper function to get the last day of month safely
+  const getLastDayOfMonth = (year: number, month: number): number => {
+    // Create a date for the first day of the next month, then subtract one day
+    return new Date(year, month, 0).getDate();
+  };
+
   // Use the stats props if provided, otherwise fetch from supabase
   useEffect(() => {
     // If stats are provided, use them instead of fetching
@@ -145,11 +151,14 @@ const DashboardSummary = ({ isLoading = false, stats }: DashboardSummaryProps) =
         const currentMonth = currentDate.getMonth() + 1; // getMonth() est 0-indexé
         const currentYear = currentDate.getFullYear();
         
+        // Obtenez le dernier jour du mois en cours de manière sûre
+        const lastDayOfCurrentMonth = getLastDayOfMonth(currentYear, currentMonth);
+        
         const { data: monthlyProjectsData, error: monthlyError } = await supabase
           .from('projects')
           .select('target_revenue')
           .gte('start_date', `${currentYear}-${currentMonth.toString().padStart(2, '0')}-01`)
-          .lte('start_date', `${currentYear}-${currentMonth.toString().padStart(2, '0')}-31`);
+          .lte('start_date', `${currentYear}-${currentMonth.toString().padStart(2, '0')}-${lastDayOfCurrentMonth}`);
           
         if (monthlyError) throw monthlyError;
         
@@ -159,15 +168,17 @@ const DashboardSummary = ({ isLoading = false, stats }: DashboardSummaryProps) =
         setMonthlyRevenue(monthlyRevenueValue);
         
         // Calculer le CA du mois précédent
-        const previousMonth = currentDate.getMonth();
-        const previousMonthYear = previousMonth === 0 ? currentYear - 1 : currentYear;
-        const adjustedPreviousMonth = previousMonth === 0 ? 12 : previousMonth;
+        const previousMonth = currentMonth - 1 > 0 ? currentMonth - 1 : 12;
+        const previousMonthYear = previousMonth === 12 && currentMonth === 1 ? currentYear - 1 : currentYear;
+        
+        // Obtenez le dernier jour du mois précédent de manière sûre
+        const lastDayOfPreviousMonth = getLastDayOfMonth(previousMonthYear, previousMonth);
         
         const { data: prevMonthProjectsData, error: prevMonthError } = await supabase
           .from('projects')
           .select('target_revenue')
-          .gte('start_date', `${previousMonthYear}-${adjustedPreviousMonth.toString().padStart(2, '0')}-01`)
-          .lte('start_date', `${previousMonthYear}-${adjustedPreviousMonth.toString().padStart(2, '0')}-31`);
+          .gte('start_date', `${previousMonthYear}-${previousMonth.toString().padStart(2, '0')}-01`)
+          .lte('start_date', `${previousMonthYear}-${previousMonth.toString().padStart(2, '0')}-${lastDayOfPreviousMonth}`);
           
         if (prevMonthError) throw prevMonthError;
         
@@ -175,8 +186,6 @@ const DashboardSummary = ({ isLoading = false, stats }: DashboardSummaryProps) =
           return sum + (project.target_revenue || 0);
         }, 0);
         setPreviousMonthRevenue(prevMonthRevenueValue);
-        
-        // Calculer le pourcentage de variation entre ce mois et le mois précédent
         
         // Récupérer les dépenses pour le mois en cours et le mois précédent
         try {
