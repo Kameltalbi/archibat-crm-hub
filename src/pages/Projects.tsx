@@ -1,247 +1,154 @@
-
-import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Search, Trash } from "lucide-react";
+import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/lib/supabase";
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { useToast } from "@/hooks/use-toast";
+import { Edit, Search, Trash2, Filter, KanbanSquare } from "lucide-react";
 import AddProjectModal from "@/components/projects/AddProjectModal";
 import EditProjectModal from "@/components/projects/EditProjectModal";
-import { supabase } from "@/lib/supabase";
-import { useToast } from "@/hooks/use-toast";
-import { Project, ProjectStatus } from "@/lib/supabase";
-
-// Update the interface to match the expected types
-interface ProjectWithClient extends Omit<Project, 'status'> {
-  client_name: string;
-  status: ProjectStatus | null;
-  clients?: { name: string; id: string; }; // Add clients field to match what we get from Supabase
-}
+import { Project } from "@/lib/supabase";
+import { AlertDialog, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 
 const Projects = () => {
-  const navigate = useNavigate();
-  const [searchTerm, setSearchTerm] = useState("");
-  const [projects, setProjects] = useState<ProjectWithClient[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [search, setSearch] = useState("");
+  const [open, setOpen] = useState(false);
   const { toast } = useToast();
-  
-  useEffect(() => {
-    fetchProjects();
-  }, []);
 
-  const fetchProjects = async () => {
-    setIsLoading(true);
-    try {
-      const { data: projectsData, error: projectsError } = await supabase
+  const { data: projects, isLoading, error, refetch } = useQuery({
+    queryKey: ['projects'],
+    queryFn: async () => {
+      const { data, error } = await supabase
         .from('projects')
         .select(`
           *,
-          clients(id, name)
-        `);
-        
-      if (projectsError) {
-        throw projectsError;
-      }
-      
-      // Transformer les données pour inclure le nom du client
-      const formattedProjects: ProjectWithClient[] = projectsData.map(project => {
-        return {
-          ...project,
-          client_name: project.clients ? project.clients.name : 'Pas de client',
-          // Ensure status is correctly typed as ProjectStatus
-          status: project.status as ProjectStatus | null 
-        };
-      });
-      
-      setProjects(formattedProjects);
-    } catch (error) {
-      console.error('Erreur lors du chargement des projets:', error);
-      toast({
-        variant: "destructive",
-        title: "Erreur",
-        description: "Impossible de charger les projets. Veuillez réessayer."
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
+          clients(name)
+        `)
+        .order('created_at', { ascending: false });
 
-  const handleDeleteProject = async (id: string) => {
+      if (error) throw error;
+
+      return data as Project[];
+    },
+  });
+
+  const handleDelete = async (id: string) => {
     try {
       const { error } = await supabase
         .from('projects')
         .delete()
         .eq('id', id);
-        
-      if (error) {
-        throw error;
-      }
-      
-      setProjects(projects.filter(project => project.id !== id));
+
+      if (error) throw error;
+
       toast({
-        title: "Projet supprimé",
-        description: "Le projet a été supprimé avec succès."
+        title: "Action supprimée",
+        description: "L'action a été supprimée avec succès.",
       });
-    } catch (error) {
-      console.error('Erreur lors de la suppression du projet:', error);
+      refetch();
+    } catch (error: any) {
       toast({
-        variant: "destructive",
         title: "Erreur",
-        description: "Impossible de supprimer le projet. Veuillez réessayer."
+        description: error.message,
+        variant: "destructive",
       });
     }
   };
 
-  // Fix the navigation to project details by ensuring we're working with the correct ID type
-  const handleRowClick = (project: ProjectWithClient) => {
-    console.log(`Navigating to project with ID: ${project.id}`);
-    navigate(`/dashboard/projects/${project.id}`);
-  };
-  
-  const getStatusClass = (status: string | null) => {
-    if (!status) return "bg-gray-100 text-gray-700 border border-gray-200";
-    
-    switch (status) {
-      case "En cours":
-        return "bg-amber-50 text-amber-700 border border-amber-200";
-      case "Terminé":
-        return "bg-emerald-50 text-emerald-700 border border-emerald-200";
-      case "Planifié":
-        return "bg-blue-50 text-blue-700 border border-blue-200";
-      case "Suspendu":
-        return "bg-red-50 text-red-700 border border-red-200";
-      default:
-        return "bg-gray-100 text-gray-700 border border-gray-200";
-    }
-  };
-  
-  const filteredProjects = projects.filter(project =>
-    project.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    project.client_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    (project.category && project.category.toLowerCase().includes(searchTerm.toLowerCase()))
+  const filteredProjects = projects?.filter((project) =>
+    project.name.toLowerCase().includes(search.toLowerCase()) ||
+    project.description?.toLowerCase().includes(search.toLowerCase()) ||
+    project.clients?.name?.toLowerCase().includes(search.toLowerCase())
   );
-  
-  // Format currency for target_revenue display - Updated to use TND
-  const formatCurrency = (amount: number | null) => {
-    if (amount === null) return "-";
-    return new Intl.NumberFormat('fr-FR', { 
-      style: 'currency', 
-      currency: 'TND',
-      minimumFractionDigits: 0
-    }).format(amount);
-  };
-  
+
+  if (isLoading) {
+    return <div>Chargement...</div>;
+  }
+
+  if (error) {
+    return <div>Error: {error.message}</div>;
+  }
+
   return (
-    <div className="space-y-8">
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-semibold mb-2">Actions commerciales</h1>
-          <p className="text-muted-foreground">
-            Gérez vos actions commerciales et leur avancement
-          </p>
+    <div className="container mx-auto py-6">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
+        <h1 className="text-2xl font-bold text-charcoal mb-4 md:mb-0">Actions commerciales</h1>
+        <div className="flex gap-2">
+          <Button 
+            variant="outline" 
+            className="flex items-center gap-2"
+            asChild
+          >
+            <Link to="/dashboard/projects/suivi">
+              <KanbanSquare size={16} />
+              Vue Kanban
+            </Link>
+          </Button>
+          <AddProjectModal onProjectAdded={() => refetch()} />
         </div>
-        <AddProjectModal onProjectAdded={fetchProjects} />
       </div>
-      
-      <Card className="animate-fade-in">
-        <CardHeader>
-          <CardTitle>Liste des actions commerciales</CardTitle>
-          <CardDescription>
-            {filteredProjects.length} actions commerciales au total
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="flex items-center mb-6">
-            <div className="relative flex-1 max-w-sm">
-              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Rechercher une action commerciale..."
-                className="pl-8"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-            </div>
-          </div>
-          
-          <div className="rounded-md border">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Nom</TableHead>
-                  <TableHead>Objectif CA</TableHead>
-                  <TableHead>Catégorie</TableHead>
-                  <TableHead className="hidden md:table-cell">Date début</TableHead>
-                  <TableHead className="hidden md:table-cell">Date fin</TableHead>
-                  <TableHead>Statut</TableHead>
-                  <TableHead>Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {isLoading ? (
-                  <TableRow>
-                    <TableCell colSpan={7} className="text-center py-6 text-muted-foreground">
-                      Chargement des données...
-                    </TableCell>
-                  </TableRow>
-                ) : filteredProjects.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={7} className="text-center py-6 text-muted-foreground">
-                      Aucun projet trouvé
-                    </TableCell>
-                  </TableRow>
-                ) : (
-                  filteredProjects.map((project) => (
-                    <TableRow 
-                      key={project.id}
-                      className="cursor-pointer hover:bg-muted/60"
-                      onClick={() => handleRowClick(project)}
-                    >
-                      <TableCell className="font-medium">{project.name}</TableCell>
-                      <TableCell>{formatCurrency(project.target_revenue)}</TableCell>
-                      <TableCell>{project.category || '-'}</TableCell>
-                      <TableCell className="hidden md:table-cell">
-                        {project.start_date ? new Date(project.start_date).toLocaleDateString() : '-'}
-                      </TableCell>
-                      <TableCell className="hidden md:table-cell">
-                        {project.end_date ? new Date(project.end_date).toLocaleDateString() : '-'}
-                      </TableCell>
-                      <TableCell>
-                        <span 
-                          className={`inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ${
-                            getStatusClass(project.status)
-                          }`}
-                        >
-                          {project.status || 'Non défini'}
-                        </span>
-                      </TableCell>
-                      <TableCell onClick={(e) => e.stopPropagation()}>
-                        <div className="flex items-center gap-2">
-                          <EditProjectModal 
-                            project={project} 
-                            onUpdate={fetchProjects}
-                          />
-                          <Button 
-                            variant="ghost" 
-                            size="icon" 
-                            className="text-destructive"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleDeleteProject(project.id);
-                            }}
-                          >
-                            <Trash className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))
-                )}
-              </TableBody>
-            </Table>
-          </div>
-        </CardContent>
-      </Card>
+
+      <div className="flex flex-col md:flex-row justify-between items-center mb-4">
+        <Input
+          type="search"
+          placeholder="Rechercher une action..."
+          className="max-w-md md:w-auto flex-grow md:flex-grow-0"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
+      </div>
+
+      <ScrollArea className="w-full">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Nom</TableHead>
+              <TableHead>Client</TableHead>
+              <TableHead>Date de début</TableHead>
+              <TableHead>Date de fin</TableHead>
+              <TableHead className="text-right">Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {filteredProjects?.map((project) => (
+              <TableRow key={project.id}>
+                <TableCell>{project.name}</TableCell>
+                <TableCell>{project.clients?.name}</TableCell>
+                <TableCell>{new Date(project.start_date).toLocaleDateString()}</TableCell>
+                <TableCell>{project.end_date ? new Date(project.end_date).toLocaleDateString() : 'En cours'}</TableCell>
+                <TableCell className="text-right">
+                  <div className="flex justify-end gap-2">
+                    <EditProjectModal project={project} onUpdate={() => refetch()} />
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button variant="ghost" size="icon">
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Êtes-vous sûr(e) ?</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            Cette action supprimera définitivement l'action commerciale de votre base de données.
+                            Cette action est irréversible.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Annuler</AlertDialogCancel>
+                          <Button variant="destructive" onClick={() => handleDelete(project.id)}>Supprimer</Button>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  </div>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </ScrollArea>
     </div>
   );
 };

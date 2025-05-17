@@ -7,6 +7,7 @@ import Clients from "./pages/Clients";
 import ClientDetails from "./pages/ClientDetails";
 import Projects from "./pages/Projects";
 import ProjectDetails from "./pages/ProjectDetails";
+import SuiviActions from "./pages/SuiviActions";
 import Products from "./pages/Products";
 import NotFound from "./pages/NotFound";
 import Calendar from "./pages/Calendar";
@@ -61,6 +62,7 @@ const App = () => {
             <Route path="clients/:id" element={<ClientDetails />} />
             <Route path="projects" element={<Projects />} />
             <Route path="projects/:id" element={<ProjectDetails />} />
+            <Route path="projects/suivi" element={<SuiviActions />} />
             <Route path="products" element={<Products />} />
             <Route path="calendar" element={<Calendar />} />
             <Route path="leaves" element={<Leaves />} />
