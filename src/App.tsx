@@ -14,6 +14,8 @@ import Calendar from "./pages/Calendar";
 import Leaves from "./pages/Leaves";
 import Settings from "./pages/Settings";
 import Documentation from "./pages/Documentation";
+import TreasuryPlan from "./pages/TreasuryPlan";
+import Expenses from "./pages/Expenses";
 import { Toaster } from "./components/ui/toaster";
 import { SidebarProvider } from "./components/ui/sidebar";
 import { useState, useEffect } from "react";
@@ -63,6 +65,8 @@ const App = () => {
             <Route path="categories" element={<Categories />} />
             <Route path="calendar" element={<Calendar />} />
             <Route path="leaves" element={<Leaves />} />
+            <Route path="treasury-plan" element={<TreasuryPlan />} />
+            <Route path="expenses" element={<Expenses />} />
             <Route path="settings" element={<Settings />} />
             <Route path="documentation" element={<Documentation />} />
           </Route>

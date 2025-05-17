@@ -90,6 +90,125 @@ export type Database = {
         }
         Relationships: []
       }
+      expense_categories: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      expense_subcategories: {
+        Row: {
+          category_id: string
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          category_id: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          category_id?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "expense_subcategories_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "expense_categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      expenses: {
+        Row: {
+          amount: number
+          category_id: string | null
+          created_at: string
+          date: string
+          id: string
+          is_recurring: boolean
+          label: string
+          notes: string | null
+          recurring_end_date: string | null
+          recurring_frequency: string | null
+          subcategory_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          amount: number
+          category_id?: string | null
+          created_at?: string
+          date?: string
+          id?: string
+          is_recurring?: boolean
+          label: string
+          notes?: string | null
+          recurring_end_date?: string | null
+          recurring_frequency?: string | null
+          subcategory_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          category_id?: string | null
+          created_at?: string
+          date?: string
+          id?: string
+          is_recurring?: boolean
+          label?: string
+          notes?: string | null
+          recurring_end_date?: string | null
+          recurring_frequency?: string | null
+          subcategory_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "expenses_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "expense_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "expenses_subcategory_id_fkey"
+            columns: ["subcategory_id"]
+            isOneToOne: false
+            referencedRelation: "expense_subcategories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       leave_requests: {
         Row: {
           created_at: string

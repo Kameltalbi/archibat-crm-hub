@@ -1,144 +1,128 @@
-
+import React, { useState } from "react";
 import {
-  Sidebar,
-  SidebarContent,
-  SidebarFooter,
-  SidebarHeader,
-  SidebarMenu,
-  SidebarMenuItem,
-  SidebarMenuButton,
-  SidebarTrigger,
-} from "@/components/ui/sidebar";
-import { Home, Users, Briefcase, Calendar, Settings, LogOut, Grid, List, Clock } from "lucide-react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
-import { cn } from "@/lib/utils";
-import { supabase } from "@/lib/supabase";
-import { useToast } from "@/hooks/use-toast";
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
+import { Button } from "@/components/ui/button";
+import { Menu } from "lucide-react";
+import {
+  Home,
+  Users,
+  Briefcase,
+  Package,
+  ListFilter,
+  Calendar as CalendarIcon,
+  Settings as SettingsIcon,
+  Book,
+  LineChart,
+  Wallet,
+} from "lucide-react";
+import { Separator } from "@/components/ui/separator";
+import { NavLink, useLocation } from "react-router-dom";
+import { useSidebar } from "@/components/ui/sidebar";
+import { useEffect } from "react";
 
-const menuItems = [
-  {
-    title: "Dashboard",
-    icon: Home,
-    path: "/dashboard",
-  },
-  {
-    title: "Clients",
-    icon: Users,
-    path: "/dashboard/clients",
-  },
-  {
-    title: "Projets",
-    icon: Briefcase,
-    path: "/dashboard/projects",
-  },
-  {
-    title: "Produits",
-    icon: Grid,
-    path: "/dashboard/products",
-  },
-  {
-    title: "Catégories",
-    icon: List,
-    path: "/dashboard/categories",
-  },
-  {
-    title: "Calendrier",
-    icon: Calendar,
-    path: "/dashboard/calendar",
-  },
-  {
-    title: "Congés",
-    icon: Clock,
-    path: "/dashboard/leaves",
-  },
-  {
-    title: "Paramètres",
-    icon: Settings,
-    path: "/dashboard/settings",
-  },
-];
-
-const AppSidebar = () => {
+const Sidebar = () => {
   const location = useLocation();
-  const navigate = useNavigate();
-  const { toast } = useToast();
-  
-  // Fonction de déconnexion mise à jour
-  const handleLogout = async () => {
-    try {
-      // Nettoyer les états d'authentification
-      const { error } = await supabase.auth.signOut({ scope: 'global' });
-      
-      if (error) throw error;
-      
-      // Afficher une notification de déconnexion réussie
-      toast({
-        title: "Déconnexion réussie",
-        description: "Vous avez été déconnecté avec succès.",
-      });
-      
-      // Rediriger vers la page d'accueil
-      navigate("/");
-    } catch (error) {
-      console.error("Erreur lors de la déconnexion:", error);
-      toast({
-        title: "Erreur",
-        description: "Une erreur est survenue lors de la déconnexion.",
-        variant: "destructive",
-      });
-    }
+  const { isOpen, setIsOpen } = useSidebar();
+  const [activeItem, setActiveItem] = useState<number | null>(null);
+
+  useEffect(() => {
+    // Déterminer l'élément de menu actif en fonction de l'URL
+    const path = location.pathname;
+    const menuItem = menuItems.find(item => item.path === path || path.startsWith(item.path + '/'));
+    setActiveItem(menuItem ? menuItem.id : null);
+  }, [location]);
+
+  const handleItemClick = (id: number) => {
+    setActiveItem(id);
+    setIsOpen(false); // Ferme la sidebar après avoir cliqué sur un élément (sur mobile)
   };
 
+  const menuItems = [
+    { id: 1, title: "Tableau de bord", icon: <Home size={18} />, path: "/dashboard" },
+    { id: 2, title: "Clients", icon: <Users size={18} />, path: "/dashboard/clients" },
+    { id: 3, title: "Projets", icon: <Briefcase size={18} />, path: "/dashboard/projects" },
+    { id: 4, title: "Produits", icon: <Package size={18} />, path: "/dashboard/products" },
+    { id: 5, title: "Catégories", icon: <ListFilter size={18} />, path: "/dashboard/categories" },
+    { id: 6, title: "Plan de trésorerie", icon: <LineChart size={18} />, path: "/dashboard/treasury-plan" },
+    { id: 7, title: "Dépenses", icon: <Wallet size={18} />, path: "/dashboard/expenses" },
+    { id: 8, title: "Calendrier", icon: <CalendarIcon size={18} />, path: "/dashboard/calendar" },
+    { id: 9, title: "Congés", icon: <Briefcase size={18} />, path: "/dashboard/leaves" },
+    { id: 10, title: "Paramètres", icon: <SettingsIcon size={18} />, path: "/dashboard/settings" },
+    { id: 11, title: "Documentation", icon: <Book size={18} />, path: "/dashboard/documentation" },
+  ];
+
   return (
-    <Sidebar className="bg-menu-bg">
-      <SidebarHeader className="h-20 flex items-center justify-center px-6 border-b border-sidebar-border">
-        <div className="flex items-center justify-center">
-          <img 
-            src="/lovable-uploads/6e406553-32da-493a-87fe-c175bc00e795.png" 
-            alt="Archibat Logo" 
-            className="h-16 w-auto object-contain"
-          />
-        </div>
-      </SidebarHeader>
-      <SidebarContent>
-        <SidebarMenu className="py-4 space-y-4">
-          {menuItems.map((item, index) => (
-            <SidebarMenuItem key={item.path}>
-              <SidebarMenuButton
-                asChild
-                className={cn(
-                  "transition-colors hover:bg-menu-highlight/30",
-                  location.pathname === item.path && "bg-menu-highlight text-white font-medium"
-                )}
+    <>
+      {/* Mobile menu */}
+      <Sheet open={isOpen} onOpenChange={setIsOpen}>
+        <SheetTrigger asChild>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="p-0 data-[state=open]:bg-transparent focus:bg-transparent hover:bg-transparent md:hidden"
+          >
+            <Menu className="h-5 w-5" />
+          </Button>
+        </SheetTrigger>
+        <SheetContent side="left" className="w-3/4 border-r md:hidden">
+          <SheetHeader className="text-left">
+            <SheetTitle>Menu</SheetTitle>
+            <SheetDescription>
+              Naviguez à travers les différentes sections de l'application.
+            </SheetDescription>
+          </SheetHeader>
+          <Separator className="my-4" />
+          <div className="flex flex-col space-y-2.5">
+            {menuItems.map((item) => (
+              <NavLink
+                key={item.id}
+                to={item.path}
+                className={`flex items-center space-x-2 rounded-md p-2 text-sm font-medium hover:underline ${
+                  activeItem === item.id
+                    ? "font-bold text-primary underline underline-offset-4"
+                    : "text-muted-foreground"
+                }`}
+                onClick={() => handleItemClick(item.id)}
               >
-                <Link 
-                  to={item.path} 
-                  className="flex items-center gap-4 py-3 px-4"
-                >
-                  <item.icon size={24} />
-                  <span className="text-base font-semibold">{item.title}</span>
-                </Link>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          ))}
-        </SidebarMenu>
-      </SidebarContent>
-      <SidebarFooter className="p-4 text-center text-xs text-sidebar-foreground/70">
-        <button 
-          onClick={handleLogout}
-          className="flex items-center justify-center w-full gap-2 py-3 px-3 mb-4 rounded-md text-sidebar-foreground hover:bg-menu-highlight/40 transition-colors"
-        >
-          <LogOut size={20} />
-          <span className="text-base font-semibold">Se déconnecter</span>
-        </button>
-        <div className="border-t border-sidebar-border pt-4">
-          <p>Archibat CRM</p>
-          <p>v1.0.0</p>
+                {item.icon}
+                <span>{item.title}</span>
+              </NavLink>
+            ))}
+          </div>
+        </SheetContent>
+      </Sheet>
+
+      {/* Desktop menu */}
+      <div className="hidden border-r bg-secondary h-full md:block">
+        <div className="flex flex-col space-y-2 w-full p-3">
+          <Separator className="my-4" />
+          <div className="flex flex-col space-y-1">
+            {menuItems.map((item) => (
+              <NavLink
+                key={item.id}
+                to={item.path}
+                className={`flex items-center space-x-2 rounded-md p-2 text-sm font-medium hover:bg-accent hover:text-accent-foreground ${
+                  activeItem === item.id
+                    ? "bg-accent text-accent-foreground font-semibold"
+                    : "text-muted-foreground"
+                }`}
+                onClick={() => handleItemClick(item.id)}
+              >
+                {item.icon}
+                <span>{item.title}</span>
+              </NavLink>
+            ))}
+          </div>
         </div>
-      </SidebarFooter>
-      <SidebarTrigger className="absolute top-3 right-3 md:flex lg:hidden text-white" />
-    </Sidebar>
+      </div>
+    </>
   );
 };
 
-export default AppSidebar;
+export default Sidebar;
