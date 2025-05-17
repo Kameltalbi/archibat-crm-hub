@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
@@ -54,8 +53,8 @@ const ExpensesPage = () => {
     <div className="p-4 md:p-6">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
         <div>
-          <h1 className="text-2xl md:text-3xl font-bold">Dépenses prévisionnelles</h1>
-          <p className="text-gray-500 mt-1">Gérez vos dépenses prévisionnelles</p>
+          <h1 className="text-2xl md:text-3xl font-bold">Charges & Dépenses</h1>
+          <p className="text-gray-500 mt-1">Gérez vos charges et dépenses prévisionnelles</p>
         </div>
         <div className="mt-4 md:mt-0">
           <AddExpenseModal onExpenseAdded={loadExpenses} />
@@ -65,7 +64,7 @@ const ExpensesPage = () => {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
         <Card>
           <CardHeader className="p-4">
-            <CardTitle className="text-sm">Total des dépenses prévisionnelles</CardTitle>
+            <CardTitle className="text-sm">Total des charges & dépenses prévisionnelles</CardTitle>
           </CardHeader>
           <CardContent className="p-4 pt-0">
             <div className="flex items-center">
@@ -109,7 +108,7 @@ const ExpensesPage = () => {
 
       <Card>
         <CardHeader className="p-4">
-          <CardTitle>Liste des dépenses</CardTitle>
+          <CardTitle>Liste des charges et dépenses</CardTitle>
         </CardHeader>
         <CardContent className="p-0">
           {loading ? (
@@ -159,7 +158,7 @@ const ExpensesPage = () => {
             </Table>
           ) : (
             <div className="p-4 text-center text-gray-500">
-              Aucune dépense prévisionnelle n'a encore été ajoutée.
+              Aucune charge ou dépense prévisionnelle n'a encore été ajoutée.
             </div>
           )}
         </CardContent>

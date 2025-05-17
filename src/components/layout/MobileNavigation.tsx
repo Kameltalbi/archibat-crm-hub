@@ -12,7 +12,7 @@ import {
   SheetTrigger,
 } from '@/components/ui/sheet';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { Home, Users, Briefcase, Calendar, Settings, LogOut, Grid, List, Clock } from "lucide-react";
+import { Home, Users, Briefcase, Calendar, Settings, LogOut, Grid, List, Clock, Wallet } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { useToast } from "@/hooks/use-toast";
 
@@ -33,9 +33,14 @@ const menuItems = [
     path: "/dashboard/projects",
   },
   {
-    title: "Produits",
+    title: "Produits/Services",
     icon: Grid,
     path: "/dashboard/products",
+  },
+  {
+    title: "Charges & Dépenses",
+    icon: Wallet,
+    path: "/dashboard/expenses",
   },
   {
     title: "Catégories",
