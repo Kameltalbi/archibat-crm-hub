@@ -1,4 +1,3 @@
-
 import { supabase, Project, ProjectStatus, ProjectProduct } from "@/lib/supabase";
 
 export const projectService = {
@@ -20,7 +19,7 @@ export const projectService = {
       return [];
     }
     
-    return data as Project[] || [];
+    return (data as Project[]) || [];
   },
   
   // Récupérer les projets avec les informations du client
@@ -102,13 +101,10 @@ export const projectService = {
   },
   
   // Créer un nouveau projet
-  async createProject(project: Omit<Project, 'id' | 'created_at' | 'updated_at'>): Promise<Project | null> {
+  async createProject(project: Omit<Project, 'id' | 'created_at' | 'updated_at'>>): Promise<Project | null> {
     const { data, error } = await supabase
       .from('projects')
-      .insert({
-        ...project,
-        is_archived: false // Assurer que les nouveaux projets ne sont pas archivés
-      })
+      .insert(project)
       .select()
       .single();
     

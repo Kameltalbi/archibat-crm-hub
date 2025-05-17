@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -9,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import AddProjectModal from "@/components/projects/AddProjectModal";
 import EditProjectModal from "@/components/projects/EditProjectModal";
 import { useToast } from "@/hooks/use-toast";
-import { Project, ProjectStatus } from "@/lib/supabase";
+import { Project, ProjectStatus, supabase } from "@/lib/supabase"; // Ajout de l'import de supabase
 import { projectService } from "@/services/projectService";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
