@@ -70,5 +70,30 @@ export const salesForecastService = {
     });
     
     return monthlyData;
+  },
+  
+  // New function to get all sales forecasts for the entire year
+  async getAllSalesForecastsForYear(year: number): Promise<SalesForecast[]> {
+    const startDate = new Date(year, 0, 1).toISOString().split('T')[0];
+    const endDate = new Date(year, 11, 31).toISOString().split('T')[0];
+    
+    const { data, error } = await supabase
+      .from('project_sales')
+      .select(`
+        *,
+        projects:project_id (name)
+      `)
+      .gte('expected_date', startDate)
+      .lte('expected_date', endDate);
+
+    if (error) {
+      console.error('Error fetching yearly sales forecasts:', error);
+      return [];
+    }
+    
+    return data.map((item: any) => ({
+      ...item,
+      project_name: item.projects?.name
+    }));
   }
 };

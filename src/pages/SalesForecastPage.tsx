@@ -8,7 +8,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
+import { Plus, TrendingUp } from "lucide-react";
 import { MonthSelector } from "@/components/sales-forecast/MonthSelector";
 import { SalesForecastTable } from "@/components/sales-forecast/SalesForecastTable";
 import { SalesForecastChart } from "@/components/sales-forecast/SalesForecastChart";
@@ -32,6 +32,12 @@ const SalesForecastPage = () => {
     queryFn: () => salesForecastService.getAllMonthlyForecasts(currentYear),
   });
 
+  // Query for total yearly forecasts
+  const { data: yearlyTotal, isLoading: isLoadingYearlyTotal } = useQuery({
+    queryKey: ["sales-forecast-total", currentYear],
+    queryFn: () => salesForecastService.getAllSalesForecastsForYear(currentYear),
+  });
+
   const handleMonthChange = (month: number, year: number) => {
     setCurrentMonth(month);
     setCurrentYear(year);
@@ -39,6 +45,12 @@ const SalesForecastPage = () => {
 
   // Calculate total amount for the selected month
   const totalMonthlyAmount = monthlyForecasts?.reduce(
+    (sum, forecast) => sum + forecast.amount,
+    0
+  ) || 0;
+
+  // Calculate total yearly amount
+  const totalYearlyAmount = yearlyTotal?.reduce(
     (sum, forecast) => sum + forecast.amount,
     0
   ) || 0;
@@ -64,6 +76,42 @@ const SalesForecastPage = () => {
         <Button>
           <Plus className="mr-2 h-4 w-4" /> Ajouter une prévision manuelle
         </Button>
+      </div>
+
+      <div className="grid gap-6 md:grid-cols-2">
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-md font-medium">Total des ventes prévues</CardTitle>
+            <CardDescription>Pour l'année {currentYear}</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-center space-x-2">
+              <TrendingUp className="h-8 w-8 text-blue-500" />
+              <div>
+                <div className="text-2xl font-bold">{formatAmount(totalYearlyAmount)}</div>
+                {isLoadingYearlyTotal && <div className="text-sm text-muted-foreground">Chargement...</div>}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-md font-medium">Total mensuel</CardTitle>
+            <CardDescription>
+              {new Date(currentYear, currentMonth - 1).toLocaleDateString('fr-FR', {month: 'long', year: 'numeric'})}
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-center space-x-2">
+              <TrendingUp className="h-8 w-8 text-green-500" />
+              <div>
+                <div className="text-2xl font-bold">{formatAmount(totalMonthlyAmount)}</div>
+                {isLoadingMonthly && <div className="text-sm text-muted-foreground">Chargement...</div>}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
       <Card>
