@@ -32,6 +32,7 @@ export interface Expense {
   updated_at: string;
   category_name?: string;
   subcategory_name?: string;
+  isGenerated?: boolean; // Added this property to fix the TypeScript error
 }
 
 export const expenseService = {
