@@ -5,9 +5,12 @@ import { fr } from "date-fns/locale";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, Clock, Euro } from "lucide-react";
+import { Calendar, Clock, Euro, Edit, Trash2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { Button } from "@/components/ui/button";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import AddExpenseModal from "@/components/expenses/AddExpenseModal";
+import EditExpenseModal from "@/components/expenses/EditExpenseModal";
 import { expenseService, Expense } from "@/services/expenseService";
 import { MonthSelector } from "@/components/sales-forecast/MonthSelector";
 
@@ -16,6 +19,11 @@ const ExpensesPage = () => {
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [filteredExpenses, setFilteredExpenses] = useState<Expense[]>([]);
   const [loading, setLoading] = useState(true);
+  
+  // États pour les modales
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [selectedExpenseId, setSelectedExpenseId] = useState<string | null>(null);
   
   // État pour le mois et l'année sélectionnés
   const today = new Date();
@@ -48,6 +56,41 @@ const ExpensesPage = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  // Gérer la suppression d'une dépense
+  const handleDeleteClick = (expenseId: string) => {
+    setSelectedExpenseId(expenseId);
+    setDeleteDialogOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!selectedExpenseId) return;
+    
+    try {
+      await expenseService.deleteExpense(selectedExpenseId);
+      toast({
+        title: "Dépense supprimée",
+        description: "La dépense a été supprimée avec succès"
+      });
+      loadExpenses();
+    } catch (error) {
+      console.error("Erreur lors de la suppression de la dépense:", error);
+      toast({
+        title: "Erreur",
+        description: "Impossible de supprimer la dépense",
+        variant: "destructive"
+      });
+    } finally {
+      setDeleteDialogOpen(false);
+      setSelectedExpenseId(null);
+    }
+  };
+
+  // Gérer l'édition d'une dépense
+  const handleEditClick = (expenseId: string) => {
+    setSelectedExpenseId(expenseId);
+    setEditModalOpen(true);
   };
 
   // Générer les occurrences des dépenses récurrentes pour le mois sélectionné
@@ -225,6 +268,7 @@ const ExpensesPage = () => {
                   <TableHead className="text-right">Montant</TableHead>
                   <TableHead>Type</TableHead>
                   <TableHead>Notes</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -259,6 +303,28 @@ const ExpensesPage = () => {
                     <TableCell className="max-w-[200px] truncate">
                       {expense.notes || "-"}
                     </TableCell>
+                    <TableCell className="text-right">
+                      {!expense.isGenerated && (
+                        <div className="flex justify-end gap-2">
+                          <Button 
+                            variant="ghost" 
+                            size="icon" 
+                            onClick={() => handleEditClick(expense.id)}
+                            className="h-8 w-8"
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          <Button 
+                            variant="ghost" 
+                            size="icon" 
+                            onClick={() => handleDeleteClick(expense.id)}
+                            className="h-8 w-8 text-red-500 hover:text-red-600 hover:bg-red-50"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      )}
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -270,6 +336,34 @@ const ExpensesPage = () => {
           )}
         </CardContent>
       </Card>
+
+      {/* Boîte de dialogue de confirmation de suppression */}
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Êtes-vous sûr ?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Cette action ne peut pas être annulée. Cette dépense sera définitivement supprimée de la base de données.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Annuler</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDelete} className="bg-red-600 hover:bg-red-700">
+              Supprimer
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Modal d'édition de dépense */}
+      {selectedExpenseId && (
+        <EditExpenseModal
+          isOpen={editModalOpen}
+          onClose={() => setEditModalOpen(false)}
+          onExpenseUpdated={loadExpenses}
+          expenseId={selectedExpenseId}
+        />
+      )}
     </div>
   );
 };

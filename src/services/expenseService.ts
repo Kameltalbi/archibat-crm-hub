@@ -218,5 +218,59 @@ export const expenseService = {
     }
     
     return (data || []).reduce((sum, expense) => sum + expense.amount, 0);
+  },
+
+  // Supprimer une dépense
+  async deleteExpense(id: string): Promise<void> {
+    const { error } = await supabase
+      .from('expenses')
+      .delete()
+      .eq('id', id);
+    
+    if (error) {
+      console.error('Erreur lors de la suppression de la dépense:', error);
+      throw error;
+    }
+  },
+
+  // Récupérer une dépense par son ID
+  async getExpenseById(id: string): Promise<Expense> {
+    const { data, error } = await supabase
+      .from('expenses')
+      .select(`
+        *,
+        expense_categories(name),
+        expense_subcategories(name)
+      `)
+      .eq('id', id)
+      .single();
+    
+    if (error) {
+      console.error('Erreur lors de la récupération de la dépense:', error);
+      throw error;
+    }
+    
+    return {
+      ...data,
+      category_name: data.expense_categories?.name,
+      subcategory_name: data.expense_subcategories?.name
+    };
+  },
+
+  // Mettre à jour une dépense
+  async updateExpense(id: string, expense: Partial<Expense>): Promise<Expense> {
+    const { data, error } = await supabase
+      .from('expenses')
+      .update(expense)
+      .eq('id', id)
+      .select()
+      .single();
+    
+    if (error) {
+      console.error('Erreur lors de la mise à jour de la dépense:', error);
+      throw error;
+    }
+    
+    return data;
   }
 };
