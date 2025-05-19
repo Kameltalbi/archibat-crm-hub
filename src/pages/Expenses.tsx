@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
@@ -8,11 +9,18 @@ import { Calendar, Clock, Euro } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import AddExpenseModal from "@/components/expenses/AddExpenseModal";
 import { expenseService, Expense } from "@/services/expenseService";
+import { MonthSelector } from "@/components/sales-forecast/MonthSelector";
 
 const ExpensesPage = () => {
   const { toast } = useToast();
   const [expenses, setExpenses] = useState<Expense[]>([]);
+  const [filteredExpenses, setFilteredExpenses] = useState<Expense[]>([]);
   const [loading, setLoading] = useState(true);
+  
+  // État pour le mois et l'année sélectionnés
+  const today = new Date();
+  const [currentMonth, setCurrentMonth] = useState(today.getMonth() + 1); // Les mois commencent à 0 en JS
+  const [currentYear, setCurrentYear] = useState(today.getFullYear());
   
   // Formater le montant en DT
   const formatAmount = (amount: number) => {
@@ -42,12 +50,32 @@ const ExpensesPage = () => {
     }
   };
 
+  // Filtrer les dépenses par mois sélectionné
+  useEffect(() => {
+    if (expenses.length > 0) {
+      const filtered = expenses.filter((expense) => {
+        const expenseDate = new Date(expense.date);
+        return (
+          expenseDate.getMonth() + 1 === currentMonth &&
+          expenseDate.getFullYear() === currentYear
+        );
+      });
+      setFilteredExpenses(filtered);
+    }
+  }, [expenses, currentMonth, currentYear]);
+
   useEffect(() => {
     loadExpenses();
   }, []);
 
-  // Calculer le total des dépenses
-  const totalExpenses = expenses.reduce((total, expense) => total + Number(expense.amount), 0);
+  // Calculer le total des dépenses filtrées
+  const totalExpenses = filteredExpenses.reduce((total, expense) => total + Number(expense.amount), 0);
+
+  // Gérer le changement de mois
+  const handleMonthChange = (month: number, year: number) => {
+    setCurrentMonth(month);
+    setCurrentYear(year);
+  };
 
   return (
     <div className="p-4 md:p-6">
@@ -56,7 +84,12 @@ const ExpensesPage = () => {
           <h1 className="text-2xl md:text-3xl font-bold">Charges & Dépenses</h1>
           <p className="text-gray-500 mt-1">Gérez vos charges et dépenses prévisionnelles</p>
         </div>
-        <div className="mt-4 md:mt-0">
+        <div className="mt-4 md:mt-0 flex gap-4 items-center">
+          <MonthSelector 
+            currentMonth={currentMonth}
+            currentYear={currentYear}
+            onMonthChange={handleMonthChange}
+          />
           <AddExpenseModal onExpenseAdded={loadExpenses} />
         </div>
       </div>
@@ -64,7 +97,7 @@ const ExpensesPage = () => {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
         <Card>
           <CardHeader className="p-4">
-            <CardTitle className="text-sm">Total des charges & dépenses prévisionnelles</CardTitle>
+            <CardTitle className="text-sm">Total des charges & dépenses du mois</CardTitle>
           </CardHeader>
           <CardContent className="p-4 pt-0">
             <div className="flex items-center">
@@ -81,7 +114,7 @@ const ExpensesPage = () => {
           <CardContent className="p-4 pt-0">
             <div className="flex items-center">
               <Clock className="w-5 h-5 mr-2 text-gray-500" />
-              <div className="text-2xl font-bold">{expenses.filter(e => e.is_recurring).length}</div>
+              <div className="text-2xl font-bold">{filteredExpenses.filter(e => e.is_recurring).length}</div>
             </div>
           </CardContent>
         </Card>
@@ -93,14 +126,7 @@ const ExpensesPage = () => {
           <CardContent className="p-4 pt-0">
             <div className="flex items-center">
               <Calendar className="w-5 h-5 mr-2 text-gray-500" />
-              <div className="text-2xl font-bold">
-                {expenses.filter(e => {
-                  const today = new Date();
-                  const expenseDate = new Date(e.date);
-                  return expenseDate.getMonth() === today.getMonth() && 
-                         expenseDate.getFullYear() === today.getFullYear();
-                }).length}
-              </div>
+              <div className="text-2xl font-bold">{filteredExpenses.length}</div>
             </div>
           </CardContent>
         </Card>
@@ -113,7 +139,7 @@ const ExpensesPage = () => {
         <CardContent className="p-0">
           {loading ? (
             <div className="p-4 text-center">Chargement des dépenses...</div>
-          ) : expenses.length > 0 ? (
+          ) : filteredExpenses.length > 0 ? (
             <Table>
               <TableHeader>
                 <TableRow>
@@ -126,7 +152,7 @@ const ExpensesPage = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {expenses.map((expense) => (
+                {filteredExpenses.map((expense) => (
                   <TableRow key={expense.id}>
                     <TableCell className="font-medium">{expense.label}</TableCell>
                     <TableCell>
@@ -158,7 +184,7 @@ const ExpensesPage = () => {
             </Table>
           ) : (
             <div className="p-4 text-center text-gray-500">
-              Aucune charge ou dépense prévisionnelle n'a encore été ajoutée.
+              Aucune charge ou dépense prévisionnelle pour {format(new Date(currentYear, currentMonth - 1, 1), 'MMMM yyyy', { locale: fr })}.
             </div>
           )}
         </CardContent>
