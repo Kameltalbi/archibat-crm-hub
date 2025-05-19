@@ -10,6 +10,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/lib/supabase";
 import { expenseService, Expense } from "@/services/expenseService";
+import TreasuryChart from "@/components/treasury/TreasuryChart";
 
 interface Sale {
   id: string;
@@ -239,6 +240,9 @@ const TreasuryPlan = () => {
               </div>
             </CardContent>
           </Card>
+          
+          {/* Graphique de trésorerie */}
+          <TreasuryChart data={monthlyData} />
           
           {/* Tableau des données mensuelles */}
           <Card>
