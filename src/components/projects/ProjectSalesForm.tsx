@@ -261,7 +261,7 @@ const ProjectSalesForm = ({
           <DatePickerField
             date={formData.date}
             onDateChange={(date) => handleChange("date", date)}
-            label="Date de vente *"
+            label="Date d'encaissement *"
           />
         </div>
 

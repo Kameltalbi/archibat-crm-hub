@@ -349,7 +349,7 @@ const AddSaleDialog = ({
             <DatePickerField
               date={saleDate}
               onDateChange={setSaleDate}
-              label="Date de vente *"
+              label="Date d'encaissement *"
             />
           </div>
           
