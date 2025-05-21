@@ -6,7 +6,7 @@ import { DatePicker } from "@/components/ui/date-picker";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { format } from "date-fns";
+import { format, differenceInCalendarDays } from "date-fns";
 import { fr } from "date-fns/locale";
 import { supabase } from "@/lib/supabase";
 
@@ -48,16 +48,20 @@ const AddLeaveModal = ({ isOpen, onClose, employee }: AddLeaveModalProps) => {
       });
       return;
     }
+
+    // Calculer le nombre de jours demandés
+    const daysRequested = differenceInCalendarDays(endDate, startDate) + 1;
     
     setIsSubmitting(true);
     
     try {
       const { error } = await supabase
-        .from("leaves")
+        .from("leave_requests")
         .insert({
           employee_id: employee.id,
           start_date: format(startDate, "yyyy-MM-dd"),
           end_date: format(endDate, "yyyy-MM-dd"),
+          days_requested: daysRequested,
           reason: reason.trim() || null,
           status: "pending"
         });
@@ -101,7 +105,6 @@ const AddLeaveModal = ({ isOpen, onClose, employee }: AddLeaveModalProps) => {
             <div className="space-y-1">
               <Label htmlFor="start-date">Date de début</Label>
               <DatePicker
-                id="start-date"
                 selected={startDate}
                 onSelect={setStartDate}
                 locale={fr}
@@ -112,7 +115,6 @@ const AddLeaveModal = ({ isOpen, onClose, employee }: AddLeaveModalProps) => {
             <div className="space-y-1">
               <Label htmlFor="end-date">Date de fin</Label>
               <DatePicker
-                id="end-date"
                 selected={endDate}
                 onSelect={setEndDate}
                 locale={fr}

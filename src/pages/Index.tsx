@@ -1,3 +1,4 @@
+
 // Page Congé – ouverture du modal Ajouter Demande de Congé pour l'employé cliqué (par l'admin)
 
 import { useEffect, useState } from "react";
@@ -13,7 +14,7 @@ const CongePage = () => {
 
   const fetchConges = async () => {
     const { data, error } = await supabase
-      .from("leaves")
+      .from("leave_requests")
       .select("*, employee:employees(full_name, id)");
 
     if (error) {
