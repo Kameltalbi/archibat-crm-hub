@@ -18,7 +18,7 @@ const CongePage = () => {
   const fetchConges = async () => {
     const { data, error } = await supabase
       .from("leave_requests")
-      .select("*, employee:employees(full_name, id)");
+      .select("*, employee:employees(name, id)");
 
     if (error) {
       console.error("Erreur de chargement des congés :", error);
@@ -72,7 +72,7 @@ const CongePage = () => {
         <TableBody>
           {conges.map((conge, index) => (
             <TableRow key={index} onClick={() => handleRowClick(conge.employee)} className="cursor-pointer hover:bg-muted">
-              <TableCell>{conge.employee?.full_name}</TableCell>
+              <TableCell>{conge.employee?.name}</TableCell>
               <TableCell>{conge.start_date}</TableCell>
               <TableCell>{conge.end_date}</TableCell>
               <TableCell>{conge.status}</TableCell>

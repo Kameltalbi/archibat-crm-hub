@@ -27,15 +27,22 @@ const SelectEmployeeModal = ({ isOpen, onClose, onSelect }: SelectEmployeeModalP
       setIsLoading(true);
       
       try {
+        // Corrected query - removed "as full_name" since the column is already named correctly in the database
         const { data, error } = await supabase
           .from("employees")
-          .select("id, name as full_name");
+          .select("id, name");
           
         if (error) {
           throw error;
         }
         
-        setEmployees(data || []);
+        // Transform the data to match the Employee interface
+        const transformedData = data?.map(employee => ({
+          id: employee.id,
+          full_name: employee.name
+        })) || [];
+        
+        setEmployees(transformedData);
       } catch (error) {
         console.error("Erreur lors du chargement des employés:", error);
       } finally {
