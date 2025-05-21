@@ -75,7 +75,8 @@ const Leaves = () => {
   }, [toast]);
   
   const handleOpenModal = () => {
-    if (!currentEmployee) {
+    // Les administrateurs peuvent toujours ouvrir le modal, même sans être un employé
+    if (!currentEmployee && !isAdmin) {
       toast({
         title: "Information",
         description: "Vous n'êtes pas encore enregistré comme employé. Veuillez contacter l'administrateur pour vous ajouter au système.",
@@ -135,6 +136,7 @@ const Leaves = () => {
         onClose={handleCloseModal}
         onSuccess={handleLeaveRequestSuccess}
         employee={currentEmployee}
+        isAdmin={isAdmin}
       />
     </div>
   );

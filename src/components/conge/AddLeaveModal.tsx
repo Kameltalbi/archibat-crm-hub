@@ -9,11 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import { format, differenceInCalendarDays } from "date-fns";
 import { fr } from "date-fns/locale";
 import { supabase } from "@/lib/supabase";
-
-interface Employee {
-  id: string;
-  full_name: string;
-}
+import { Employee } from "@/services/leaveService";
 
 interface AddLeaveModalProps {
   isOpen: boolean;
@@ -70,7 +66,7 @@ const AddLeaveModal = ({ isOpen, onClose, employee }: AddLeaveModalProps) => {
       
       toast({
         title: "Demande de congé créée",
-        description: `La demande de congé pour ${employee.full_name} a été créée avec succès.`
+        description: `La demande de congé pour ${employee.name} a été créée avec succès.`
       });
       
       onClose();
@@ -97,7 +93,7 @@ const AddLeaveModal = ({ isOpen, onClose, employee }: AddLeaveModalProps) => {
           <div className="space-y-1">
             <Label>Employé</Label>
             <div className="p-2 bg-muted rounded-md">
-              {employee.full_name}
+              {employee.name}
             </div>
           </div>
           

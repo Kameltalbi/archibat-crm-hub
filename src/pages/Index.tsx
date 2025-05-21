@@ -8,17 +8,18 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import AddLeaveModal from "@/components/conge/AddLeaveModal";
 import SelectEmployeeModal from "@/components/conge/SelectEmployeeModal";
 import { Plus } from "lucide-react";
+import { Employee } from "@/services/leaveService";
 
 const CongePage = () => {
   const [conges, setConges] = useState([]);
-  const [selectedEmployee, setSelectedEmployee] = useState(null);
+  const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
   const [isLeaveModalOpen, setIsLeaveModalOpen] = useState(false);
   const [isSelectEmployeeModalOpen, setIsSelectEmployeeModalOpen] = useState(false);
 
   const fetchConges = async () => {
     const { data, error } = await supabase
       .from("leave_requests")
-      .select("*, employee:employees(name, id)");
+      .select("*, employee:employees(name, id, email, leave_balance)");
 
     if (error) {
       console.error("Erreur de chargement des congés :", error);

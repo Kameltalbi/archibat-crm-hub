@@ -5,11 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { supabase } from "@/lib/supabase";
 import { Search } from "lucide-react";
-
-interface Employee {
-  id: string;
-  full_name: string;
-}
+import { Employee } from "@/services/leaveService";
 
 interface SelectEmployeeModalProps {
   isOpen: boolean;
@@ -30,7 +26,7 @@ const SelectEmployeeModal = ({ isOpen, onClose, onSelect }: SelectEmployeeModalP
         // Corrected query - removed "as full_name" since the column is already named correctly in the database
         const { data, error } = await supabase
           .from("employees")
-          .select("id, name");
+          .select("id, name, email, leave_balance");
           
         if (error) {
           throw error;
@@ -39,7 +35,11 @@ const SelectEmployeeModal = ({ isOpen, onClose, onSelect }: SelectEmployeeModalP
         // Transform the data to match the Employee interface
         const transformedData = data?.map(employee => ({
           id: employee.id,
-          full_name: employee.name
+          name: employee.name,
+          email: employee.email,
+          leave_balance: employee.leave_balance,
+          created_at: "", // Ces champs sont nécessaires pour l'interface Employee mais pas utilisés ici
+          updated_at: ""  // Ces champs sont nécessaires pour l'interface Employee mais pas utilisés ici
         })) || [];
         
         setEmployees(transformedData);
@@ -56,7 +56,7 @@ const SelectEmployeeModal = ({ isOpen, onClose, onSelect }: SelectEmployeeModalP
   }, [isOpen]);
   
   const filteredEmployees = employees.filter(employee => 
-    employee.full_name.toLowerCase().includes(searchQuery.toLowerCase())
+    employee.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   return (
@@ -95,7 +95,7 @@ const SelectEmployeeModal = ({ isOpen, onClose, onSelect }: SelectEmployeeModalP
                         onClick={() => onSelect(employee)}
                         className="cursor-pointer hover:bg-muted"
                       >
-                        <TableCell>{employee.full_name}</TableCell>
+                        <TableCell>{employee.name}</TableCell>
                       </TableRow>
                     ))
                   ) : (
