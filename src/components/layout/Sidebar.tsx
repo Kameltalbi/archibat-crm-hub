@@ -25,7 +25,7 @@ import {
   LogOut,
 } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
-import { NavLink, useLocation, useNavigate } from "react-router-dom";
+import { NavLink, useLocation, useNavigate, Link } from "react-router-dom";
 import { useSidebar } from "@/components/ui/sidebar";
 import {
   Collapsible,
@@ -34,6 +34,12 @@ import {
 } from "@/components/ui/collapsible";
 import { supabase } from "@/lib/supabase";
 import { useToast } from "@/hooks/use-toast";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 // Define a proper type for menu items
 interface MenuItem {
@@ -111,35 +117,35 @@ const Sidebar = () => {
       id: "overview",
       title: "Vue globale",
       items: [
-        { id: 1, title: "Tableau de bord", icon: <LayoutDashboard size={18} />, path: "/dashboard" },
-        { id: 7, title: "Prévisions des ventes", icon: <BarChart3 size={18} />, path: "/dashboard/sales-forecast" },
-        { id: 5, title: "Plan de trésorerie", icon: <Wallet size={18} />, path: "/dashboard/treasury-plan" }
+        { id: 1, title: "Tableau de bord", icon: <LayoutDashboard size={24} />, path: "/dashboard" },
+        { id: 7, title: "Prévisions des ventes", icon: <BarChart3 size={24} />, path: "/dashboard/sales-forecast" },
+        { id: 5, title: "Plan de trésorerie", icon: <Wallet size={24} />, path: "/dashboard/treasury-plan" }
       ]
     },
     {
       id: "activities",
       title: "Gestion des activités",
       items: [
-        { id: 2, title: "Clients", icon: <Users size={18} />, path: "/dashboard/clients" },
-        { id: 3, title: "Actions commerciales", icon: <Folder size={18} />, path: "/dashboard/projects" },
-        { id: 4, title: "Produits/Services", icon: <Package size={18} />, path: "/dashboard/products" },
-        { id: 6, title: "Charges & Dépenses", icon: <Wallet size={18} />, path: "/dashboard/expenses" },
-        { id: 8, title: "Calendrier", icon: <Calendar size={18} />, path: "/dashboard/calendar" }
+        { id: 2, title: "Clients", icon: <Users size={24} />, path: "/dashboard/clients" },
+        { id: 3, title: "Actions commerciales", icon: <Folder size={24} />, path: "/dashboard/projects" },
+        { id: 4, title: "Produits/Services", icon: <Package size={24} />, path: "/dashboard/products" },
+        { id: 6, title: "Charges & Dépenses", icon: <Wallet size={24} />, path: "/dashboard/expenses" },
+        { id: 8, title: "Calendrier", icon: <Calendar size={24} />, path: "/dashboard/calendar" }
       ]
     },
     {
       id: "hr",
       title: "Ressources humaines",
       items: [
-        { id: 9, title: "Congés", icon: <UserCog size={18} />, path: "/dashboard/leaves" }
+        { id: 9, title: "Congés", icon: <UserCog size={24} />, path: "/dashboard/leaves" }
       ]
     },
     {
       id: "settings",
       title: "Réglages & support",
       items: [
-        { id: 10, title: "Paramètres", icon: <Settings size={18} />, path: "/dashboard/settings" },
-        { id: 11, title: "Documentation", icon: <Book size={18} />, path: "/dashboard/documentation" }
+        { id: 10, title: "Paramètres", icon: <Settings size={24} />, path: "/dashboard/settings" },
+        { id: 11, title: "Documentation", icon: <Book size={24} />, path: "/dashboard/documentation" }
       ]
     }
   ];
@@ -154,15 +160,15 @@ const Sidebar = () => {
           >
             <CollapsibleTrigger asChild>
               <button
-                className={`flex w-full items-center justify-between rounded-md p-2 text-sm font-medium hover:bg-blue-accent text-white ${
-                  activeItem === item.id ? "bg-blue-accent text-white font-semibold" : "text-white"
+                className={`flex w-full items-center justify-between rounded-md p-3 font-medium transition-colors duration-200 hover:bg-blue-700 ${
+                  activeItem === item.id ? "bg-blue-700 text-white font-semibold shadow-md border-l-4 border-blue-300" : "text-white"
                 }`}
               >
                 <div className="flex items-center">
-                  {item.icon}
-                  {isHovered && <span className="ml-2 text-white">{item.title}</span>}
+                  <div className="transition-transform duration-200 group-hover/menu-item:scale-110">{item.icon}</div>
+                  {isHovered && <span className="ml-3 text-white">{item.title}</span>}
                 </div>
-                {isHovered && <ChevronRight className={`h-4 w-4 transform transition-transform ${false ? 'rotate-90' : ''}`} />}
+                {isHovered && <ChevronRight className={`h-5 w-5 transform transition-transform ${false ? 'rotate-90' : ''}`} />}
               </button>
             </CollapsibleTrigger>
             <CollapsibleContent>
@@ -170,8 +176,8 @@ const Sidebar = () => {
                 <NavLink
                   key={subItem.id}
                   to={subItem.path}
-                  className={({ isActive }) => `flex items-center pl-8 py-2 text-sm font-medium hover:bg-blue-accent ${
-                    isActive ? "bg-blue-accent/50 text-white font-semibold" : "text-white"
+                  className={({ isActive }) => `flex items-center pl-10 py-3 text-sm font-medium transition-colors duration-200 hover:bg-blue-700 ${
+                    isActive ? "bg-blue-700/50 text-white font-semibold border-l-4 border-blue-300" : "text-white"
                   }`}
                   onClick={() => handleItemClick(subItem.id)}
                 >
@@ -184,34 +190,41 @@ const Sidebar = () => {
       );
     } else {
       return (
-        <NavLink
-          key={item.id}
-          to={item.path}
-          className={`flex items-center ${isHovered ? 'justify-start' : 'justify-center'} rounded-md p-2 text-sm font-medium hover:bg-blue-accent ${
-            activeItem === item.id
-              ? "bg-blue-accent text-white font-semibold"
-              : "text-white"
-          } transition-all duration-300`}
-          onClick={() => handleItemClick(item.id)}
-        >
-          <div className="flex items-center">
-            <div className="text-white">{item.icon}</div>
-            {isHovered && <span className="ml-2 text-white">{item.title}</span>}
-          </div>
-        </NavLink>
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Link
+                key={item.id}
+                to={item.path}
+                className={`group flex h-14 w-full items-center ${isHovered ? 'justify-start px-3' : 'justify-center'} rounded-lg transition-all duration-300 hover:bg-blue-700 ${
+                  activeItem === item.id
+                    ? "bg-blue-700 text-white font-semibold shadow-md border-l-4 border-blue-300"
+                    : "text-white"
+                }`}
+                onClick={() => handleItemClick(item.id)}
+              >
+                <div className="flex items-center">
+                  <div className="transition-transform duration-200 group-hover:scale-110">{item.icon}</div>
+                  {isHovered && <span className="ml-3 text-white">{item.title}</span>}
+                </div>
+              </Link>
+            </TooltipTrigger>
+            {!isHovered && <TooltipContent side="right">{item.title}</TooltipContent>}
+          </Tooltip>
+        </TooltipProvider>
       );
     }
   };
 
   const renderSectionItems = (section: MenuSection) => {
     return (
-      <div key={section.id} className="mb-4">
+      <div key={section.id} className="mb-4 w-full">
         {isHovered && (
-          <div className="px-3 py-1 text-xs font-medium text-gray-400 uppercase tracking-wider">
+          <div className="px-4 py-2 text-xs font-medium text-blue-200 uppercase tracking-wider">
             {section.title}
           </div>
         )}
-        <div className="flex flex-col space-y-1">
+        <div className="flex flex-col w-full gap-1">
           {section.items.map(item => renderMenuItem(item))}
         </div>
         {isHovered && <Separator className="my-2 bg-gray-700" />}
@@ -229,7 +242,7 @@ const Sidebar = () => {
             size="sm"
             className="p-0 data-[state=open]:bg-transparent focus:bg-transparent hover:bg-transparent md:hidden"
           >
-            <Menu className="h-5 w-5" />
+            <Menu className="h-6 w-6" />
           </Button>
         </SheetTrigger>
         <SheetContent side="left" className="w-3/4 border-r md:hidden bg-bluegray-deep">
@@ -244,21 +257,19 @@ const Sidebar = () => {
             <div className="flex-grow">
               {menuSections.map((section) => (
                 <div key={section.id} className="mb-4">
-                  <div className="px-3 py-1 text-xs font-medium text-gray-400 uppercase tracking-wider">
+                  <div className="px-3 py-1 text-xs font-medium text-blue-200 uppercase tracking-wider">
                     {section.title}
                   </div>
                   {section.items.map((item) => (
                     <NavLink
                       key={item.id}
                       to={item.path}
-                      className={`flex items-center space-x-2 rounded-md p-2 text-sm font-medium hover:bg-blue-accent text-white ${
-                        activeItem === item.id
-                          ? "bg-blue-accent text-white font-semibold"
-                          : "text-white"
+                      className={({ isActive }) => `flex items-center space-x-3 rounded-lg p-3 text-sm font-medium transition-colors duration-200 hover:bg-blue-700 ${
+                        isActive ? "bg-blue-700 text-white font-semibold border-l-4 border-blue-300" : "text-white"
                       }`}
                       onClick={() => handleItemClick(item.id)}
                     >
-                      {item.icon}
+                      <div className="transition-transform duration-200 group-hover:scale-110">{item.icon}</div>
                       <span>{item.title}</span>
                     </NavLink>
                   ))}
@@ -274,10 +285,10 @@ const Sidebar = () => {
               </div>
               <Button
                 variant="ghost"
-                className="w-full flex items-center justify-start space-x-2 rounded-md p-2 text-sm font-medium hover:bg-blue-accent text-white"
+                className="w-full flex items-center justify-start space-x-3 rounded-lg p-3 text-sm font-medium transition-colors duration-200 hover:bg-blue-700 text-white"
                 onClick={handleLogout}
               >
-                <LogOut size={18} />
+                <LogOut size={24} />
                 <span>Se déconnecter</span>
               </Button>
             </div>
@@ -287,12 +298,12 @@ const Sidebar = () => {
 
       {/* Desktop menu */}
       <div 
-        className="hidden border-r bg-bluegray-deep h-full md:block transition-all duration-300 ease-in-out"
+        className="hidden fixed h-screen border-r bg-bluegray-deep md:block transition-all duration-300 ease-in-out"
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
-        <div className={`flex flex-col space-y-2 h-full ${isHovered ? 'w-64' : 'w-16'} transition-all duration-300 py-4`}>
-          <div className="flex-grow flex flex-col space-y-1 px-2">
+        <div className={`flex flex-col h-screen ${isHovered ? 'w-64' : 'w-20'} transition-all duration-300 py-6`}>
+          <div className="flex-grow flex flex-col w-full px-2">
             {menuSections.map(section => renderSectionItems(section))}
           </div>
           
@@ -303,13 +314,20 @@ const Sidebar = () => {
                 abc-crmv1
               </div>
             )}
-            <button
-              className={`flex items-center ${isHovered ? 'justify-start' : 'justify-center'} w-full rounded-md p-2 text-sm font-medium hover:bg-blue-accent text-white transition-all duration-300`}
-              onClick={handleLogout}
-            >
-              <LogOut size={18} />
-              {isHovered && <span className="ml-2">Se déconnecter</span>}
-            </button>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button
+                    className={`flex items-center w-full h-14 ${isHovered ? 'justify-start px-3' : 'justify-center'} rounded-lg transition-all duration-300 hover:bg-blue-700 text-white`}
+                    onClick={handleLogout}
+                  >
+                    <LogOut size={24} className="transition-transform duration-200 hover:scale-110" />
+                    {isHovered && <span className="ml-3">Se déconnecter</span>}
+                  </button>
+                </TooltipTrigger>
+                {!isHovered && <TooltipContent side="right">Se déconnecter</TooltipContent>}
+              </Tooltip>
+            </TooltipProvider>
           </div>
         </div>
       </div>
