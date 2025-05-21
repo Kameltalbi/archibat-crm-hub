@@ -70,11 +70,14 @@ const LeaveRequestModal = ({
         )}
       </DialogContent>
 
-      <SelectEmployeeModal
-        isOpen={isSelectEmployeeModalOpen}
-        onClose={() => setIsSelectEmployeeModalOpen(false)}
-        onSelect={handleEmployeeSelect}
-      />
+      {/* Only show the SelectEmployeeModal if user is admin */}
+      {isAdmin && (
+        <SelectEmployeeModal
+          isOpen={isSelectEmployeeModalOpen}
+          onClose={() => setIsSelectEmployeeModalOpen(false)}
+          onSelect={handleEmployeeSelect}
+        />
+      )}
     </Dialog>
   );
 };

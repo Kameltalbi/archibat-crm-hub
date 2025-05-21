@@ -9,12 +9,42 @@ import AddLeaveModal from "@/components/conge/AddLeaveModal";
 import SelectEmployeeModal from "@/components/conge/SelectEmployeeModal";
 import { Plus } from "lucide-react";
 import { Employee } from "@/services/leaveService";
+import { userService } from "@/services/userService";
+import { useToast } from "@/hooks/use-toast";
 
 const CongePage = () => {
   const [conges, setConges] = useState([]);
   const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
   const [isLeaveModalOpen, setIsLeaveModalOpen] = useState(false);
   const [isSelectEmployeeModalOpen, setIsSelectEmployeeModalOpen] = useState(false);
+  const [isAdmin, setIsAdmin] = useState<boolean>(false);
+  const { toast } = useToast();
+
+  useEffect(() => {
+    const checkAdminRole = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        
+        if (session) {
+          const permissions = await userService.getRolePermissions();
+          
+          if (permissions) {
+            const userId = session.user.id;
+            const userWithRole = await userService.getUserWithRole(userId);
+            
+            if (userWithRole && userWithRole.role === "admin") {
+              setIsAdmin(true);
+            }
+          }
+        }
+      } catch (error) {
+        console.error("Erreur lors de la vérification du rôle:", error);
+      }
+    };
+    
+    checkAdminRole();
+    fetchConges();
+  }, []);
 
   const fetchConges = async () => {
     const { data, error } = await supabase
@@ -28,17 +58,31 @@ const CongePage = () => {
     }
   };
 
-  useEffect(() => {
-    fetchConges();
-  }, []);
-
   const handleRowClick = (employee) => {
-    setSelectedEmployee(employee);
-    setIsLeaveModalOpen(true);
+    // Only allow admin to open leave modal for other employees
+    if (isAdmin) {
+      setSelectedEmployee(employee);
+      setIsLeaveModalOpen(true);
+    } else {
+      toast({
+        title: "Accès refusé",
+        description: "Seuls les administrateurs peuvent effectuer cette action.",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleAddLeaveClick = () => {
-    setIsSelectEmployeeModalOpen(true);
+    // Only allow admin to add leaves for other employees
+    if (isAdmin) {
+      setIsSelectEmployeeModalOpen(true);
+    } else {
+      toast({
+        title: "Accès refusé",
+        description: "Seuls les administrateurs peuvent effectuer cette action.",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleEmployeeSelect = (employee) => {
@@ -56,10 +100,12 @@ const CongePage = () => {
     <div className="p-6 space-y-4">
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-semibold">Gestion des congés</h1>
-        <Button onClick={handleAddLeaveClick}>
-          <Plus className="mr-2 h-4 w-4" />
-          Ajouter un congé
-        </Button>
+        {isAdmin && (
+          <Button onClick={handleAddLeaveClick}>
+            <Plus className="mr-2 h-4 w-4" />
+            Ajouter un congé
+          </Button>
+        )}
       </div>
       <Table>
         <TableHeader>
@@ -72,7 +118,11 @@ const CongePage = () => {
         </TableHeader>
         <TableBody>
           {conges.map((conge, index) => (
-            <TableRow key={index} onClick={() => handleRowClick(conge.employee)} className="cursor-pointer hover:bg-muted">
+            <TableRow 
+              key={index} 
+              onClick={() => handleRowClick(conge.employee)} 
+              className={isAdmin ? "cursor-pointer hover:bg-muted" : ""}
+            >
               <TableCell>{conge.employee?.name}</TableCell>
               <TableCell>{conge.start_date}</TableCell>
               <TableCell>{conge.end_date}</TableCell>

@@ -76,6 +76,7 @@ const Leaves = () => {
   
   const handleOpenModal = () => {
     // Les administrateurs peuvent toujours ouvrir le modal, même sans être un employé
+    // Pour les collaborateurs, ils ne peuvent que demander des congés pour eux-mêmes
     if (!currentEmployee && !isAdmin) {
       toast({
         title: "Information",
