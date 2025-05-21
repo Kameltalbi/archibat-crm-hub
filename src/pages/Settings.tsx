@@ -16,7 +16,7 @@ const Settings = () => {
       
       <Tabs defaultValue="users" className="w-full">
         <TabsList className="mb-4">
-          <TabsTrigger value="users">Utilisateurs & Permissions</TabsTrigger>
+          <TabsTrigger value="users">Actions Commerciales</TabsTrigger>
           <TabsTrigger value="productCategories">Catégories produits</TabsTrigger>
           <TabsTrigger value="expenseCategories">Catégories dépenses</TabsTrigger>
           <TabsTrigger value="general">Général</TabsTrigger>
