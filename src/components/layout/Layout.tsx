@@ -11,7 +11,7 @@ const Layout = () => {
     <div className="min-h-screen w-full flex flex-col md:flex-row bg-light-bg dark:bg-bluegray-deep">
       <AppSidebar />
       {/* Add margin-left to account for fixed sidebar */}
-      <div className="flex-1 flex flex-col w-full overflow-hidden md:ml-20">
+      <div className="flex-1 flex flex-col w-full overflow-hidden md:ml-20 relative z-10">
         <Header />
         <main className="flex-1 p-3 md:p-6 overflow-y-auto animate-fade-in w-full">
           <div className="w-full max-w-[1920px] mx-auto">

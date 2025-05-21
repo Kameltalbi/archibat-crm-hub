@@ -152,9 +152,10 @@ const Sidebar = () => {
 
   // Render a menu item or submenu
   const renderMenuItem = (item: MenuItem) => {
+    const key = `menu-item-${item.id}`;
     if (item.hasSubItems) {
       return (
-        <li key={item.id} className="group/menu-item relative">
+        <li key={key} className="group/menu-item relative">
           <Collapsible
             className="w-full"
           >
@@ -174,7 +175,7 @@ const Sidebar = () => {
             <CollapsibleContent>
               {isHovered && item.subItems?.map((subItem: MenuItem) => (
                 <NavLink
-                  key={subItem.id}
+                  key={`submenu-item-${subItem.id}`}
                   to={subItem.path}
                   className={({ isActive }) => `flex items-center pl-10 py-3 text-sm font-medium transition-colors duration-200 hover:bg-blue-700 ${
                     isActive ? "bg-blue-700/50 text-white font-semibold border-l-4 border-blue-300" : "text-white"
@@ -190,11 +191,10 @@ const Sidebar = () => {
       );
     } else {
       return (
-        <TooltipProvider>
+        <TooltipProvider key={key}>
           <Tooltip>
             <TooltipTrigger asChild>
               <Link
-                key={item.id}
                 to={item.path}
                 className={`group flex h-14 w-full items-center ${isHovered ? 'justify-start px-3' : 'justify-center'} rounded-lg transition-all duration-300 hover:bg-blue-700 ${
                   activeItem === item.id
@@ -217,8 +217,9 @@ const Sidebar = () => {
   };
 
   const renderSectionItems = (section: MenuSection) => {
+    const key = `section-${section.id}`;
     return (
-      <div key={section.id} className="mb-4 w-full">
+      <div key={key} className="mb-4 w-full">
         {isHovered && (
           <div className="px-4 py-2 text-xs font-medium text-blue-200 uppercase tracking-wider">
             {section.title}
@@ -256,13 +257,13 @@ const Sidebar = () => {
           <div className="flex flex-col space-y-2.5 h-full">
             <div className="flex-grow">
               {menuSections.map((section) => (
-                <div key={section.id} className="mb-4">
+                <div key={`mobile-${section.id}`} className="mb-4">
                   <div className="px-3 py-1 text-xs font-medium text-blue-200 uppercase tracking-wider">
                     {section.title}
                   </div>
                   {section.items.map((item) => (
                     <NavLink
-                      key={item.id}
+                      key={`mobile-item-${item.id}`}
                       to={item.path}
                       className={({ isActive }) => `flex items-center space-x-3 rounded-lg p-3 text-sm font-medium transition-colors duration-200 hover:bg-blue-700 ${
                         isActive ? "bg-blue-700 text-white font-semibold border-l-4 border-blue-300" : "text-white"
@@ -298,7 +299,7 @@ const Sidebar = () => {
 
       {/* Desktop menu */}
       <div 
-        className="hidden fixed h-screen border-r bg-bluegray-deep md:block transition-all duration-300 ease-in-out"
+        className="hidden fixed h-screen border-r bg-bluegray-deep md:block transition-all duration-300 ease-in-out z-50"
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
