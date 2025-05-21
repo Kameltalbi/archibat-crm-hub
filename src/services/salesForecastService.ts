@@ -27,8 +27,8 @@ export const salesForecastService = {
         *,
         projects:project_id (name)
       `)
-      .gte('expected_date', formattedStartDate)
-      .lte('expected_date', formattedEndDate);
+      .gte('transaction_date', formattedStartDate)
+      .lte('transaction_date', formattedEndDate);
 
     if (error) {
       console.error('Error fetching sales forecasts:', error);
@@ -37,7 +37,8 @@ export const salesForecastService = {
     
     return data.map((item: any) => ({
       ...item,
-      project_name: item.projects?.name
+      project_name: item.projects?.name,
+      expected_date: item.transaction_date || item.date // Utiliser transaction_date si disponible, sinon utiliser date
     }));
   },
   
@@ -48,9 +49,9 @@ export const salesForecastService = {
     
     const { data, error } = await supabase
       .from('project_sales')
-      .select('amount, expected_date')
-      .gte('expected_date', startDate)
-      .lte('expected_date', endDate);
+      .select('amount, transaction_date, date')
+      .gte('transaction_date', startDate)
+      .lte('transaction_date', endDate);
 
     if (error) {
       console.error('Error fetching yearly forecasts:', error);
@@ -64,7 +65,9 @@ export const salesForecastService = {
     }));
     
     data.forEach((item) => {
-      const date = new Date(item.expected_date);
+      // Utiliser transaction_date si disponible, sinon utiliser date
+      const dateStr = item.transaction_date || item.date;
+      const date = new Date(dateStr);
       const month = date.getMonth();
       monthlyData[month].totalAmount += Number(item.amount);
     });
@@ -72,7 +75,7 @@ export const salesForecastService = {
     return monthlyData;
   },
   
-  // New function to get all sales forecasts for the entire year
+  // Mise à jour de la fonction pour obtenir toutes les ventes pour l'année entière
   async getAllSalesForecastsForYear(year: number): Promise<SalesForecast[]> {
     const startDate = new Date(year, 0, 1).toISOString().split('T')[0];
     const endDate = new Date(year, 11, 31).toISOString().split('T')[0];
@@ -83,8 +86,8 @@ export const salesForecastService = {
         *,
         projects:project_id (name)
       `)
-      .gte('expected_date', startDate)
-      .lte('expected_date', endDate);
+      .gte('transaction_date', startDate)
+      .lte('transaction_date', endDate);
 
     if (error) {
       console.error('Error fetching yearly sales forecasts:', error);
@@ -93,7 +96,8 @@ export const salesForecastService = {
     
     return data.map((item: any) => ({
       ...item,
-      project_name: item.projects?.name
+      project_name: item.projects?.name,
+      expected_date: item.transaction_date || item.date // Utiliser transaction_date si disponible, sinon utiliser date
     }));
   }
 };

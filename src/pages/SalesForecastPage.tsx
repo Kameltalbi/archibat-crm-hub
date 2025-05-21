@@ -14,11 +14,13 @@ import { SalesForecastTable } from "@/components/sales-forecast/SalesForecastTab
 import { SalesForecastChart } from "@/components/sales-forecast/SalesForecastChart";
 import { salesForecastService, SalesForecast } from "@/services/salesForecastService";
 import { useQuery } from "@tanstack/react-query";
+import AddSaleDialog from "@/components/projects/sales/AddSaleDialog";
 
 const SalesForecastPage = () => {
   const today = new Date();
   const [currentMonth, setCurrentMonth] = useState(today.getMonth() + 1);
   const [currentYear, setCurrentYear] = useState(today.getFullYear());
+  const [addSaleDialogOpen, setAddSaleDialogOpen] = useState(false);
 
   // Query for monthly forecasts
   const { data: monthlyForecasts, isLoading: isLoadingMonthly } = useQuery({
@@ -41,6 +43,11 @@ const SalesForecastPage = () => {
   const handleMonthChange = (month: number, year: number) => {
     setCurrentMonth(month);
     setCurrentYear(year);
+  };
+
+  const handleSaleAdded = () => {
+    // Rafraîchir les données après l'ajout d'une vente
+    setAddSaleDialogOpen(false);
   };
 
   // Calculate total amount for the selected month
@@ -89,8 +96,8 @@ const SalesForecastPage = () => {
             onMonthChange={handleMonthChange}
             showMonthDropdown={true}
           />
-          <Button>
-            <Plus className="mr-2 h-4 w-4" /> Ajouter une prévision manuelle
+          <Button onClick={() => setAddSaleDialogOpen(true)}>
+            <Plus className="mr-2 h-4 w-4" /> Ajouter une vente
           </Button>
         </div>
       </div>
@@ -162,6 +169,17 @@ const SalesForecastPage = () => {
           </div>
         </CardContent>
       </Card>
+
+      {/* Modal d'ajout de vente */}
+      <AddSaleDialog 
+        projectId=""  // Projet vide pour la prévision globale
+        projectName="Prévision globale"
+        projectCategory=""
+        onSaleAdded={handleSaleAdded}
+        triggerButton={false}
+        open={addSaleDialogOpen}
+        onOpenChange={setAddSaleDialogOpen}
+      />
     </div>
   );
 };

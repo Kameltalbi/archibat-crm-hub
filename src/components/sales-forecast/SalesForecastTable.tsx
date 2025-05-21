@@ -42,7 +42,7 @@ export const SalesForecastTable: React.FC<SalesForecastTableProps> = ({ forecast
             <TableHead className="w-[250px]">Projet</TableHead>
             <TableHead>Libellé</TableHead>
             <TableHead className="text-right">Montant</TableHead>
-            <TableHead>Date prévue</TableHead>
+            <TableHead>Date de la vente</TableHead>
             <TableHead>Statut</TableHead>
           </TableRow>
         </TableHeader>
