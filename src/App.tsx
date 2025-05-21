@@ -1,8 +1,8 @@
-
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import Layout from "./components/layout/Layout";
 import Home from "./pages/Home";
-import Dashboard from "./pages/Index";
+import Dashboard from "./pages/Dashboard"; // Importation correcte du Dashboard
+import CongePage from "./pages/Index"; // Renommage explicite pour clarté
 import Clients from "./pages/Clients";
 import ClientDetails from "./pages/ClientDetails";
 import Projects from "./pages/Projects";
@@ -64,6 +64,7 @@ const App = () => {
             <Route path="products" element={<Products />} />
             <Route path="calendar" element={<Calendar />} />
             <Route path="leaves" element={<Leaves />} />
+            <Route path="conges" element={<CongePage />} /> {/* Ajout d'une route spécifique pour la page des congés */}
             <Route path="treasury-plan" element={<TreasuryPlan />} />
             <Route path="expenses" element={<Expenses />} />
             <Route path="sales-forecast" element={<SalesForecastPage />} />
