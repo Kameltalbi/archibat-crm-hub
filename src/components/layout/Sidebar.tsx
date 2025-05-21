@@ -1,12 +1,9 @@
-// Nouveau composant : Sidebar améliorée avec icônes plus grandes, labels au survol et animation
-
 import { useState } from "react";
 import {
   LayoutDashboard, BarChart3, Wallet, Users, FolderKanban,
   PackageSearch, NotebookText, Calendar, UserCog, Settings,
-  Smartphone
+  Smartphone, LogOut
 } from "lucide-react";
-import { Tooltip } from "@/components/ui/tooltip";
 
 const menuItems = [
   { icon: LayoutDashboard, label: "Tableau de bord" },
@@ -25,26 +22,50 @@ const menuItems = [
 const Sidebar = () => {
   const [activeIndex, setActiveIndex] = useState(0);
 
+  const handleLogout = () => {
+    console.log("Déconnexion");
+    // ici : logique de déconnexion si besoin
+  };
+
   return (
-    <div className="w-20 h-screen bg-[#2c3e50] py-4 flex flex-col items-center space-y-4">
-      {menuItems.map((item, index) => {
-        const Icon = item.icon;
-        const isActive = index === activeIndex;
-        return (
-          <div key={index} className="group relative">
-            <button
-              onClick={() => setActiveIndex(index)}
-              className={`w-14 h-14 flex items-center justify-center rounded-xl transition-all duration-200
-                ${isActive ? 'bg-blue-600 shadow-lg' : 'hover:bg-blue-700'}`}
-            >
-              <Icon className="w-7 h-7 text-white group-hover:scale-110 transition-transform duration-200" />
-            </button>
-            <span className="absolute left-full top-1/2 -translate-y-1/2 ml-2 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 whitespace-nowrap z-50">
-              {item.label}
-            </span>
-          </div>
-        );
-      })}
+    <div className="w-20 h-screen bg-[#2c3e50] py-4 flex flex-col justify-between items-center">
+      
+      {/* Haut : menu principal */}
+      <div className="flex flex-col items-center space-y-4">
+        {menuItems.map((item, index) => {
+          const Icon = item.icon;
+          const isActive = index === activeIndex;
+          return (
+            <div key={index} className="group relative">
+              <button
+                onClick={() => setActiveIndex(index)}
+                className={`w-14 h-14 flex items-center justify-center rounded-xl transition-all duration-200
+                  ${isActive ? 'bg-blue-600 shadow-lg' : 'hover:bg-blue-700'}`}
+              >
+                <Icon className="w-7 h-7 text-white group-hover:scale-110 transition-transform duration-200" />
+              </button>
+              <span className="absolute left-full top-1/2 -translate-y-1/2 ml-2 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 whitespace-nowrap z-50">
+                {item.label}
+              </span>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Bas : bouton de déconnexion */}
+      <div className="pb-4">
+        <div className="group relative">
+          <button
+            onClick={handleLogout}
+            className="w-14 h-14 flex items-center justify-center rounded-xl hover:bg-red-700 transition-colors duration-200"
+          >
+            <LogOut className="w-6 h-6 text-white" />
+          </button>
+          <span className="absolute left-full top-1/2 -translate-y-1/2 ml-2 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 whitespace-nowrap z-50">
+            Se déconnecter
+          </span>
+        </div>
+      </div>
     </div>
   );
 };
