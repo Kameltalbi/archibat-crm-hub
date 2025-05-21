@@ -8,7 +8,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Plus, TrendingUp } from "lucide-react";
+import { Plus, TrendingUp, Filter } from "lucide-react";
 import { MonthSelector } from "@/components/sales-forecast/MonthSelector";
 import { SalesForecastTable } from "@/components/sales-forecast/SalesForecastTable";
 import { SalesForecastChart } from "@/components/sales-forecast/SalesForecastChart";
@@ -64,6 +64,15 @@ const SalesForecastPage = () => {
     }).format(amount);
   };
 
+  // Format month name
+  const getMonthName = (month: number): string => {
+    const monthNames = [
+      "Janvier", "Février", "Mars", "Avril", "Mai", "Juin",
+      "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"
+    ];
+    return monthNames[month - 1];
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -73,9 +82,17 @@ const SalesForecastPage = () => {
             Suivez et gérez vos prévisions de ventes
           </p>
         </div>
-        <Button>
-          <Plus className="mr-2 h-4 w-4" /> Ajouter une prévision manuelle
-        </Button>
+        <div className="flex items-center gap-2">
+          <MonthSelector
+            currentMonth={currentMonth}
+            currentYear={currentYear}
+            onMonthChange={handleMonthChange}
+            showMonthDropdown={true}
+          />
+          <Button>
+            <Plus className="mr-2 h-4 w-4" /> Ajouter une prévision manuelle
+          </Button>
+        </div>
       </div>
 
       <div className="grid gap-6 md:grid-cols-2">
@@ -99,7 +116,7 @@ const SalesForecastPage = () => {
           <CardHeader className="pb-2">
             <CardTitle className="text-md font-medium">Total mensuel</CardTitle>
             <CardDescription>
-              {new Date(currentYear, currentMonth - 1).toLocaleDateString('fr-FR', {month: 'long', year: 'numeric'})}
+              {getMonthName(currentMonth)} {currentYear}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -119,7 +136,7 @@ const SalesForecastPage = () => {
           <div>
             <CardTitle>Ventes prévues</CardTitle>
             <CardDescription>
-              Total: <span className="font-semibold">{formatAmount(totalMonthlyAmount)}</span>
+              {getMonthName(currentMonth)} {currentYear} - Total: <span className="font-semibold">{formatAmount(totalMonthlyAmount)}</span>
             </CardDescription>
           </div>
           <MonthSelector

@@ -2,17 +2,26 @@
 import React from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { 
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface MonthSelectorProps {
   currentMonth: number;
   currentYear: number;
   onMonthChange: (month: number, year: number) => void;
+  showMonthDropdown?: boolean;
 }
 
 export const MonthSelector: React.FC<MonthSelectorProps> = ({
   currentMonth,
   currentYear,
   onMonthChange,
+  showMonthDropdown = false,
 }) => {
   const monthNames = [
     "Janvier", "Février", "Mars", "Avril", "Mai", "Juin",
@@ -43,6 +52,11 @@ export const MonthSelector: React.FC<MonthSelectorProps> = ({
     onMonthChange(newMonth, newYear);
   };
 
+  const handleMonthSelect = (value: string) => {
+    const month = parseInt(value, 10);
+    onMonthChange(month, currentYear);
+  };
+
   return (
     <div className="flex items-center space-x-2">
       <Button 
@@ -53,9 +67,27 @@ export const MonthSelector: React.FC<MonthSelectorProps> = ({
         <ChevronLeft className="h-4 w-4" />
       </Button>
       
-      <div className="text-lg font-medium min-w-32 text-center">
-        {monthNames[currentMonth - 1]} {currentYear}
-      </div>
+      {showMonthDropdown ? (
+        <Select 
+          value={currentMonth.toString()} 
+          onValueChange={handleMonthSelect}
+        >
+          <SelectTrigger className="w-32">
+            <SelectValue placeholder={monthNames[currentMonth - 1]} />
+          </SelectTrigger>
+          <SelectContent>
+            {monthNames.map((month, index) => (
+              <SelectItem key={index} value={(index + 1).toString()}>
+                {month}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      ) : (
+        <div className="text-lg font-medium min-w-32 text-center">
+          {monthNames[currentMonth - 1]} {currentYear}
+        </div>
+      )}
       
       <Button 
         variant="outline" 
