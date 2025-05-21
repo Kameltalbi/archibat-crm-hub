@@ -30,6 +30,7 @@ interface ProjectSale {
   client_name: string | null;
   product_name: string | null;
   date: string;
+  transaction_date?: string | null;  // Ajout de la nouvelle propriété
   remarks?: string | null;
 }
 
@@ -75,6 +76,9 @@ const EditSaleDialog = ({
   const [selectedProducts, setSelectedProducts] = useState<SelectedProduct[]>([]);
   const [totalPrice, setTotalPrice] = useState<number>(sale.amount);
   const [saleDate, setSaleDate] = useState<Date>(new Date(sale.date));
+  const [transactionDate, setTransactionDate] = useState<Date>(
+    sale.transaction_date ? new Date(sale.transaction_date) : new Date()
+  );
   const [remarks, setRemarks] = useState(sale.remarks || "");
   
   console.log("EditSaleDialog rendu, isOpen:", open);
@@ -228,6 +232,7 @@ const EditSaleDialog = ({
     
     setTotalPrice(sale.amount);
     setSaleDate(new Date(sale.date));
+    setTransactionDate(sale.transaction_date ? new Date(sale.transaction_date) : new Date());
     setRemarks(sale.remarks || "");
   };
   
@@ -271,6 +276,7 @@ const EditSaleDialog = ({
       
       // Format de date pour Supabase (YYYY-MM-DD)
       const formattedDate = saleDate.toISOString().split('T')[0];
+      const formattedTransactionDate = transactionDate.toISOString().split('T')[0];
       
       // Mettre à jour la vente
       const { data: updateData, error: updateError } = await supabase
@@ -279,6 +285,7 @@ const EditSaleDialog = ({
           label: label,
           amount: totalPrice,
           date: formattedDate,
+          transaction_date: formattedTransactionDate,  // Ajout de la nouvelle date de vente
           category: projectCategory || 'Vente',
           client_name: client?.name || null,
           product_name: selectedProducts.length === 1 ? selectedProducts[0].name : 'Multiple',
@@ -367,7 +374,16 @@ const EditSaleDialog = ({
             />
           </div>
           
-          {/* Date de vente */}
+          {/* Date de la vente (Nouveau champ) */}
+          <div className="grid w-full items-center gap-2">
+            <DatePickerField
+              date={transactionDate}
+              onDateChange={setTransactionDate}
+              label="Date de la vente *"
+            />
+          </div>
+          
+          {/* Date d'encaissement */}
           <div className="grid w-full items-center gap-2">
             <DatePickerField
               date={saleDate}

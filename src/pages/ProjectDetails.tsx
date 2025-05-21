@@ -32,6 +32,7 @@ interface ProjectSale {
   client_name: string | null;
   product_name: string | null;
   date: string;
+  transaction_date?: string | null; // Ajout de la date de vente
   remarks?: string | null;
 }
 
@@ -343,7 +344,8 @@ const ProjectDetails = () => {
                   <TableHead>Libellé</TableHead>
                   <TableHead>Catégorie</TableHead>
                   <TableHead>Produit</TableHead>
-                  <TableHead>Date</TableHead>
+                  <TableHead>Date de vente</TableHead>
+                  <TableHead>Date d'encaissement</TableHead>
                   <TableHead className="text-right">Montant</TableHead>
                   <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
@@ -354,6 +356,11 @@ const ProjectDetails = () => {
                     <TableCell className="font-medium">{sale.label}</TableCell>
                     <TableCell>{sale.category}</TableCell>
                     <TableCell>{sale.product_name || '-'}</TableCell>
+                    <TableCell>
+                      {sale.transaction_date 
+                        ? new Date(sale.transaction_date).toLocaleDateString() 
+                        : new Date(sale.date).toLocaleDateString()}
+                    </TableCell>
                     <TableCell>{new Date(sale.date).toLocaleDateString()}</TableCell>
                     <TableCell className="text-right">{formatCurrency(sale.amount)}</TableCell>
                     <TableCell className="text-right">

@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -64,8 +65,9 @@ const AddSaleDialog = ({
   const [selectedClientId, setSelectedClientId] = useState("");
   const [selectedProducts, setSelectedProducts] = useState<SelectedProduct[]>([]);
   const [totalPrice, setTotalPrice] = useState<number>(0);
-  const [saleDate, setSaleDate] = useState<Date>(new Date());
+  const [saleDate, setSaleDate] = useState<Date>(new Date()); // Date d'encaissement
   const [remarks, setRemarks] = useState("");
+  const [transactionDate, setTransactionDate] = useState<Date>(new Date()); // Nouvelle date de la vente
   
   // Détermine si le contrôle est interne ou externe
   const isControlledExternally = externalOpen !== undefined && externalOnOpenChange !== undefined;
@@ -186,7 +188,8 @@ const AddSaleDialog = ({
     setSelectedClientId("");
     setSelectedProducts([]);
     setTotalPrice(0);
-    setSaleDate(new Date());
+    setSaleDate(new Date()); // Réinitialiser la date d'encaissement
+    setTransactionDate(new Date()); // Réinitialiser la date de vente
     setRemarks("");
   };
   
@@ -236,6 +239,7 @@ const AddSaleDialog = ({
       
       // Format de date pour Supabase (YYYY-MM-DD)
       const formattedDate = saleDate.toISOString().split('T')[0];
+      const formattedTransactionDate = transactionDate.toISOString().split('T')[0];
       
       // Insérer la vente principale
       const { data: saleData, error: saleError } = await supabase
@@ -244,7 +248,8 @@ const AddSaleDialog = ({
           project_id: projectId,
           label: label,
           amount: totalPrice,
-          date: formattedDate,
+          date: formattedDate, // Date d'encaissement
+          transaction_date: formattedTransactionDate, // Nouvelle date de la vente
           category: projectCategory || 'Vente',
           client_name: client?.name || null,
           product_name: selectedProducts.length === 1 ? selectedProducts[0].name : 'Multiple',
@@ -344,7 +349,16 @@ const AddSaleDialog = ({
             />
           </div>
           
-          {/* Date de vente */}
+          {/* Date de la vente (Nouveau champ) */}
+          <div className="grid w-full items-center gap-2">
+            <DatePickerField
+              date={transactionDate}
+              onDateChange={setTransactionDate}
+              label="Date de la vente *"
+            />
+          </div>
+          
+          {/* Date d'encaissement */}
           <div className="grid w-full items-center gap-2">
             <DatePickerField
               date={saleDate}
