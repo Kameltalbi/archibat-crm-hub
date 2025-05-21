@@ -10,6 +10,7 @@ import PriceField from "@/components/projects/sales/PriceField";
 import DatePickerField from "@/components/projects/sales/DatePickerField";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { mapCategoryNames } from "./product-select/utils";
 
 interface Client {
   id: string;
@@ -19,20 +20,6 @@ interface Client {
   address: string;
   created_at: string;
   updated_at: string;
-}
-
-interface Product {
-  id: string;
-  name: string;
-  price: number;
-  category?: string | null;
-}
-
-interface SelectedProduct {
-  id: string;
-  name: string;
-  price: number;
-  quantity: number;
 }
 
 interface ProjectSale {
@@ -56,6 +43,20 @@ interface EditSaleDialogProps {
   onOpenChange: (open: boolean) => void;
 }
 
+interface Product {
+  id: string;
+  name: string;
+  price: number;
+  category?: string | null;
+}
+
+interface SelectedProduct {
+  id: string;
+  name: string;
+  price: number;
+  quantity: number;
+}
+
 const EditSaleDialog = ({
   projectId,
   projectName,
@@ -76,6 +77,10 @@ const EditSaleDialog = ({
   const [saleDate, setSaleDate] = useState<Date>(new Date(sale.date));
   const [remarks, setRemarks] = useState(sale.remarks || "");
   
+  console.log("EditSaleDialog rendu, isOpen:", open);
+  console.log("Produits disponibles:", products.length);
+  console.log("Catégorie du projet:", projectCategory);
+  
   // Charger les clients
   useEffect(() => {
     const fetchClients = async () => {
@@ -87,6 +92,7 @@ const EditSaleDialog = ({
           
         if (error) throw error;
         setClients(data || []);
+        console.log("Clients chargés:", data?.length || 0);
         
         // Si la vente avait un client, sélectionnez-le
         if (sale.client_name) {
@@ -109,12 +115,14 @@ const EditSaleDialog = ({
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        // Si une catégorie est spécifiée, essayer de trouver les produits correspondants
-        const categoryFilter = projectCategory 
-          ? await fetchCategoryId(projectCategory)
-          : null;
-          
-        let query = supabase
+        console.log(`Chargement des produits pour la catégorie: ${projectCategory || "toutes catégories"}`);
+        
+        // Utiliser le mappage de catégories pour trouver des catégories associées
+        const relatedCategories = mapCategoryNames(projectCategory);
+        console.log("Recherche de produits dans ces catégories:", relatedCategories);
+        
+        // Récupérer tous les produits avec leurs catégories
+        const { data, error } = await supabase
           .from('products')
           .select(`
             id, 
@@ -123,17 +131,29 @@ const EditSaleDialog = ({
             categories:category_id (id, name)
           `)
           .order('name');
-          
-        // Filtrer par catégorie si nous avons un ID
-        if (categoryFilter) {
-          query = query.eq('category_id', categoryFilter);
-        }
-        
-        const { data, error } = await query;
         
         if (error) throw error;
         
-        const formattedProducts = (data || []).map(product => ({
+        // Si nous avons des catégories associées, filtrer les produits
+        let filteredProducts = data || [];
+        if (relatedCategories.length > 0) {
+          filteredProducts = filteredProducts.filter(product => 
+            product.categories && relatedCategories.includes(product.categories.name)
+          );
+          
+          console.log(`${filteredProducts.length} produits trouvés dans les catégories associées`);
+        }
+        
+        // Si aucun produit n'est trouvé dans les catégories associées, utiliser tous les produits
+        if (filteredProducts.length === 0) {
+          console.log("Aucun produit trouvé dans les catégories associées, utilisation de tous les produits");
+          filteredProducts = data || [];
+        }
+        
+        console.log(`${filteredProducts.length} produits trouvés au total`);
+        
+        // Formater les produits pour l'interface
+        const formattedProducts = filteredProducts.map(product => ({
           id: product.id,
           name: product.name,
           price: product.price,
@@ -141,6 +161,7 @@ const EditSaleDialog = ({
         }));
         
         setProducts(formattedProducts);
+        console.log("Produits disponibles pour la sélection:", formattedProducts.length);
         
         // Préremplir avec le produit actuel si c'est un seul produit
         if (sale.product_name && sale.product_name !== 'Multiple') {
@@ -154,23 +175,6 @@ const EditSaleDialog = ({
         }
       } catch (error) {
         console.error('Erreur lors du chargement des produits:', error);
-      }
-    };
-    
-    // Fonction pour récupérer l'ID de catégorie à partir du nom
-    const fetchCategoryId = async (categoryName: string): Promise<string | null> => {
-      try {
-        const { data, error } = await supabase
-          .from('categories')
-          .select('id')
-          .ilike('name', categoryName)
-          .maybeSingle();
-          
-        if (error) throw error;
-        return data?.id || null;
-      } catch (error) {
-        console.error(`Erreur lors de la récupération de l'ID de catégorie ${categoryName}:`, error);
-        return null;
       }
     };
     
@@ -285,6 +289,22 @@ const EditSaleDialog = ({
       
       if (updateError) throw updateError;
       
+      // Si nécessaire, mettre à jour les liens produit-projet
+      for (const product of selectedProducts) {
+        const { error: productLinkError } = await supabase
+          .from('project_products')
+          .insert({
+            project_id: projectId,
+            product_id: product.id,
+            price_at_time: product.price,
+            quantity: product.quantity
+          });
+        
+        if (productLinkError) {
+          console.error('Erreur lors de l\'enregistrement du lien produit-projet:', productLinkError);
+        }
+      }
+      
       // Succès
       toast({
         title: "Vente mise à jour",
@@ -352,7 +372,7 @@ const EditSaleDialog = ({
             <DatePickerField
               date={saleDate}
               onDateChange={setSaleDate}
-              label="Date de vente *"
+              label="Date d'encaissement *"
             />
           </div>
           
