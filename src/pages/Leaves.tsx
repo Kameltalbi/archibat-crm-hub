@@ -114,16 +114,14 @@ const Leaves = () => {
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold">Gestion des congés</h1>
         
-        {/* Afficher le bouton pour tous les utilisateurs non-admin */}
-        {!isAdmin && (
-          <Button 
-            onClick={handleOpenModal} 
-            className="bg-[#9b87f5] hover:bg-[#9b87f5]/90 text-[#1A1F2C]"
-          >
-            <CalendarPlus className="mr-2 h-4 w-4" />
-            Demander un congé
-          </Button>
-        )}
+        {/* Bouton "Demander un congé" disponible pour tous les utilisateurs */}
+        <Button 
+          onClick={handleOpenModal} 
+          className="bg-[#9b87f5] hover:bg-[#9b87f5]/90 text-[#1A1F2C]"
+        >
+          <CalendarPlus className="mr-2 h-4 w-4" />
+          Demander un congé
+        </Button>
       </div>
       
       {isAdmin ? (
