@@ -20,7 +20,7 @@ const Settings = () => {
           <TabsTrigger value="productCategories">Catégories produits</TabsTrigger>
           <TabsTrigger value="expenseCategories">Catégories dépenses</TabsTrigger>
           <TabsTrigger value="general">Général</TabsTrigger>
-          <TabsTrigger value="billing">Facturation</TabsTrigger>
+          <TabsTrigger value="billing">Actions commerciales</TabsTrigger>
         </TabsList>
         
         <TabsContent value="users" className="space-y-4">
@@ -43,7 +43,7 @@ const Settings = () => {
         
         <TabsContent value="billing">
           <div className="rounded-md border p-6 bg-card">
-            <p className="text-muted-foreground">Paramètres de facturation à venir</p>
+            <p className="text-muted-foreground">Paramètres des actions commerciales à venir</p>
           </div>
         </TabsContent>
       </Tabs>
