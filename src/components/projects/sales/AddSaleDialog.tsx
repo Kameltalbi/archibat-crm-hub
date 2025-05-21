@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -67,7 +66,7 @@ const AddSaleDialog = ({
   const [totalPrice, setTotalPrice] = useState<number>(0);
   const [saleDate, setSaleDate] = useState<Date>(new Date()); // Date d'encaissement
   const [remarks, setRemarks] = useState("");
-  const [transactionDate, setTransactionDate] = useState<Date>(new Date()); // Nouvelle date de la vente
+  const [transactionDate, setTransactionDate] = useState<Date>(new Date()); // Date de la vente
   
   // Détermine si le contrôle est interne ou externe
   const isControlledExternally = externalOpen !== undefined && externalOnOpenChange !== undefined;
@@ -249,7 +248,7 @@ const AddSaleDialog = ({
           label: label,
           amount: totalPrice,
           date: formattedDate, // Date d'encaissement
-          transaction_date: formattedTransactionDate, // Nouvelle date de la vente
+          transaction_date: formattedTransactionDate, // Date de la vente
           category: projectCategory || 'Vente',
           client_name: client?.name || null,
           product_name: selectedProducts.length === 1 ? selectedProducts[0].name : 'Multiple',

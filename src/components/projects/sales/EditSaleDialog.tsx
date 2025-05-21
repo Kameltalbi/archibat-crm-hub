@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -77,7 +76,7 @@ const EditSaleDialog = ({
   const [totalPrice, setTotalPrice] = useState<number>(sale.amount);
   const [saleDate, setSaleDate] = useState<Date>(new Date(sale.date));
   const [transactionDate, setTransactionDate] = useState<Date>(
-    sale.transaction_date ? new Date(sale.transaction_date) : new Date()
+    sale.transaction_date ? new Date(sale.transaction_date) : new Date(sale.date)
   );
   const [remarks, setRemarks] = useState(sale.remarks || "");
   
@@ -232,7 +231,7 @@ const EditSaleDialog = ({
     
     setTotalPrice(sale.amount);
     setSaleDate(new Date(sale.date));
-    setTransactionDate(sale.transaction_date ? new Date(sale.transaction_date) : new Date());
+    setTransactionDate(sale.transaction_date ? new Date(sale.transaction_date) : new Date(sale.date));
     setRemarks(sale.remarks || "");
   };
   
@@ -285,7 +284,7 @@ const EditSaleDialog = ({
           label: label,
           amount: totalPrice,
           date: formattedDate,
-          transaction_date: formattedTransactionDate,  // Ajout de la nouvelle date de vente
+          transaction_date: formattedTransactionDate,  // Utilisation du nouveau champ
           category: projectCategory || 'Vente',
           client_name: client?.name || null,
           product_name: selectedProducts.length === 1 ? selectedProducts[0].name : 'Multiple',
