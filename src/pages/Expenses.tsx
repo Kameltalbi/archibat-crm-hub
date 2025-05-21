@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from "react";
-import { format, isWithinInterval, addMonths, addQuarters, addYears, isSameMonth, isBefore, parseISO } from "date-fns";
+import { format, isWithinInterval, addMonths, addQuarters, addYears, isSameMonth, isBefore, parseISO, startOfMonth, endOfMonth } from "date-fns";
 import { fr } from "date-fns/locale";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
@@ -44,7 +44,13 @@ const ExpensesPage = () => {
   const loadExpenses = async () => {
     setLoading(true);
     try {
+      // Utiliser getExpensesByPeriod à la place de getAllExpenses pour optimiser la requête
+      const startDate = format(startOfMonth(new Date(currentYear, currentMonth - 1)), 'yyyy-MM-dd');
+      const endDate = format(endOfMonth(new Date(currentYear, currentMonth - 1)), 'yyyy-MM-dd');
+      
+      // On récupère toutes les dépenses pour pouvoir gérer les récurrences
       const data = await expenseService.getAllExpenses();
+      console.log(`Toutes les dépenses chargées: ${data.length}`);
       setExpenses(data);
     } catch (error) {
       console.error("Erreur lors du chargement des dépenses:", error);
@@ -95,6 +101,7 @@ const ExpensesPage = () => {
 
   // Générer les occurrences des dépenses récurrentes pour le mois sélectionné
   const generateRecurringExpensesForMonth = (expenses: Expense[], targetYear: number, targetMonth: number) => {
+    console.log(`Génération des dépenses pour ${targetMonth}/${targetYear}`);
     const selectedMonthDate = new Date(targetYear, targetMonth - 1, 1);
     const result: Expense[] = [];
 
@@ -103,11 +110,13 @@ const ExpensesPage = () => {
       const expenseDate = new Date(expense.date);
       if (expenseDate.getMonth() + 1 === targetMonth && expenseDate.getFullYear() === targetYear) {
         result.push(expense);
+        console.log(`Ajout dépense ponctuelle: ${expense.label} (${expense.date})`);
       }
     });
 
     // Ensuite, générer les occurrences pour les dépenses récurrentes
-    expenses.filter(expense => expense.is_recurring).forEach(recurringExpense => {
+    expenses.filter(e => e.is_recurring).forEach(recurringExpense => {
+      console.log(`Traitement dépense récurrente: ${recurringExpense.label}`);
       const startDate = new Date(recurringExpense.date);
       const endDate = recurringExpense.recurring_end_date 
         ? new Date(recurringExpense.recurring_end_date) 
@@ -115,20 +124,23 @@ const ExpensesPage = () => {
 
       // Vérifier si la date de fin est définie et si la date cible est après la date de fin
       if (endDate && selectedMonthDate > endDate) {
+        console.log(`Date cible après date de fin pour ${recurringExpense.label}`);
         return; // Ne pas générer d'occurrence après la date de fin
       }
 
       // Vérifier si la date cible est avant la date de début
       if (selectedMonthDate < startDate) {
+        console.log(`Date cible avant date de début pour ${recurringExpense.label}`);
         return; // Ne pas générer d'occurrence avant la date de début
       }
 
       // Calculer si cette dépense récurrente apparaît dans le mois sélectionné
-      let shouldInclude = false;
-      let currentOccurrenceDate = new Date(startDate);
       const frequency = recurringExpense.recurring_frequency || 'monthly';
+      let currentOccurrenceDate = new Date(startDate);
+      let shouldInclude = false;
 
-      while (currentOccurrenceDate <= selectedMonthDate) {
+      while (isSameMonth(currentOccurrenceDate, selectedMonthDate) || isBefore(currentOccurrenceDate, selectedMonthDate)) {
+        // Si on est dans le même mois, on devrait l'inclure
         if (isSameMonth(currentOccurrenceDate, selectedMonthDate)) {
           shouldInclude = true;
           break;
@@ -150,28 +162,35 @@ const ExpensesPage = () => {
       }
 
       // Ajouter l'occurrence si elle tombe dans le mois sélectionné et qu'elle n'est pas déjà incluse
-      if (shouldInclude && !result.some(e => e.id === recurringExpense.id && isSameMonth(new Date(e.date), selectedMonthDate))) {
-        // Créer une copie de la dépense récurrente avec la date ajustée au mois sélectionné
-        const occurrenceDate = new Date(targetYear, targetMonth - 1, startDate.getDate());
+      if (shouldInclude) {
+        // Pour éviter les doublons, vérifier si la dépense d'origine est déjà dans ce mois
+        const isOriginalInSameMonth = 
+          startDate.getMonth() + 1 === targetMonth && 
+          startDate.getFullYear() === targetYear;
         
-        // Assurer que la date ne dépasse pas le dernier jour du mois
-        const adjustedDate = occurrenceDate.getDate() !== startDate.getDate() 
-          ? new Date(targetYear, targetMonth - 1, 0) // Dernier jour du mois précédent
-          : occurrenceDate;
-
-        const occurrenceExpense = {
-          ...recurringExpense,
-          date: format(adjustedDate, 'yyyy-MM-dd'),
-          isGenerated: true // Marquer comme générée pour distinguer des entrées réelles
-        };
-        
-        // Ne pas ajouter si c'est la même que l'original (même mois et année)
-        if (!(startDate.getMonth() + 1 === targetMonth && startDate.getFullYear() === targetYear)) {
+        if (!isOriginalInSameMonth) {
+          // Ajuster la date au même jour dans le mois sélectionné
+          const dayOfMonth = Math.min(
+            startDate.getDate(),
+            new Date(targetYear, targetMonth, 0).getDate() // Dernier jour du mois
+          );
+          const occurrenceDate = new Date(targetYear, targetMonth - 1, dayOfMonth);
+          
+          const occurrenceExpense = {
+            ...recurringExpense,
+            date: format(occurrenceDate, 'yyyy-MM-dd'),
+            isGenerated: true // Marquer comme générée pour distinguer des entrées réelles
+          };
+          
           result.push(occurrenceExpense);
+          console.log(`Ajout occurrence pour ${recurringExpense.label} le ${occurrenceExpense.date}`);
+        } else {
+          console.log(`Dépense d'origine ${recurringExpense.label} dans le même mois, pas d'occurrence ajoutée`);
         }
       }
     });
 
+    console.log(`Total dépenses pour ${targetMonth}/${targetYear}: ${result.length}`);
     return result;
   };
 
@@ -185,7 +204,7 @@ const ExpensesPage = () => {
 
   useEffect(() => {
     loadExpenses();
-  }, []);
+  }, [currentMonth, currentYear]); // Recharger les dépenses quand le mois/année change
 
   // Calculer le total des dépenses filtrées
   const totalExpenses = filteredExpenses.reduce((total, expense) => total + Number(expense.amount), 0);
